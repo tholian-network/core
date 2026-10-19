@@ -127,7 +127,8 @@ func (socket *Socket) IsValid() bool {
 		return false
 	}
 
-	if socket.Type == AddressTypeIPv4 {
+	switch socket.Type {
+	case AddressTypeIPv4:
 
 		if socket.IsAny() || socket.IsUnspecified() {
 			return true
@@ -135,7 +136,7 @@ func (socket *Socket) IsValid() bool {
 
 		return IsIPv4(socket.Host)
 
-	} else if socket.Type == AddressTypeIPv6 {
+	case AddressTypeIPv6:
 
 		if socket.IsAny() || socket.IsUnspecified() {
 			return true
@@ -143,7 +144,7 @@ func (socket *Socket) IsValid() bool {
 
 		return IsIPv6(socket.Host)
 
-	} else if socket.Type == AddressTypeDomain {
+	case AddressTypeDomain:
 		return IsDomain(socket.Host)
 	}
 

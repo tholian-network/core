@@ -169,8 +169,16 @@ func (subnet *Subnet) IsDefaultRoute() bool {
 }
 
 func (subnet *Subnet) IsAddress() bool {
-	return (subnet.Type == types.AddressTypeIPv4 && subnet.Prefix == 32) ||
-		(subnet.Type == types.AddressTypeIPv6 && subnet.Prefix == 128)
+
+	switch subnet.Type {
+	case types.AddressTypeIPv4:
+		return subnet.Prefix == 32
+	case types.AddressTypeIPv6:
+		return subnet.Prefix == 128
+	}
+
+	return false
+
 }
 
 func (subnet *Subnet) IsValid() bool {
@@ -179,7 +187,8 @@ func (subnet *Subnet) IsValid() bool {
 		return false
 	}
 
-	if subnet.Type == types.AddressTypeIPv4 {
+	switch subnet.Type {
+	case types.AddressTypeIPv4:
 
 		if subnet.Prefix > 32 {
 			return false
@@ -191,7 +200,7 @@ func (subnet *Subnet) IsValid() bool {
 
 		return types.IsIPv4(subnet.Address)
 
-	} else if subnet.Type == types.AddressTypeIPv6 {
+	case types.AddressTypeIPv6:
 
 		if subnet.Prefix > 128 {
 			return false

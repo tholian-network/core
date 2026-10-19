@@ -230,3 +230,25 @@ func (ipv6 IPv6) String() string {
 	return strings.Join(tmp, ":")
 
 }
+
+func (ipv6 IPv6) MarshalJSON() ([]byte, error) {
+	return []byte(strconv.Quote(ipv6.String())), nil
+}
+
+func (ipv6 *IPv6) UnmarshalJSON(data []byte) error {
+
+	unquoted, err := strconv.Unquote(string(data))
+
+	if err != nil {
+		return err
+	}
+
+	tmp := ParseIPv6(unquoted)
+
+	if tmp != nil {
+		*ipv6 = *tmp
+	}
+
+	return nil
+
+}

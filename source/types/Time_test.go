@@ -472,3 +472,17 @@ func TestTime(t *testing.T) {
 	})
 
 }
+
+func TestTimeConstructorParse(t *testing.T) {
+
+	value := NewTime()
+
+	if value.Parse("11:59:59") == false {
+		t.Fatal("Parse() returned false")
+	}
+
+	if value.String() != "11:59:59" {
+		t.Errorf("Expected %s to be %s", value.String(), "11:59:59")
+	}
+
+}

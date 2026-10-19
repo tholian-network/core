@@ -96,3 +96,23 @@ func TestSocketPredicates(t *testing.T) {
 
 }
 
+func TestSocketSetters(t *testing.T) {
+
+	socket := NewSocket("1.3.3.7", 1338)
+
+	socket.SetPort(443)
+	socket.SetScope("private")
+
+	if socket.Port != 443 {
+		t.Errorf("Expected port to be %d, got %d", 443, socket.Port)
+	}
+
+	if socket.Scope != "private" {
+		t.Errorf("Expected scope to be %s, got %s", "private", socket.Scope)
+	}
+
+	if socket.IsValid() == false {
+		t.Fatal("socket should remain valid after setters")
+	}
+
+}

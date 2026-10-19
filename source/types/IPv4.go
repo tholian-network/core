@@ -184,6 +184,18 @@ func (ipv4 IPv4) IsUnspecified() bool {
 	return ipv4 == IPv4{}
 }
 
+func (ipv4 IPv4) IsValid() bool {
+
+	var result bool
+
+	if IsIPv4(ipv4.String()) {
+		result = true
+	}
+
+	return result
+
+}
+
 func (ipv4 IPv4) Scope() string {
 
 	var result string = "public"
@@ -284,5 +296,27 @@ func (ipv4 IPv4) String() string {
 	}
 
 	return strings.Join(tmp, ".")
+
+}
+
+func (ipv4 IPv4) MarshalJSON() ([]byte, error) {
+	return []byte(strconv.Quote(ipv4.String())), nil
+}
+
+func (ipv4 *IPv4) UnmarshalJSON(data []byte) error {
+
+	unquoted, err := strconv.Unquote(string(data))
+
+	if err != nil {
+		return err
+	}
+
+	tmp := ParseIPv4(unquoted)
+
+	if tmp != nil {
+		*ipv4 = *tmp
+	}
+
+	return nil
 
 }

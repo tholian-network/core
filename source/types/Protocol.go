@@ -20,33 +20,22 @@ const (
 
 func IsProtocol(value string) bool {
 
-	var result bool
-
-	if value == string(ProtocolANY) {
-		result = true
-	} else if value == string(ProtocolDNS) {
-		result = true
-	} else if value == string(ProtocolDNSoverTLS) {
-		result = true
-	} else if value == string(ProtocolHTTPS) {
-		result = true
-	} else if value == string(ProtocolHTTP) {
-		result = true
-	} else if value == string(ProtocolICMP) {
-		result = true
-	} else if value == string(ProtocolSSH) {
-		result = true
-	} else if value == string(ProtocolSOCKS) {
-		result = true
-	} else if value == string(ProtocolTCP) {
-		result = true
-	} else if value == string(ProtocolUDP) {
-		result = true
-	} else if value == string(ProtocolWHOIS) {
-		result = true
+	switch Protocol(value) {
+	case ProtocolANY,
+		ProtocolDNS,
+		ProtocolDNSoverTLS,
+		ProtocolHTTPS,
+		ProtocolHTTP,
+		ProtocolICMP,
+		ProtocolSSH,
+		ProtocolSOCKS,
+		ProtocolTCP,
+		ProtocolUDP,
+		ProtocolWHOIS:
+		return true
 	}
 
-	return result
+	return false
 
 }
 
@@ -137,5 +126,3 @@ func (protocol *Protocol) UnmarshalJSON(data []byte) error {
 	return nil
 
 }
-
-

@@ -389,11 +389,12 @@ func (connection *Connection) IsValid() bool {
 		return false
 	}
 
-	if connection.IsClient() {
+	switch connection.Type {
+	case ConnectionTypeClient:
 		return isValidEndpointRule(connection.Target)
-	} else if connection.IsServer() {
+	case ConnectionTypeServer:
 		return isValidEndpointRule(connection.Source)
-	} else if connection.IsPeer() {
+	case ConnectionTypePeer:
 		return isValidEndpoint(connection.Source) && isValidEndpoint(connection.Target)
 	}
 

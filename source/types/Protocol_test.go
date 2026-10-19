@@ -18,3 +18,32 @@ func TestProtocolIsValid(t *testing.T) {
 
 }
 
+func TestIsProtocol(t *testing.T) {
+
+	valid := []Protocol{
+		ProtocolANY,
+		ProtocolDNS,
+		ProtocolDNSoverTLS,
+		ProtocolHTTPS,
+		ProtocolHTTP,
+		ProtocolICMP,
+		ProtocolSSH,
+		ProtocolSOCKS,
+		ProtocolTCP,
+		ProtocolUDP,
+		ProtocolWHOIS,
+	}
+
+	for _, value := range valid {
+
+		if IsProtocol(string(value)) == false {
+			t.Errorf("IsProtocol(%q) = false, expected true", value)
+		}
+
+	}
+
+	if IsProtocol("unknown") == true {
+		t.Fatal("IsProtocol() accepted an unknown protocol")
+	}
+
+}

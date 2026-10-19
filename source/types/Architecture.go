@@ -20,35 +20,21 @@ const (
 
 func IsArchitecture(value string) bool {
 
-	var result bool
-
-	if value == string(ArchitectureANY) {
-		result = true
-	} else if value == string(ArchitectureX86) {
-		result = true
-	} else if value == string(ArchitectureANY) {
-		result = true
-	} else if value == string(ArchitectureX86) {
-		result = true
-	} else if value == string(ArchitectureX86_64) {
-		result = true
-	} else if value == string(ArchitectureARMv6) {
-		result = true
-	} else if value == string(ArchitectureARMv7) {
-		result = true
-	} else if value == string(ArchitectureARMv8) {
-		result = true
-	} else if value == string(ArchitectureRISCV32) {
-		result = true
-	} else if value == string(ArchitectureRISCV64) {
-		result = true
-	} else if value == string(ArchitectureSPARC32) {
-		result = true
-	} else if value == string(ArchitectureSPARC64) {
-		result = true
+	switch Architecture(value) {
+	case ArchitectureANY,
+		ArchitectureX86,
+		ArchitectureX86_64,
+		ArchitectureARMv6,
+		ArchitectureARMv7,
+		ArchitectureARMv8,
+		ArchitectureRISCV32,
+		ArchitectureRISCV64,
+		ArchitectureSPARC32,
+		ArchitectureSPARC64:
+		return true
 	}
 
-	return result
+	return false
 
 }
 
@@ -149,7 +135,7 @@ func (architecture *Architecture) UnmarshalJSON(data []byte) error {
 
 }
 
-func (architecture *Architecture) IsValid() bool {
+func (architecture Architecture) IsValid() bool {
 
 	var result bool
 
