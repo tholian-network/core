@@ -21,11 +21,9 @@ func NewSocket(host string, port uint16) Socket {
 
 }
 
-func ToSocket(value string) Socket {
+func ParseSocket(value string) *Socket {
 
-	var socket Socket
-	var host string
-	var port uint16
+	var result *Socket = nil
 
 	if strings.HasPrefix(value, "[") && strings.Contains(value, "]:") {
 
@@ -33,13 +31,14 @@ func ToSocket(value string) Socket {
 		tmp2, err := strconv.ParseInt(strings.Split(value, "]:")[1], 10, 16)
 
 		if err == nil {
-			host = tmp1
-			port = uint16(tmp2)
+			socket := NewSocket(tmp1, uint16(tmp2))
+			result = &socket
 		}
 
 	} else if strings.HasPrefix(value, "[") && strings.HasSuffix(value, "]") {
 
-		host = value
+		socket := NewSocket(value, uint16(0))
+		result = &socket
 
 	} else if strings.Contains(value, ".") && strings.Contains(value, ":") {
 
@@ -47,8 +46,8 @@ func ToSocket(value string) Socket {
 		tmp2, err := strconv.ParseInt(strings.Split(value, ":")[1], 10, 16)
 
 		if err == nil {
-			host = tmp1
-			port = uint16(tmp2)
+			socket := NewSocket(tmp1, uint16(tmp2))
+			result = &socket
 		}
 
 	} else if strings.Contains(value, ":") {
@@ -57,18 +56,33 @@ func ToSocket(value string) Socket {
 		tmp2, err := strconv.ParseInt(strings.Split(value, ":")[1], 10, 16)
 
 		if err == nil {
-			host = tmp1
-			port = uint16(tmp2)
+			socket := NewSocket(tmp1, uint16(tmp2))
+			result = &socket
 		}
 
 	} else if strings.Contains(value, ".") {
 
-		host = value
+		socket := NewSocket(value, uint16(0))
+		result = &socket
 
 	}
 
-	if host != "" && port != 0 {
-		socket = NewSocket(host, port)
+	return result
+
+}
+
+func ToSocket(value string) Socket {
+
+	var socket Socket
+
+	if value != "" {
+
+		tmp := ParseSocket(value)
+
+		if tmp != nil {
+			socket = *tmp
+		}
+
 	}
 
 	return socket
@@ -193,5 +207,41 @@ func (socket *Socket) SetScope(value string) {
 	if value == "private" || value == "public" {
 		socket.Scope = value
 	}
+
+}
+
+func (socket *Socket) String() string {
+
+	result := ""
+
+	if socket.Host != "" {
+		result = socket.Host + ":" + strconv.FormatUint(uint64(socket.Port), 10)
+	} else {
+		result = "*:" + strconv.FormatUint(uint64(socket.Port), 10)
+	}
+
+	return result
+
+}
+
+func (socket Socket) MarshalJSON() ([]byte, error) {
+	return []byte(strconv.Quote(socket.String())), nil
+}
+
+func (socket *Socket) UnmarshalJSON(data []byte) error {
+
+	unquoted, err := strconv.Unquote(string(data))
+
+	if err != nil {
+		return err
+	}
+
+	tmp := ParseSocket(unquoted)
+
+	if tmp != nil {
+		*socket = *tmp
+	}
+
+	return nil
 
 }

@@ -327,6 +327,33 @@ func (console *Console) Length() int {
 
 }
 
+func (console *Console) ClearScreen() {
+
+	message := NewConsoleMessage("Clear", "")
+
+	if console.HasErrors() == false {
+
+		if console.Stdout != nil {
+
+			// Clear Screen
+			console.Stdout.WriteString("\u001b[2J")
+
+			// Reset Cursor
+			console.Stdout.WriteString("\u001b[0f")
+
+			// Clear Scroll Buffer
+			console.Stdout.WriteString("\u001b[3J")
+
+		}
+
+	}
+
+	console.mutex.Lock()
+	console.Messages = append(console.Messages, message)
+	console.mutex.Unlock()
+
+}
+
 func (console *Console) Clear(raw string) {
 
 	console.mutex.Lock()

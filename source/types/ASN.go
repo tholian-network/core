@@ -60,6 +60,24 @@ func ParseASN(value string) *ASN {
 
 }
 
+func ToASN(value string) ASN {
+
+	var asn ASN = ASN(0)
+
+	if value != "" {
+
+		tmp := ParseASN(value)
+
+		if tmp != nil {
+			asn = *tmp
+		}
+
+	}
+
+	return asn
+
+}
+
 func (asn ASN) IsValid() bool {
 	return asn >= 0
 }
@@ -67,3 +85,26 @@ func (asn ASN) IsValid() bool {
 func (asn ASN) String() string {
 	return "AS" + strconv.Itoa(int(asn))
 }
+
+func (asn ASN) MarshalJSON() ([]byte, error) {
+	return []byte(strconv.Quote("AS" + strconv.Itoa(int(asn)))), nil
+}
+
+func (asn *ASN) UnmarshalJSON(data []byte) error {
+
+	unquoted, err := strconv.Unquote(string(data))
+
+	if err != nil {
+		return err
+	}
+
+	tmp := ParseASN(unquoted)
+
+	if tmp != nil {
+		*asn = *tmp
+	}
+
+	return nil
+
+}
+

@@ -127,6 +127,18 @@ func ParseDomainAndPort(value string) (*Domain, uint16) {
 
 }
 
+func ToDomain(value string) Domain {
+
+	var domain Domain
+
+	if IsDomain(value) {
+		domain = Domain(value)
+	}
+
+	return domain
+
+}
+
 func (domain Domain) IsValid() bool {
 	return IsDomain(string(domain))
 }
@@ -136,9 +148,138 @@ func (domain Domain) Bytes() []byte {
 }
 
 func (domain Domain) Scope() string {
-	return "public"
+
+	tmp := string(domain)
+
+	if strings.HasSuffix(tmp, ".in-addr.arpa") {
+
+		suffixes := []string{
+			// RFC 6761
+			"10.in-addr.arpa",
+			"16.172.in-addr.arpa",
+			"17.172.in-addr.arpa",
+			"18.172.in-addr.arpa",
+			"19.172.in-addr.arpa",
+			"20.172.in-addr.arpa",
+			"21.172.in-addr.arpa",
+			"22.172.in-addr.arpa",
+			"23.172.in-addr.arpa",
+			"24.172.in-addr.arpa",
+			"25.172.in-addr.arpa",
+			"26.172.in-addr.arpa",
+			"27.172.in-addr.arpa",
+			"28.172.in-addr.arpa",
+			"29.172.in-addr.arpa",
+			"30.172.in-addr.arpa",
+			"31.172.in-addr.arpa",
+			"168.192.in-addr.arpa",
+
+			// RFC 6762
+			"254.169.in-addr.arpa",
+
+			// RFC 8880
+			"170.0.0.192.in-addr.arpa",
+			"171.0.0.192.in-addr.arpa",
+		}
+
+		scope := "public"
+
+		for s := 0; s < len(suffixes); s++ {
+
+			if strings.HasSuffix(tmp, suffixes[s]) {
+				scope = "private"
+				break
+			}
+
+		}
+
+		return scope
+
+	} else if strings.HasSuffix(tmp, ".ip6.arpa") {
+
+		suffixes := []string{
+			// RFC 6762
+			"8.e.f.ip6.arpa",
+			"9.e.f.ip6.arpa",
+			"a.e.f.ip6.arpa",
+			"b.e.f.ip6.arpa",
+		}
+
+		scope := "public"
+
+		for s := 0; s < len(suffixes); s++ {
+
+			if strings.HasSuffix(tmp, suffixes[s]) {
+				scope = "private"
+				break
+			}
+
+		}
+
+		return scope
+
+	} else if strings.Contains(tmp, ".") {
+
+		suffixes := []string{
+			// RFC 6761
+			".example",
+			".invalid",
+			".localhost",
+			".test",
+
+			// RFC 6762
+			".local",
+
+			// RFC 8375
+			".home.arpa",
+
+			// RFC 9476
+			".alt",
+		}
+
+		scope := "public"
+
+		for s := 0; s < len(suffixes); s++ {
+
+			if strings.HasSuffix(tmp, suffixes[s]) {
+				scope = "private"
+				break
+			}
+
+		}
+
+		return scope
+
+	} else {
+
+		return "private"
+
+	}
+
 }
 
 func (domain Domain) String() string {
 	return string(domain)
+}
+
+func (domain Domain) MarshalJSON() ([]byte, error) {
+	return []byte(strconv.Quote(string(domain))), nil
+}
+
+func (domain *Domain) UnmarshalJSON(data []byte) error {
+
+	unquoted, err := strconv.Unquote(string(data))
+
+	if err != nil {
+		return err
+	}
+
+	tmp := ParseDomain(unquoted)
+
+	if tmp != nil {
+		*domain = *tmp
+	}
+
+	return nil
+
 }
