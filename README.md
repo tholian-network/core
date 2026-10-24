@@ -1,0 +1,209 @@
+# Tholian® Core Type System
+
+Tholian® Core is the shared type system for the Tholian Network. It defines the
+canonical representation of all data types and schemas that are used across
+Tholian's cyber defense projects.
+
+The project is not a runtime, database, or transport protocol. It is a small Go
+module that gives every consumer the same vocabulary and the same JSON wire
+format. That makes it possible to correlate data from the Tholian Endpoint Agent,
+Tholian Firewall, Tholian Oversight Dashboard, and our provided threat intelligence
+tooling without repeatedly reinterpreting the same values.
+
+The JSON representations are intentionally documented and stable, so that they
+can be consumed by external tools and proprietary cyber security stacks such as
+Elastic, Kibana, SIEM, SOAR, or custom dashboards.
+
+## Design Goals
+
+- **Canonical**: All supported values have exactly one normalized representation.
+- **Validation**: All parsers check ranges, prefixes, labels, and protocol names.
+- **JSON-first**: All types implement `MarshalJSON` and `UnmarshalJSON` directly.
+- **Portability**: The implementation is standard-library-first, with only
+  `x/term` required for terminal handling.
+- **Composability**: Sockets combine with subnets, connections combine with matchers,
+  and networks group subnets without duplicating them.
+- **Interoperability**: Canonical strings map cleanly to native field types in
+  external search and analytics platforms.
+
+
+## Repository Layout
+
+| Path                                 | Purpose                              |
+|:-------------------------------------|:-------------------------------------|
+| [source/types](./source/types)       | Primitive types                      |
+| [source/structs](./source/structs)   | Nested data structures               |
+| [source/matchers](./source/matchers) | Matching rules for types and structs |
+
+The Go module is named `tholian-core` and targets Go `1.27.1`.
+
+## Canonical Wire Format
+
+All core types implement `encoding/json` support. Simple values are encoded as
+JSON strings, while structured values such as `Network` and `Internet` use their
+declared JSON fields.
+
+| Type              | JSON example                                                 |
+|:------------------|:-------------------------------------------------------------|
+| `IPv4`            | `"1.3.3.7"`                                                  |
+| `IPv6`            | `"2001:0db8:0000:0000:0000:0000:0000:0001"`                  |
+| `Domain`          | `"example.com"`                                              |
+| `ASN`             | `"AS1337"`                                                   |
+| `Socket`          | `"1.3.3.7:1338"`                                             |
+| `Connection`      | `"[tcp] 1.3.3.7:1338 -> 1.3.3.7:443"`                        |
+| `Subnet`          | `"1.3.3.0/24"`                                               |
+| `Network`         | JSON object with `name` and `subnets` fields                 |
+| `Time`            | `"11:59:59"`                                                 |
+| `Datetime`        | `"2026-10-19 11:59:59"`                                      |
+| `Architecture`    | `"x86_64"`                                                   |
+
+A network with one subnet is encoded as:
+
+```json
+{
+  "name": "AS13335",
+  "subnets": [
+    {
+      "name": "",
+      "country": "",
+      "address": "1.1.1.0",
+      "scope": "public",
+      "type": "ipv4",
+      "prefix": 24
+    }
+  ]
+}
+```
+
+The exact string forms are part of the API contract.
+
+IPv6 addresses are expanded to eight lowercase groups, sockets use `host:port`,
+subnets use `address/prefix`, and domains are stored without a trailing dot.
+
+Go's `encoding/json` escapes characters such as `>` as `\u003e` by default;
+decoding restores the canonical value.
+
+## External Integration
+
+The canonical JSON forms are designed to be published as standalone JSON Schema
+definitions under `schemas/` using JSON Schema Draft 2020-12. The schema files
+are being prepared for public consumption, so that consumers do not need a Go
+toolchain to interpret Tholian data.
+
+The Go implementations and the unit tests in this repository are the reference
+for the wire format until the schema files are published. Once available, the
+schemas will follow semantic versioning:
+
+- Patch releases clarify descriptions or examples without changing validation.
+- Minor releases add optional fields or new type definitions.
+- Major releases may change canonical string forms or required fields.
+
+### Mapping into Elastic and Kibana
+
+The preferred mapping strategy is to keep the canonical value intact and use a
+native field type where one exists:
+
+| Tholian value        | Suggested Elasticsearch / Kibana field type |
+|:---------------------|:---------------------------------------------|
+| IPv4 / IPv6 address  | `ip`                                         |
+| Subnet               | `keyword` or `ip` with a CIDR-aware pipeline |
+| ASN                  | `keyword`                                    |
+| Domain               | `keyword`                                    |
+| Socket               | `keyword`                                    |
+| Connection           | `keyword`                                    |
+| Protocol             | `keyword`                                    |
+| Architecture         | `keyword`                                    |
+| Time / Datetime      | `date` or `keyword` depending on precision   |
+
+External consumers should preserve the original canonical string alongside any
+normalized field. This keeps the source value available for auditing and avoids
+losing information when a downstream index uses a different representation.
+
+A representative payload looks like this:
+
+```json
+{
+  "connection": "[tcp] 1.3.3.7:1338 -> 1.3.3.7:443",
+  "source": "1.3.3.7:1338",
+  "target": "1.3.3.7:443",
+  "subnet": "1.3.3.0/24",
+  "asn": "AS1337",
+  "domain": "example.com",
+  "datetime": "2026-10-19 11:59:59"
+}
+```
+
+This payload can be ingested through a standard Elasticsearch ingest pipeline or
+a Logstash filter. The mapping above is guidance for integrators. A dedicated
+Elastic Common Schema (ECS) mapping will only be documented once it is actually
+published and tested.
+
+
+## Using Tholian Core
+
+The module is consumed through Go's module system. In the Tholian Network
+repositories it is checked out next to the consuming project and referenced with
+a local replacement:
+
+```text
+/path/to/Software/tholian-network/
+├── core/
+└── convoy/
+└── detective/
+└── firewall/
+└── guard/
+└── intel/
+```
+
+```go
+module example
+
+go 1.27.1
+
+require tholian-core v0.0.0
+
+replace tholian-core => ../../core/source
+```
+
+### Naming Conventions
+
+The packages follow a consistent naming scheme:
+
+- `Parse*` returns a pointer or fails with `nil`.
+- `To*` returns a zero value when parsing fails.
+- `Is*` validates strings or reports type predicates.
+- `New*` constructs an empty or initialized value.
+- `Set*` mutates a value only when the input is valid.
+- `IsValid`, `IsAny`, `HasHost`, `HasPort`, and `HasSubnet` describe state.
+
+## Testing
+
+The module has no build tags. Tests can be run directly from the source folder:
+
+```bash
+cd source;
+go test ./...;
+
+# optional static checks
+go vet ./...;
+```
+
+## Compatibility
+
+The canonical wire format is a compatibility boundary. Consumers should treat
+changes to string forms, required fields, and validation rules as breaking
+changes. Additive fields and new type definitions are backward compatible.
+
+When integrating Tholian Core, pin a released module version or a specific Git
+revision instead of tracking the default branch.
+
+## License
+
+The Tholian Core Schema definitions are published under the
+[MIT license](https://opensource.org/licenses/MIT).
+
+The Go source code of our software is licensed separately under the Tholian
+Network repository terms. Contact [Tholian](https://tholian.network) for
+commercial licensing.
+
+`(c) 2022-2026 by Tholian(r) Network`
