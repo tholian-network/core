@@ -19,8 +19,8 @@ func NewConnection() Connection {
 
 	connection.Socket.Host = Any
 	connection.Socket.Port = 0
-	connection.Protocol = ProtocolAny
-	connection.Type = ConnectionTypePeer
+	connection.Protocol = Any
+	connection.Type = Any
 
 	return connection
 
@@ -32,8 +32,8 @@ func ToConnection(value string) Connection {
 
 	connection.Socket.Host = Any
 	connection.Socket.Port = 0
-	connection.Protocol = ProtocolAny
-	connection.Type = ConnectionTypePeer
+	connection.Protocol = Any
+	connection.Type = Any
 
 	connection.Parse(value)
 
@@ -74,7 +74,7 @@ func (connection *Connection) IsIdentical(value Connection) bool {
 
 func (connection *Connection) IsValid() bool {
 
-	if connection.Type != ConnectionTypeClient && connection.Type != ConnectionTypeServer && connection.Type != ConnectionTypePeer {
+	if connection.Type != Any && connection.Type != ConnectionTypeClient && connection.Type != ConnectionTypeServer && connection.Type != ConnectionTypePeer {
 		return false
 	}
 
@@ -88,7 +88,7 @@ func (connection *Connection) IsValid() bool {
 
 	}
 
-	if connection.Protocol != "" && connection.Protocol != ProtocolAny && connection.Protocol != ProtocolTCP && connection.Protocol != ProtocolUDP {
+	if connection.Protocol != Any && connection.Protocol != ProtocolTCP && connection.Protocol != ProtocolUDP {
 		return false
 	}
 
@@ -102,12 +102,70 @@ func (connection *Connection) Matches(host string, port uint16, protocol string,
 		return false
 	}
 
-	matches_host := connection.HasHost() == false || connection.Socket.Host == host
-	matches_port := connection.HasPort() == false || connection.Socket.Port == port
-	matches_protocol := connection.Protocol == "" || connection.Protocol == ProtocolAny || connection.Protocol == protocol
-	matches_type := connection.Type == Any || connection.Type == typ
+	matches_host := connection.HasHost() == false || connection.MatchesHost(host)
+	matches_port := connection.HasPort() == false || connection.MatchesPort(port)
+	matches_protocol := connection.MatchesProtocol(protocol)
+	matches_type := connection.MatchesType(typ)
 
 	return matches_host && matches_port && matches_protocol && matches_type
+
+}
+
+func (connection *Connection) MatchesHost(value string) bool {
+
+	result := false
+
+	if connection.Socket.Host == value {
+		result = true
+	} else if connection.Socket.Host != Any && value != string(Any) {
+		result = contains_subnet(value, connection.Socket.Host)
+	} else if connection.Socket.Host == Any {
+		result = true
+	}
+
+	return result
+
+}
+
+func (connection *Connection) MatchesPort(value uint16) bool {
+
+	result := false
+
+	if connection.Socket.Port == value {
+		result = true
+	} else if connection.Socket.Port == 0 {
+		result = true
+	}
+
+	return result
+
+}
+
+func (connection *Connection) MatchesProtocol(value string) bool {
+
+	result := false
+
+	if connection.Protocol == value {
+		result = true
+	} else if connection.Protocol == Any {
+		result = true
+	}
+
+	return result
+
+}
+
+func (connection *Connection) MatchesType(value string) bool {
+
+	result := false
+
+	if connection.Type == value {
+		result = true
+	} else if connection.Type == Any {
+		result = true
+	}
+
+	return result
 
 }
 
@@ -156,19 +214,19 @@ func (connection *Connection) Parse(value string) {
 
 		} else if strings.HasSuffix(port, "AC") {
 
-			connection.SetProtocol(ProtocolAny)
+			connection.SetProtocol(Any)
 			connection.SetType(ConnectionTypeClient)
 			port = port[0 : len(port)-2]
 
 		} else if strings.HasSuffix(port, "AP") {
 
-			connection.SetProtocol(ProtocolAny)
+			connection.SetProtocol(Any)
 			connection.SetType(ConnectionTypePeer)
 			port = port[0 : len(port)-2]
 
 		} else if strings.HasSuffix(port, "AS") {
 
-			connection.SetProtocol(ProtocolAny)
+			connection.SetProtocol(Any)
 			connection.SetType(ConnectionTypeServer)
 			port = port[0 : len(port)-2]
 
@@ -237,8 +295,8 @@ func (connection *Connection) SetProtocol(value string) {
 		connection.Protocol = ProtocolTCP
 	} else if value == ProtocolUDP {
 		connection.Protocol = ProtocolUDP
-	} else if value == ProtocolAny {
-		connection.Protocol = ProtocolAny
+	} else if value == Any {
+		connection.Protocol = Any
 	}
 
 }
@@ -269,7 +327,7 @@ func (connection *Connection) Hash() string {
 			hash += "T"
 		} else if connection.Protocol == ProtocolUDP {
 			hash += "U"
-		} else if connection.Protocol == ProtocolAny {
+		} else if connection.Protocol == Any {
 			hash += "A"
 		}
 
