@@ -79,7 +79,7 @@ func (subnet *Subnet) Matches(name string, net string) bool {
 	}
 
 	if subnet.HasSubnet() {
-		matches_subnet = net != "" && net != Any && contains_subnet(subnet.Subnet, net)
+		matches_subnet = net != "" && net != Any && containsSubnet(subnet.Subnet, net)
 	}
 
 	return matches_name && matches_subnet

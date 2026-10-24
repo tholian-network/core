@@ -2,7 +2,7 @@ package matchers
 
 import "tholian-core/types"
 
-func contains_subnet(subnet_a string, subnet_b string) bool {
+func containsSubnet(subnet_a string, subnet_b string) bool {
 
 	var result bool = false
 

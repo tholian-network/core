@@ -113,59 +113,51 @@ func (connection *Connection) Matches(host string, port uint16, protocol string,
 
 func (connection *Connection) MatchesHost(value string) bool {
 
-	result := false
-
 	if connection.Socket.Host == value {
-		result = true
-	} else if connection.Socket.Host != Any && value != string(Any) {
-		result = contains_subnet(value, connection.Socket.Host)
+		return true
+	} else if connection.Socket.Host != Any && value != Any {
+		return containsSubnet(value, connection.Socket.Host)
 	} else if connection.Socket.Host == Any {
-		result = true
+		return true
 	}
 
-	return result
+	return false
 
 }
 
 func (connection *Connection) MatchesPort(value uint16) bool {
 
-	result := false
-
 	if connection.Socket.Port == value {
-		result = true
+		return true
 	} else if connection.Socket.Port == 0 {
-		result = true
+		return true
 	}
 
-	return result
+	return false
 
 }
 
 func (connection *Connection) MatchesProtocol(value string) bool {
 
-	result := false
-
 	if connection.Protocol == value {
-		result = true
+		return true
 	} else if connection.Protocol == Any {
-		result = true
+		return true
 	}
 
-	return result
+	return false
 
 }
 
 func (connection *Connection) MatchesType(value string) bool {
 
-	result := false
-
 	if connection.Type == value {
-		result = true
+		return true
 	} else if connection.Type == Any {
-		result = true
+		return true
 	}
 
-	return result
+	return false
 
 }
 

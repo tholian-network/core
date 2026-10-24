@@ -65,24 +65,41 @@ func (network *Network) IsValid() bool {
 
 func (network *Network) Matches(name string, subnet string) bool {
 
-	if network.IsAny() {
+	if network.IsAny() == true {
+		// XXX: Special case, Any should match anything
 		return true
 	} else if network.IsValid() == false {
 		return false
 	}
 
-	matches_name := true
-	matches_subnet := true
-
-	if network.HasName() {
-		matches_name = network.Name == name
-	}
-
-	if network.HasSubnet() {
-		matches_subnet = subnet != "" && subnet != Any && contains_subnet(network.Subnet, subnet)
-	}
+	matches_name   := network.HasName() == false   || network.MatchesName(name)
+	matches_subnet := network.HasSubnet() == false || network.MatchesSubnet(subnet)
 
 	return matches_name && matches_subnet
+
+}
+
+func (network *Network) MatchesName(value string) bool {
+
+	if network.Name == value {
+		return true
+	} else if network.Name == Any {
+		return true
+	}
+
+	return false
+
+}
+
+func (network *Network) MatchesSubnet(value string) bool {
+
+	if network.Subnet != Any && value != Any {
+		return containsSubnet(network.Subnet, value)
+	} else if network.Subnet == Any {
+		return true
+	}
+
+	return false
 
 }
 

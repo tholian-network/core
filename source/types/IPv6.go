@@ -168,7 +168,7 @@ func (ipv6 IPv6) Bytes(prefix uint8) []byte {
 		bytes[i] = byte(ipv6[i])
 	}
 
-	return mask_bytes(bytes, prefix)
+	return maskBytes(bytes, prefix)
 
 }
 

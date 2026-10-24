@@ -176,7 +176,7 @@ func (ipv4 IPv4) Bytes(prefix uint8) []byte {
 		bytes[i] = byte(ipv4[i])
 	}
 
-	return mask_bytes(bytes, prefix)
+	return maskBytes(bytes, prefix)
 
 }
 

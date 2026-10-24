@@ -1,6 +1,6 @@
 package types
 
-func mask_bytes(value []byte, prefix uint8) []byte {
+func maskBytes(value []byte, prefix uint8) []byte {
 
 	result := make([]byte, len(value))
 	copy(result, value)
