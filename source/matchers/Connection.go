@@ -57,7 +57,7 @@ func (connection *Connection) IsDomain() bool {
 	return types.IsDomain(connection.Socket.Host)
 }
 
-func (connection *Connection) IsIdentical(value Connection) bool {
+func (connection *Connection) Equal(value Connection) bool {
 
 	var result bool = false
 

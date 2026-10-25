@@ -47,7 +47,7 @@ func (network *Network) HasSubnet() bool {
 	return isSubnet(network.Subnet)
 }
 
-func (network *Network) IsIdentical(value Network) bool {
+func (network *Network) Equal(value Network) bool {
 
 	var result bool = false
 
