@@ -6,7 +6,6 @@ import "strings"
 type Architecture string
 
 const (
-	ArchitectureANY     Architecture = "any"
 	ArchitectureX86     Architecture = "x86"
 	ArchitectureX86_64  Architecture = "x86_64"
 	ArchitectureARMv6   Architecture = "armv6"
@@ -21,7 +20,7 @@ const (
 func IsArchitecture(value string) bool {
 
 	switch Architecture(value) {
-	case ArchitectureANY,
+	case Any,
 		ArchitectureX86,
 		ArchitectureX86_64,
 		ArchitectureARMv6,
@@ -38,56 +37,100 @@ func IsArchitecture(value string) bool {
 
 }
 
+func NewArchitecture() Architecture {
+	return Architecture(Any)
+}
+
 func ParseArchitecture(value string) *Architecture {
 
 	var result *Architecture = nil
+	var architecture Architecture
 
-	if value == "*" || value == "all" || value == "any" || value == "noarch" {
-		architecture := Architecture(ArchitectureANY)
+	if architecture.Parse(value) == true {
 		result = &architecture
-	} else if value == "386" || value == "i386" || value == "i686" || value == "x32" || value == "x86" || value == "x86_32" || value == "x86-32" {
-		architecture := Architecture(ArchitectureX86)
-		result = &architecture
-	} else if value == "amd64" || value == "ia64" || value == "x64" || value == "x86_64" || value == "x86-64" {
-		architecture := Architecture(ArchitectureX86_64)
-		result = &architecture
-	} else if value == "arm" || value == "armel" || value == "armv6" {
-		architecture := Architecture(ArchitectureARMv6)
-		result = &architecture
-	} else if value == "armhf" || value == "armv7" || value == "armv7h" {
-		architecture := Architecture(ArchitectureARMv7)
-		result = &architecture
-	} else if value == "aarch64" || value == "armv8" || value == "arm64" {
-		architecture := Architecture(ArchitectureARMv8)
-		result = &architecture
-	} else if value == "riscv" || value == "riscv32" {
-		architecture := Architecture(ArchitectureRISCV32)
-		result = &architecture
-	} else if value == "riscv64" {
-		architecture := Architecture(ArchitectureRISCV64)
-		result = &architecture
-	} else if value == "sparc" || value == "sparc32" {
-		architecture := Architecture(ArchitectureSPARC32)
-		result = &architecture
-	} else if value == "sparc64" {
-		architecture := Architecture(ArchitectureSPARC64)
-		result = &architecture
-	} else {
-
-		if strings.Contains(value, "64Bit") || strings.Contains(value, "64 Bit") || strings.Contains(value, "64-Bit") || strings.Contains(value, "x64") || strings.Contains(value, "x86_64") {
-			architecture := Architecture(ArchitectureX86_64)
-			result = &architecture
-		} else if strings.Contains(value, "32Bit") || strings.Contains(value, "32 Bit") || strings.Contains(value, "32-Bit") || strings.Contains(value, "x32") || strings.Contains(value, "x86") {
-			architecture := Architecture(ArchitectureX86)
-			result = &architecture
-		} else {
-			architecture := Architecture(ArchitectureANY)
-			result = &architecture
-		}
-
 	}
 
 	return result
+
+}
+
+func (architecture *Architecture) Parse(value string) bool {
+
+	if value == "*" || value == "all" || value == Any || value == "noarch" {
+
+		*architecture = Architecture(Any)
+
+		return true
+
+	} else if value == "386" || value == "i386" || value == "i686" || value == "x32" || value == "x86" || value == "x86_32" || value == "x86-32" {
+
+		*architecture = ArchitectureX86
+
+		return true
+
+	} else if value == "amd64" || value == "ia64" || value == "x64" || value == "x86_64" || value == "x86-64" {
+
+		*architecture = ArchitectureX86_64
+
+		return true
+
+	} else if value == "arm" || value == "armel" || value == "armv6" {
+
+		*architecture = ArchitectureARMv6
+
+		return true
+
+	} else if value == "armhf" || value == "armv7" || value == "armv7h" {
+
+		*architecture = ArchitectureARMv7
+
+		return true
+
+	} else if value == "aarch64" || value == "armv8" || value == "arm64" {
+
+		*architecture = ArchitectureARMv8
+
+		return true
+
+	} else if value == "riscv" || value == "riscv32" {
+
+		*architecture = ArchitectureRISCV32
+
+		return true
+
+	} else if value == "riscv64" {
+
+		*architecture = ArchitectureRISCV64
+
+		return true
+
+	} else if value == "sparc" || value == "sparc32" {
+
+		*architecture = ArchitectureSPARC32
+
+		return true
+
+	} else if value == "sparc64" {
+
+		*architecture = ArchitectureSPARC64
+
+		return true
+
+	} else if strings.Contains(value, "64Bit") || strings.Contains(value, "64 Bit") || strings.Contains(value, "64-Bit") || strings.Contains(value, "x64") || strings.Contains(value, "x86_64") {
+
+		*architecture = ArchitectureX86_64
+
+		return true
+
+	} else if strings.Contains(value, "32Bit") || strings.Contains(value, "32 Bit") || strings.Contains(value, "32-Bit") || strings.Contains(value, "x32") || strings.Contains(value, "x86") {
+
+		*architecture = ArchitectureX86
+
+		return true
+
+	}
+
+	return false
 
 }
 
@@ -107,6 +150,10 @@ func ToArchitecture(value string) Architecture {
 
 func (architecture Architecture) Bytes() []byte {
 	return []byte(architecture)
+}
+
+func (architecture Architecture) Equal(other Architecture) bool {
+	return architecture == other
 }
 
 func (architecture Architecture) String() string {

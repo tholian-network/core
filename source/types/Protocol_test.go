@@ -4,7 +4,7 @@ import "testing"
 
 func TestProtocolIsValid(t *testing.T) {
 
-	if ProtocolANY.IsValid() == false || ProtocolTCP.IsValid() == false || ProtocolUDP.IsValid() == false {
+	if Protocol(Any).IsValid() == false || ProtocolTCP.IsValid() == false || ProtocolUDP.IsValid() == false {
 		t.Fatal("known protocols should be valid")
 	}
 
@@ -12,7 +12,7 @@ func TestProtocolIsValid(t *testing.T) {
 		t.Fatal("unknown protocol should be invalid")
 	}
 
-	if ProtocolTCP.IsAny() == true || ProtocolANY.IsAny() == false {
+	if ProtocolTCP.IsAny() == true || Protocol(Any).IsAny() == false {
 		t.Fatal("unexpected protocol any predicate")
 	}
 
@@ -21,7 +21,7 @@ func TestProtocolIsValid(t *testing.T) {
 func TestIsProtocol(t *testing.T) {
 
 	valid := []Protocol{
-		ProtocolANY,
+		Protocol(Any),
 		ProtocolDNS,
 		ProtocolDNSoverTLS,
 		ProtocolHTTPS,

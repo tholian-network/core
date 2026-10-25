@@ -32,28 +32,17 @@ func IsASN(value string) bool {
 
 }
 
+func NewASN() ASN {
+	return ASN(0)
+}
+
 func ParseASN(value string) *ASN {
 
 	var result *ASN = nil
+	var asn ASN
 
-	if strings.HasPrefix(value, "AS") {
-
-		num, err := strconv.ParseInt(value[2:], 10, 64)
-
-		if err == nil {
-			asn := ASN(num)
-			result = &asn
-		}
-
-	} else {
-
-		num, err := strconv.ParseInt(value, 10, 64)
-
-		if err == nil {
-			asn := ASN(num)
-			result = &asn
-		}
-
+	if asn.Parse(value) == true {
+		result = &asn
 	}
 
 	return result
@@ -62,20 +51,48 @@ func ParseASN(value string) *ASN {
 
 func ToASN(value string) ASN {
 
-	var asn ASN = ASN(0)
+	var asn ASN
 
-	if value != "" {
+	asn.Parse(value)
 
-		tmp := ParseASN(value)
+	return asn
 
-		if tmp != nil {
-			asn = *tmp
+}
+
+func (asn *ASN) Parse(value string) bool {
+
+	if strings.HasPrefix(value, "AS") {
+
+		num, err := strconv.ParseInt(value[2:], 10, 64)
+
+		if err == nil {
+
+			*asn = ASN(num)
+
+			return true
+
+		}
+
+	} else {
+
+		num, err := strconv.ParseInt(value, 10, 64)
+
+		if err == nil {
+
+			*asn = ASN(num)
+
+			return true
+
 		}
 
 	}
 
-	return asn
+	return false
 
+}
+
+func (asn ASN) Equal(other ASN) bool {
+	return asn == other
 }
 
 func (asn ASN) IsValid() bool {
@@ -107,4 +124,3 @@ func (asn *ASN) UnmarshalJSON(data []byte) error {
 	return nil
 
 }
-

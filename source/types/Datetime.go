@@ -5,10 +5,10 @@ import "strconv"
 import "strings"
 import "time"
 
-var WEEKDAYS = []string{"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"}
-var MONTHS = []string{"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"}
-var MONTHDAYS = []int{31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31}
-var TIMEZONES = []string{
+var datetime_weekdays  = []string{"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"}
+var datetime_months    = []string{"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"}
+var datetime_monthdays = []int{31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31}
+var datetime_timezones = []string{
 
 	"BST", "BDT", // Bering
 	"HST", "HDT", "HWT", "HPT", // Hawaii
@@ -57,25 +57,21 @@ var TIMEZONES = []string{
 
 func isDay(value string) bool {
 
-	var result bool
-
 	num, err := strconv.ParseUint(value, 10, 64)
 
 	if err == nil {
 
 		if num >= 1 && num <= 31 {
-			result = true
+			return true
 		}
 
 	}
 
-	return result
+	return false
 
 }
 
 func isISO8601(value string) bool {
-
-	var result bool
 
 	// "2006-05-30T10:02:00"
 	// "2006-05-30T10:02:00.000"
@@ -101,7 +97,7 @@ func isISO8601(value string) bool {
 		check_time := strings.Split(time, ":")
 
 		if len(check_date) == 3 && len(check_time) == 3 {
-			result = true
+			return true
 		}
 
 	} else if strings.Contains(value, "T") {
@@ -119,36 +115,32 @@ func isISO8601(value string) bool {
 		check_time := strings.Split(time, ":")
 
 		if len(check_date) == 3 && len(check_time) == 3 {
-			result = true
+			return true
 		}
 
 	}
 
-	return result
+	return false
 
 }
 
 func isISO8601Date(value string) bool {
-
-	var result bool
 
 	if strings.Contains(value, "-") {
 
 		chunks := strings.Split(value, "-")
 
 		if len(chunks) == 3 {
-			result = true
+			return true
 		}
 
 	}
 
-	return result
+	return false
 
 }
 
 func isYYYYMMDD(value string) bool {
-
-	var result bool
 
 	// 20060530
 
@@ -163,7 +155,7 @@ func isYYYYMMDD(value string) bool {
 			if err2 == nil && num2 >= 1 && num2 <= 12 {
 
 				if err3 == nil && num3 >= 1 && num3 <= 31 {
-					result = true
+					return true
 				}
 
 			}
@@ -172,13 +164,11 @@ func isYYYYMMDD(value string) bool {
 
 	}
 
-	return result
+	return false
 
 }
 
 func isYYYYMM(value string) bool {
-
-	var result bool
 
 	// 2006-05
 	// 200605
@@ -194,7 +184,7 @@ func isYYYYMM(value string) bool {
 		if err1 == nil && num1 >= 1752 {
 
 			if err2 == nil && num2 >= 1 && num2 <= 12 {
-				result = true
+				return true
 			}
 
 		}
@@ -207,14 +197,14 @@ func isYYYYMM(value string) bool {
 		if err1 == nil && num1 >= 1752 {
 
 			if err2 == nil && num2 >= 1 && num2 <= 12 {
-				result = true
+				return true
 			}
 
 		}
 
 	}
 
-	return result
+	return false
 
 }
 
@@ -230,72 +220,61 @@ func isMeridiem(value string) bool {
 
 func isMonth(value string) bool {
 
-	var result bool
+	for m := 0; m < len(datetime_months); m++ {
 
-	for m := 0; m < len(MONTHS); m++ {
-
-		if MONTHS[m] == value {
-			result = true
-			break
+		if datetime_months[m] == value {
+			return true
 		}
 
 	}
 
-	return result
+	return false
 
 }
 
 func isTime(value string) bool {
-
-	var result bool
 
 	if strings.Contains(value, ":") {
 
 		chunks := strings.Split(value, ":")
 
 		if len(chunks) == 3 {
-			result = true
+			return true
 		} else if len(chunks) == 2 {
-			result = true
+			return true
 		}
 
 	}
 
-	return result
+	return false
 
 }
 
 func isTimezone(value string) bool {
 
-	var result bool
+	for t := 0; t < len(datetime_timezones); t++ {
 
-	for t := 0; t < len(TIMEZONES); t++ {
-
-		if TIMEZONES[t] == value {
-			result = true
-			break
+		if datetime_timezones[t] == value {
+			return true
 		}
 
 	}
 
-	return result
+	return false
 
 }
 
 func isWeekday(value string) bool {
 
-	var result bool
+	for w := 0; w < len(datetime_weekdays); w++ {
 
-	for w := 0; w < len(WEEKDAYS); w++ {
-
-		if WEEKDAYS[w] == value {
-			result = true
-			break
+		if datetime_weekdays[w] == value {
+			return true
 		}
 
 	}
 
-	return result
+	return false
 
 }
 
@@ -315,19 +294,17 @@ func isLeapYear(value uint) bool {
 
 func isYear(value string) bool {
 
-	var result bool
-
 	num, err := strconv.ParseUint(value, 10, 64)
 
 	if err == nil {
 
 		if num >= 1752 {
-			result = true
+			return true
 		}
 
 	}
 
-	return result
+	return false
 
 }
 
@@ -425,9 +402,9 @@ func parseYYYYMMDD(datetime *Datetime, value string) {
 
 func parseMonth(datetime *Datetime, value string) {
 
-	for m := 0; m < len(MONTHS); m++ {
+	for m := 0; m < len(datetime_months); m++ {
 
-		if MONTHS[m] == value {
+		if datetime_months[m] == value {
 			datetime.Month = uint(m + 1)
 			break
 		}
@@ -565,6 +542,14 @@ func NewDatetime() Datetime {
 
 }
 
+func IsDatetime(value string) bool {
+
+	var datetime Datetime
+
+	return value != "" && datetime.Parse(value)
+
+}
+
 func ParseDatetime(value string) *Datetime {
 
 	var result *Datetime = nil
@@ -592,32 +577,44 @@ func ToDatetime(value string) Datetime {
 
 func (datetime *Datetime) IsAfter(other Datetime) bool {
 
-	var result bool
-
 	if datetime.Year > other.Year {
-		result = true
+
+		return true
+
 	} else if datetime.Year == other.Year {
 
 		if datetime.Month > other.Month {
-			result = true
+
+			return true
+
 		} else if datetime.Month == other.Month {
 
 			if datetime.Day > other.Day {
-				result = true
+
+				return true
+
 			} else if datetime.Day == other.Day {
 
 				if datetime.Hour > other.Hour {
-					result = true
+
+					return true
+
 				} else if datetime.Hour == other.Hour {
 
 					if datetime.Minute > other.Minute {
-						result = true
+
+						return true
+
 					} else if datetime.Minute == other.Minute {
 
 						if datetime.Second > other.Second {
-							result = true
+
+							return true
+
 						} else if datetime.Second == other.Second {
-							result = false
+
+							return false
+
 						}
 
 					}
@@ -630,38 +627,50 @@ func (datetime *Datetime) IsAfter(other Datetime) bool {
 
 	}
 
-	return result
+	return false
 
 }
 
 func (datetime *Datetime) IsBefore(other Datetime) bool {
 
-	var result bool
-
 	if datetime.Year < other.Year {
-		result = true
+
+		return true
+
 	} else if datetime.Year == other.Year {
 
 		if datetime.Month < other.Month {
-			result = true
+
+			return true
+
 		} else if datetime.Month == other.Month {
 
 			if datetime.Day < other.Day {
-				result = true
+
+				return true
+
 			} else if datetime.Day == other.Day {
 
 				if datetime.Hour < other.Hour {
-					result = true
+
+					return true
+
 				} else if datetime.Hour == other.Hour {
 
 					if datetime.Minute < other.Minute {
-						result = true
+
+						return true
+
 					} else if datetime.Minute == other.Minute {
 
 						if datetime.Second < other.Second {
-							result = true
+
+							return true
+
 						} else if datetime.Second == other.Second {
-							result = false
+
+							return false
+
 						}
 
 					}
@@ -674,7 +683,7 @@ func (datetime *Datetime) IsBefore(other Datetime) bool {
 
 	}
 
-	return result
+	return false
 
 }
 
@@ -694,9 +703,7 @@ func (datetime *Datetime) IsPast() bool {
 
 }
 
-func (datetime *Datetime) IsSame(other Datetime) bool {
-
-	var result bool
+func (datetime *Datetime) Equal(other Datetime) bool {
 
 	if datetime.Year == other.Year {
 
@@ -709,7 +716,7 @@ func (datetime *Datetime) IsSame(other Datetime) bool {
 					if datetime.Minute == other.Minute {
 
 						if datetime.Second == other.Second {
-							result = true
+							return true
 						}
 
 					}
@@ -722,7 +729,7 @@ func (datetime *Datetime) IsSame(other Datetime) bool {
 
 	}
 
-	return result
+	return false
 
 }
 
@@ -797,9 +804,9 @@ func (datetime *Datetime) Offset(offset string) {
 					month -= 1
 
 					if isLeapYear(year) && month == 2 {
-						day += uint(MONTHDAYS[month-1]) + 1
+						day += uint(datetime_monthdays[month-1]) + 1
 					} else {
-						day += uint(MONTHDAYS[month-1])
+						day += uint(datetime_monthdays[month-1])
 					}
 
 				} else {
@@ -836,7 +843,7 @@ func (datetime *Datetime) Offset(offset string) {
 				hour -= 24
 			}
 
-			monthdays := uint(MONTHDAYS[month-1])
+			monthdays := uint(datetime_monthdays[month-1])
 
 			if isLeapYear(year) && month == 2 {
 				monthdays += 1
@@ -917,8 +924,6 @@ func (datetime *Datetime) Tomorrow() Datetime {
 }
 
 func (datetime *Datetime) Parse(value string) bool {
-
-	var result bool
 
 	chunks := toChunks(value)
 	isZulu := false
@@ -1047,10 +1052,10 @@ func (datetime *Datetime) Parse(value string) bool {
 	}
 
 	if datetime.Year > 1752 {
-		result = true
+		return true
 	}
 
-	return result
+	return false
 
 }
 
@@ -1082,9 +1087,9 @@ func (datetime *Datetime) ToDays() uint {
 	year := datetime.Year
 
 	if isLeapYear(year) && month == 2 {
-		result = uint(MONTHDAYS[month-1]) + 1
+		result = uint(datetime_monthdays[month-1]) + 1
 	} else {
-		result = uint(MONTHDAYS[month-1])
+		result = uint(datetime_monthdays[month-1])
 	}
 
 	return result

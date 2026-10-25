@@ -33,7 +33,7 @@ func TestVersion(t *testing.T) {
 			t.Errorf("Expected %s to be after %s", version1.String(), v_1_23_45_r5.String())
 		}
 
-		if version1.IsSame(v_1_23_45_r6) != true {
+		if version1.Equal(v_1_23_45_r6) != true {
 			t.Errorf("Expected %s to be the same as %s", version1.String(), v_1_23_45_r6.String())
 		}
 
@@ -100,7 +100,7 @@ func TestVersion(t *testing.T) {
 			t.Errorf("Expected %s to be after %s", version1.String(), v_1_23_45_r5.String())
 		}
 
-		if version1.IsSame(v_1_23_45_r6) != true {
+		if version1.Equal(v_1_23_45_r6) != true {
 			t.Errorf("Expected %s to be the same as %s", version1.String(), v_1_23_45_r6.String())
 		}
 
@@ -126,7 +126,7 @@ func TestVersion(t *testing.T) {
 			t.Errorf("Expected %s to be after %s", version2.String(), v_1_23_45_r5.String())
 		}
 
-		if version2.IsSame(v_1_23_45_r6) != true {
+		if version2.Equal(v_1_23_45_r6) != true {
 			t.Errorf("Expected %s to be the same as %s", version2.String(), v_1_23_45_r6.String())
 		}
 
@@ -152,7 +152,7 @@ func TestVersion(t *testing.T) {
 			t.Errorf("Expected %s to be after %s", version3.String(), v_1_23_45_r5.String())
 		}
 
-		if version3.IsSame(v_1_23_45_r6) != true {
+		if version3.Equal(v_1_23_45_r6) != true {
 			t.Errorf("Expected %s to be the same as %s", version3.String(), v_1_23_45_r6.String())
 		}
 
@@ -208,7 +208,7 @@ func TestVersion(t *testing.T) {
 			t.Errorf("Expected %s to be after %s", version4.String(), v2_1_23_45_r5.String())
 		}
 
-		if version4.IsSame(v2_1_23_45_r6) != true {
+		if version4.Equal(v2_1_23_45_r6) != true {
 			t.Errorf("Expected %s to be the same as %s", version4.String(), v2_1_23_45_r6.String())
 		}
 
@@ -253,7 +253,7 @@ func TestVersion(t *testing.T) {
 			t.Errorf("Expected %s to be after %s", version1.String(), v_1_23_45_r5.String())
 		}
 
-		if version1.IsSame(v_1_23_45_r6) != true {
+		if version1.Equal(v_1_23_45_r6) != true {
 			t.Errorf("Expected %s to be the same as %s", version1.String(), v_1_23_45_r6.String())
 		}
 
@@ -281,7 +281,7 @@ func TestVersion(t *testing.T) {
 			t.Errorf("Expected %s to be after %s", version3.String(), v_1_23_45_deb5.String())
 		}
 
-		if version3.IsSame(v_1_23_45_deb6) != true {
+		if version3.Equal(v_1_23_45_deb6) != true {
 			t.Errorf("Expected %s to be the same as %s", version3.String(), v_1_23_45_deb6.String())
 		}
 
@@ -295,7 +295,7 @@ func TestVersion(t *testing.T) {
 			t.Errorf("Expected %s to be after %s", version4.String(), v_1_23_45_deb5.String())
 		}
 
-		if version4.IsSame(v_1_23_45_deb6) != true {
+		if version4.Equal(v_1_23_45_deb6) != true {
 			t.Errorf("Expected %s to be the same as %s", version4.String(), v_1_23_45_deb6.String())
 		}
 
@@ -339,7 +339,7 @@ func TestVersion(t *testing.T) {
 			t.Errorf("Expected %s to be after %s", version1.String(), v_1_23_45_1ubuntu65.String())
 		}
 
-		if version1.IsSame(v_1_23_45_1ubuntu66) != true {
+		if version1.Equal(v_1_23_45_1ubuntu66) != true {
 			t.Errorf("Expected %s to be the same as %s", version1.String(), v_1_23_45_1ubuntu66.String())
 		}
 
@@ -353,7 +353,7 @@ func TestVersion(t *testing.T) {
 			t.Errorf("Expected %s to be after %s", version2.String(), v_2023_12_31_1ubuntu6_20_04_03.String())
 		}
 
-		if version2.IsSame(v_2023_12_31_1ubuntu6_21_10_02) != true {
+		if version2.Equal(v_2023_12_31_1ubuntu6_21_10_02) != true {
 			t.Errorf("Expected %s to be the same as %s", version2.String(), v_2023_12_31_1ubuntu6_21_10_02.String())
 		}
 
@@ -363,15 +363,15 @@ func TestVersion(t *testing.T) {
 
 		version3 := ToVersion("2023.12.31-1ubuntu6")
 
-		if version3.IsSame(v_2023_12_31_1ubuntu6_20_04_03) != true {
+		if version3.Equal(v_2023_12_31_1ubuntu6_20_04_03) != true {
 			t.Errorf("Expected %s to be the same as %s", version3.String(), v_2023_12_31_1ubuntu6_20_04_03.String())
 		}
 
-		if version3.IsSame(v_2023_12_31_1ubuntu6_21_10_02) != true {
+		if version3.Equal(v_2023_12_31_1ubuntu6_21_10_02) != true {
 			t.Errorf("Expected %s to be the same as %s", version3.String(), v_2023_12_31_1ubuntu6_21_10_02.String())
 		}
 
-		if version3.IsSame(v_2023_12_31_1ubuntu6_22_04_01) != true {
+		if version3.Equal(v_2023_12_31_1ubuntu6_22_04_01) != true {
 			t.Errorf("Expected %s to be the same as %s", version3.String(), v_2023_12_31_1ubuntu6_22_04_01.String())
 		}
 
@@ -409,7 +409,7 @@ func TestVersion(t *testing.T) {
 			t.Errorf("Expected %s to be after %s", version1.String(), v_1_23_45_r6.String())
 		}
 
-		if version1.IsSame(v_1_23_45_r7) != true {
+		if version1.Equal(v_1_23_45_r7) != true {
 			t.Errorf("Expected %s to be the same as %s", version1.String(), v_1_23_45_r7.String())
 		}
 
@@ -437,7 +437,7 @@ func TestVersion(t *testing.T) {
 			t.Errorf("Expected %s to be after %s", version3.String(), v0_1_23_45.String())
 		}
 
-		if version3.IsSame(v1_1_23_45) != true {
+		if version3.Equal(v1_1_23_45) != true {
 			t.Errorf("Expected %s to be the same as %s", version3.String(), v1_1_23_45.String())
 		}
 
@@ -451,7 +451,7 @@ func TestVersion(t *testing.T) {
 			t.Errorf("Expected %s to be after %s", version4.String(), v_1_23_45_r6.String())
 		}
 
-		if version4.IsSame(v_1_23_45_r7) != true {
+		if version4.Equal(v_1_23_45_r7) != true {
 			t.Errorf("Expected %s to be after %s", version4.String(), v_1_23_45_r7.String())
 		}
 
@@ -489,7 +489,7 @@ func TestVersion(t *testing.T) {
 			t.Errorf("Expected %s to be after %s", version1.String(), v_1_23_45_6.String())
 		}
 
-		if version1.IsSame(v_1_23_45_7) != true {
+		if version1.Equal(v_1_23_45_7) != true {
 			t.Errorf("Expected %s to be the same as %s", version1.String(), v_1_23_45_7.String())
 		}
 
@@ -503,7 +503,7 @@ func TestVersion(t *testing.T) {
 			t.Errorf("Expected %s to be after %s", version2.String(), v_1_23_44.String())
 		}
 
-		if version2.IsSame(v_1_23_45) != true {
+		if version2.Equal(v_1_23_45) != true {
 			t.Errorf("Expected %s to be the same as %s", version2.String(), v_1_23_45.String())
 		}
 		if version2.IsBefore(v_1_23_46) != true {
@@ -514,7 +514,7 @@ func TestVersion(t *testing.T) {
 			t.Errorf("Expected %s to be after %s", version2.String(), v_1_23_45_6.String())
 		}
 
-		if version2.IsSame(v_1_23_45_7) != true {
+		if version2.Equal(v_1_23_45_7) != true {
 			t.Errorf("Expected %s to be the same as %s", version2.String(), v_1_23_45_7.String())
 		}
 
@@ -528,7 +528,7 @@ func TestVersion(t *testing.T) {
 			t.Errorf("Expected %s to be after %s", version3.String(), v_1_23_44.String())
 		}
 
-		if version3.IsSame(v_1_23_45) != true {
+		if version3.Equal(v_1_23_45) != true {
 			t.Errorf("Expected %s to be the same as %s", version3.String(), v_1_23_45.String())
 		}
 

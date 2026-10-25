@@ -80,9 +80,34 @@ func IsIPv4AndPort(value string) bool {
 
 }
 
+func NewIPv4() IPv4 {
+	return IPv4{}
+}
+
 func ParseIPv4(value string) *IPv4 {
 
 	var result *IPv4 = nil
+	var ipv4 IPv4
+
+	if ipv4.Parse(value) == true {
+		result = &ipv4
+	}
+
+	return result
+
+}
+
+func ToIPv4(value string) IPv4 {
+
+	var ipv4 IPv4
+
+	ipv4.Parse(value)
+
+	return ipv4
+
+}
+
+func (ipv4 *IPv4) Parse(value string) bool {
 
 	if strings.Contains(value, ".") {
 
@@ -104,13 +129,16 @@ func ParseIPv4(value string) *IPv4 {
 		}
 
 		if len(tmp2) == 4 {
-			ipv4 := IPv4(tmp2)
-			result = &ipv4
+
+			*ipv4 = IPv4(tmp2)
+
+			return true
+
 		}
 
 	}
 
-	return result
+	return false
 
 }
 
@@ -180,19 +208,21 @@ func (ipv4 IPv4) Bytes(prefix uint8) []byte {
 
 }
 
+func (ipv4 IPv4) Equal(other IPv4) bool {
+	return ipv4 == other
+}
+
 func (ipv4 IPv4) IsUnspecified() bool {
 	return ipv4 == IPv4{}
 }
 
 func (ipv4 IPv4) IsValid() bool {
 
-	var result bool
-
 	if IsIPv4(ipv4.String()) {
-		result = true
+		return true
 	}
 
-	return result
+	return false
 
 }
 

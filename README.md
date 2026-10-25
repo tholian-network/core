@@ -169,12 +169,15 @@ replace tholian-core => ../../core/source
 
 The packages follow a consistent naming scheme:
 
-- `Parse*` returns a pointer or fails with `nil`.
+- `Parse*` returns a pointer or fails with `nil`, delegating to `Parse()`.
 - `To*` returns a zero value when parsing fails.
 - `Is*` validates strings or reports type predicates.
 - `New*` constructs an empty or initialized value.
 - `Set*` mutates a value only when the input is valid.
-- `IsValid`, `IsAny`, `HasHost`, `HasPort`, and `HasSubnet` describe state.
+- `Equal` compares values of the same type.
+- `Matches` compares matcher or message semantics.
+- `IsValid`, `IsAny`, `Has*` describe state.
+- `Any` is the shared value for wildcard or unspecified selectors.
 
 ## Testing
 

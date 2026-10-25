@@ -5,7 +5,7 @@ import "testing"
 func TestIsArchitecture(t *testing.T) {
 
 	valid := []Architecture{
-		ArchitectureANY,
+		Architecture(Any),
 		ArchitectureX86,
 		ArchitectureX86_64,
 		ArchitectureARMv6,

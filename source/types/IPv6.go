@@ -86,23 +86,50 @@ func IsIPv6AndPort(value string) bool {
 
 }
 
+func NewIPv6() IPv6 {
+	return IPv6{}
+}
+
 func ParseIPv6(raw string) *IPv6 {
+
+	var result *IPv6 = nil
+	var ipv6 IPv6
+
+	if ipv6.Parse(raw) == true {
+		result = &ipv6
+	}
+
+	return result
+
+}
+
+func ToIPv6(value string) IPv6 {
+
+	var ipv6 IPv6
+
+	ipv6.Parse(value)
+
+	return ipv6
+
+}
+
+func (ipv6 *IPv6) Parse(raw string) bool {
 
 	value, ok := normalizeIPv6(raw)
 
 	if ok == false {
-		return nil
+		return false
 	}
 
 	address, err := netip.ParseAddr(value)
 
 	if err != nil {
-		return nil
+		return false
 	}
 
-	ipv6 := IPv6(address.As16())
+	*ipv6 = IPv6(address.As16())
 
-	return &ipv6
+	return true
 
 }
 
@@ -172,8 +199,16 @@ func (ipv6 IPv6) Bytes(prefix uint8) []byte {
 
 }
 
+func (ipv6 IPv6) Equal(other IPv6) bool {
+	return ipv6 == other
+}
+
 func (ipv6 IPv6) IsUnspecified() bool {
 	return ipv6 == IPv6{}
+}
+
+func (ipv6 IPv6) IsValid() bool {
+	return IsIPv6(ipv6.String())
 }
 
 func (ipv6 IPv6) Scope() string {

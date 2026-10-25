@@ -21,6 +21,18 @@ type Version struct {
 	Revision string `json:"revision,omitempty"`
 }
 
+func NewVersion() Version {
+	return Version{}
+}
+
+func IsVersion(value string) bool {
+
+	var version Version
+
+	return value != "" && version.Parse(value)
+
+}
+
 func ParseVersion(value string) *Version {
 
 	var result *Version = nil
@@ -46,11 +58,7 @@ func ToVersion(value string) Version {
 
 	var version Version
 
-	tmp := ParseVersion(value)
-
-	if tmp != nil {
-		version = *tmp
-	}
+	version.Parse(value)
 
 	return version
 
@@ -58,34 +66,46 @@ func ToVersion(value string) Version {
 
 func (version *Version) IsAfter(other Version) bool {
 
-	var result bool
-
 	if version.Epoche > other.Epoche {
-		result = true
+
+		return true
+
 	} else if version.Epoche == other.Epoche {
 
 		if version.Upstream.Major > other.Upstream.Major {
-			result = true
+
+			return true
+
 		} else if version.Upstream.Major == other.Upstream.Major {
 
 			if version.Upstream.Minor > other.Upstream.Minor {
-				result = true
+
+				return true
+
 			} else if version.Upstream.Minor == other.Upstream.Minor {
 
 				if version.Upstream.Patch > other.Upstream.Patch {
-					result = true
+
+					return true
+
 				} else if version.Upstream.Patch == other.Upstream.Patch {
 
 					compare := compareVersionRelease(version.Upstream.Release, other.Upstream.Release)
 
 					if compare == 1 {
-						result = true
+
+						return true
+
 					} else if compare == 0 {
 
 						if version.Revision > other.Revision {
-							result = true
+
+							return true
+
 						} else if version.Revision == other.Revision {
-							result = false
+
+							return false
+
 						}
 
 					}
@@ -98,40 +118,52 @@ func (version *Version) IsAfter(other Version) bool {
 
 	}
 
-	return result
+	return false
 
 }
 
 func (version *Version) IsBefore(other Version) bool {
 
-	var result bool
-
 	if version.Epoche < other.Epoche {
-		result = true
+
+		return true
+
 	} else if version.Epoche == other.Epoche {
 
 		if version.Upstream.Major < other.Upstream.Major {
-			result = true
+
+			return true
+
 		} else if version.Upstream.Major == other.Upstream.Major {
 
 			if version.Upstream.Minor < other.Upstream.Minor {
-				result = true
+
+				return true
+
 			} else if version.Upstream.Minor == other.Upstream.Minor {
 
 				if version.Upstream.Patch < other.Upstream.Patch {
-					result = true
+
+					return true
+
 				} else if version.Upstream.Patch == other.Upstream.Patch {
 
 					compare := compareVersionRelease(version.Upstream.Release, other.Upstream.Release)
 
 					if compare == -1 {
-						result = true
+
+						return true
+
 					} else if compare == 0 {
 
 						if version.Revision < other.Revision {
-							result = true
+
+							return true
+
 						} else if version.Revision == other.Revision {
-							result = false
+
+							return false
+
 						}
 
 					}
@@ -144,13 +176,11 @@ func (version *Version) IsBefore(other Version) bool {
 
 	}
 
-	return result
+	return false
 
 }
 
-func (version *Version) IsSame(other Version) bool {
-
-	var result bool
+func (version *Version) Equal(other Version) bool {
 
 	if version.Epoche == other.Epoche {
 
@@ -163,7 +193,7 @@ func (version *Version) IsSame(other Version) bool {
 					compare := compareVersionRelease(version.Upstream.Release, other.Upstream.Release)
 
 					if compare == 0 {
-						result = true
+						return true
 					}
 
 				}
@@ -174,19 +204,17 @@ func (version *Version) IsSame(other Version) bool {
 
 	}
 
-	return result
+	return false
 
 }
 
 func (version *Version) IsValid() bool {
 
-	var result bool
-
 	if version.Upstream.Major != 0 || version.Upstream.Minor != 0 || version.Upstream.Patch != 0 {
-		result = true
+		return true
 	}
 
-	return result
+	return false
 
 }
 

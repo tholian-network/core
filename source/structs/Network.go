@@ -57,7 +57,7 @@ func (network *Network) AddSubnet(value Subnet) {
 
 		for s := 0; s < len(network.Subnets); s++ {
 
-			if network.Subnets[s].IsIdentical(value) {
+			if network.Subnets[s].Equal(value) {
 				found = true
 				break
 			}
@@ -78,7 +78,7 @@ func (network *Network) RemoveSubnet(value Subnet) {
 
 	for s := 0; s < len(network.Subnets); s++ {
 
-		if network.Subnets[s].IsIdentical(value) {
+		if network.Subnets[s].Equal(value) {
 			index = s
 			break
 		}

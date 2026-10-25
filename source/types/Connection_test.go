@@ -23,7 +23,7 @@ func TestConnection(t *testing.T) {
 		t.Fatalf("unexpected protocol: %q", connection.Protocol)
 	}
 
-	if connection.IsIdentical(connection) == false {
+	if connection.Equal(connection) == false {
 		t.Fatal("connection should be identical to itself")
 	}
 
@@ -63,4 +63,3 @@ func TestConnectionIsValid(t *testing.T) {
 	}
 
 }
-

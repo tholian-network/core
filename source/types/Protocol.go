@@ -5,7 +5,6 @@ import "strconv"
 type Protocol string
 
 const (
-	ProtocolANY        Protocol = "any"
 	ProtocolDNS        Protocol = "dns"
 	ProtocolDNSoverTLS Protocol = "dns-over-tls"
 	ProtocolHTTPS      Protocol = "https"
@@ -21,7 +20,7 @@ const (
 func IsProtocol(value string) bool {
 
 	switch Protocol(value) {
-	case ProtocolANY,
+	case Any,
 		ProtocolDNS,
 		ProtocolDNSoverTLS,
 		ProtocolHTTPS,
@@ -39,42 +38,16 @@ func IsProtocol(value string) bool {
 
 }
 
+func NewProtocol() Protocol {
+	return Protocol(Any)
+}
+
 func ParseProtocol(value string) *Protocol {
 
 	var result *Protocol = nil
+	var protocol Protocol
 
-	if value == "*" || value == "all" || value == "any" {
-		protocol := Protocol(ProtocolANY)
-		result = &protocol
-	} else if value == "https" {
-		protocol := Protocol(ProtocolHTTPS)
-		result = &protocol
-	} else if value == "http" {
-		protocol := Protocol(ProtocolHTTP)
-		result = &protocol
-	} else if value == "dns" {
-		protocol := Protocol(ProtocolDNS)
-		result = &protocol
-	} else if value == "dns-over-tls" || value == "dot" {
-		protocol := Protocol(ProtocolDNSoverTLS)
-		result = &protocol
-	} else if value == "icmp" {
-		protocol := Protocol(ProtocolICMP)
-		result = &protocol
-	} else if value == "ssh" {
-		protocol := Protocol(ProtocolSSH)
-		result = &protocol
-	} else if value == "socks" || value == "socks4" || value == "socks5" {
-		protocol := Protocol(ProtocolSOCKS)
-		result = &protocol
-	} else if value == "whois" {
-		protocol := Protocol(ProtocolWHOIS)
-		result = &protocol
-	} else if value == "tcp" || value == "tcp4" || value == "tcp6" {
-		protocol := Protocol(ProtocolTCP)
-		result = &protocol
-	} else if value == "udp" || value == "udp4" || value == "udp6" {
-		protocol := Protocol(ProtocolUDP)
+	if protocol.Parse(value) == true {
 		result = &protocol
 	}
 
@@ -82,18 +55,106 @@ func ParseProtocol(value string) *Protocol {
 
 }
 
+func ToProtocol(value string) Protocol {
+
+	var protocol Protocol
+
+	protocol.Parse(value)
+
+	return protocol
+
+}
+
+func (protocol *Protocol) Parse(value string) bool {
+
+	if value == "*" || value == "all" || value == Any {
+
+		*protocol = Protocol(Any)
+
+		return true
+
+	} else if value == "https" {
+
+		*protocol = ProtocolHTTPS
+
+		return true
+
+	} else if value == "http" {
+
+		*protocol = ProtocolHTTP
+
+		return true
+
+	} else if value == "dns" {
+
+		*protocol = ProtocolDNS
+
+		return true
+
+	} else if value == "dns-over-tls" || value == "dot" {
+
+		*protocol = ProtocolDNSoverTLS
+
+		return true
+
+	} else if value == "icmp" {
+
+		*protocol = ProtocolICMP
+
+		return true
+
+	} else if value == "ssh" {
+
+		*protocol = ProtocolSSH
+
+		return true
+
+	} else if value == "socks" || value == "socks4" || value == "socks5" {
+
+		*protocol = ProtocolSOCKS
+
+		return true
+
+	} else if value == "whois" {
+
+		*protocol = ProtocolWHOIS
+
+		return true
+
+	} else if value == "tcp" || value == "tcp4" || value == "tcp6" {
+
+		*protocol = ProtocolTCP
+
+		return true
+
+	} else if value == "udp" || value == "udp4" || value == "udp6" {
+
+		*protocol = ProtocolUDP
+
+		return true
+
+	}
+
+	return false
+
+}
+
 func (protocol Protocol) Bytes() []byte {
 	return []byte(protocol)
 }
 
+func (protocol Protocol) Equal(other Protocol) bool {
+	return protocol == other
+}
+
 func (protocol Protocol) IsAny() bool {
-	return protocol == "" || protocol == ProtocolANY
+	return protocol == "" || protocol == Protocol(Any)
 }
 
 func (protocol Protocol) IsValid() bool {
 
 	switch protocol {
-	case "", ProtocolANY, ProtocolHTTPS, ProtocolHTTP, ProtocolDNS, ProtocolDNSoverTLS, ProtocolICMP, ProtocolSSH, ProtocolSOCKS, ProtocolWHOIS, ProtocolTCP, ProtocolUDP:
+	case "", Protocol(Any), ProtocolHTTPS, ProtocolHTTP, ProtocolDNS, ProtocolDNSoverTLS, ProtocolICMP, ProtocolSSH, ProtocolSOCKS, ProtocolWHOIS, ProtocolTCP, ProtocolUDP:
 		return true
 	}
 

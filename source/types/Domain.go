@@ -87,16 +87,34 @@ func IsDomainAndPort(value string) bool {
 
 }
 
+func NewDomain() Domain {
+	return Domain("")
+}
+
 func ParseDomain(value string) *Domain {
 
 	var result *Domain = nil
+	var domain Domain
 
-	if IsDomain(value) {
-		domain := Domain(strings.TrimSuffix(strings.TrimSpace(value), "."))
+	if domain.Parse(value) == true {
 		result = &domain
 	}
 
 	return result
+
+}
+
+func (domain *Domain) Parse(value string) bool {
+
+	value = strings.TrimSpace(value)
+	value = strings.TrimSuffix(value, ".")
+
+	if IsDomain(value) {
+		*domain = Domain(value)
+		return true
+	}
+
+	return false
 
 }
 
@@ -131,12 +149,14 @@ func ToDomain(value string) Domain {
 
 	var domain Domain
 
-	if IsDomain(value) {
-		domain = Domain(value)
-	}
+	domain.Parse(value)
 
 	return domain
 
+}
+
+func (domain Domain) Equal(other Domain) bool {
+	return domain == other
 }
 
 func (domain Domain) IsValid() bool {

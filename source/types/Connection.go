@@ -16,7 +16,7 @@ func NewConnection() Connection {
 
 	connection.Source = NewSocket("0.0.0.0", 0)
 	connection.Target = NewSocket("0.0.0.0", 0)
-	connection.Protocol = ProtocolANY
+	connection.Protocol = Protocol(Any)
 	connection.Type = ""
 
 	return connection
@@ -24,8 +24,6 @@ func NewConnection() Connection {
 }
 
 func IsConnection(value string) bool {
-
-	var result bool
 
 	if strings.Contains(value, " ") {
 
@@ -56,9 +54,9 @@ func IsConnection(value string) bool {
 
 			} else if strings.HasSuffix(tmp[1], ":*") {
 
-				if IsIPv4(tmp[1][0:len(tmp[1])-2]) {
+				if IsIPv4(tmp[1][0 : len(tmp[1])-2]) {
 					valid_source = true
-				} else if IsIPv6(tmp[1][0:len(tmp[1])-2]) {
+				} else if IsIPv6(tmp[1][0 : len(tmp[1])-2]) {
 					valid_source = true
 				}
 
@@ -100,9 +98,9 @@ func IsConnection(value string) bool {
 
 			} else if strings.HasSuffix(tmp[3], ":*") {
 
-				if IsIPv4(tmp[3][0:len(tmp[3])-2]) {
+				if IsIPv4(tmp[3][0 : len(tmp[3])-2]) {
 					valid_target = true
-				} else if IsIPv6(tmp[3][0:len(tmp[3])-2]) {
+				} else if IsIPv6(tmp[3][0 : len(tmp[3])-2]) {
 					valid_target = true
 				}
 
@@ -133,20 +131,31 @@ func IsConnection(value string) bool {
 			}
 
 			if valid_protocol && valid_source && valid_type && valid_target {
-				result = true
+				return true
 			}
 
 		}
 
 	}
 
-	return result
+	return false
 
 }
 
 func ParseConnection(value string) *Connection {
 
 	var result *Connection = nil
+	var connection Connection
+
+	if connection.Parse(value) == true {
+		result = &connection
+	}
+
+	return result
+
+}
+
+func (connection *Connection) Parse(value string) bool {
 
 	if strings.Contains(value, " ") {
 
@@ -166,7 +175,7 @@ func ParseConnection(value string) *Connection {
 			typ := ""
 
 			if strings.HasPrefix(tmp[0], "[") && strings.HasSuffix(tmp[0], "]") && IsProtocol(tmp[0][1:len(tmp[0])-1]) {
-				protocol = strings.TrimSpace(tmp[0][1:len(tmp[0])-1])
+				protocol = strings.TrimSpace(tmp[0][1 : len(tmp[0])-1])
 			}
 
 			if strings.HasPrefix(tmp[1], "*:") {
@@ -179,18 +188,18 @@ func ParseConnection(value string) *Connection {
 
 			} else if strings.HasSuffix(tmp[1], ":*") {
 
-				if IsIPv4(tmp[1][0:len(tmp[1])-2]) {
+				if IsIPv4(tmp[1][0 : len(tmp[1])-2]) {
 
-					ipv4 := ParseIPv4(tmp[1][0:len(tmp[1])-2])
+					ipv4 := ParseIPv4(tmp[1][0 : len(tmp[1])-2])
 
 					if ipv4 != nil {
 						source_host = ipv4.String()
 						source_port = uint16(0)
 					}
 
-				} else if IsIPv6(tmp[1][0:len(tmp[1])-2]) {
+				} else if IsIPv6(tmp[1][0 : len(tmp[1])-2]) {
 
-					ipv6 := ParseIPv6(tmp[1][0:len(tmp[1])-2])
+					ipv6 := ParseIPv6(tmp[1][0 : len(tmp[1])-2])
 
 					if ipv6 != nil {
 						source_host = ipv6.String()
@@ -242,18 +251,18 @@ func ParseConnection(value string) *Connection {
 
 			} else if strings.HasSuffix(tmp[3], ":*") {
 
-				if IsIPv4(tmp[3][0:len(tmp[3])-2]) {
+				if IsIPv4(tmp[3][0 : len(tmp[3])-2]) {
 
-					ipv4 := ParseIPv4(tmp[3][0:len(tmp[3])-2])
+					ipv4 := ParseIPv4(tmp[3][0 : len(tmp[3])-2])
 
 					if ipv4 != nil {
 						target_host = ipv4.String()
 						target_port = uint16(0)
 					}
 
-				} else if IsIPv6(tmp[3][0:len(tmp[3])-2]) {
+				} else if IsIPv6(tmp[3][0 : len(tmp[3])-2]) {
 
-					ipv6 := ParseIPv6(tmp[3][0:len(tmp[3])-2])
+					ipv6 := ParseIPv6(tmp[3][0 : len(tmp[3])-2])
 
 					if ipv6 != nil {
 						target_host = ipv6.String()
@@ -297,12 +306,14 @@ func ParseConnection(value string) *Connection {
 
 					if target_host != "" && target_port > 0 && target_port < 65535 {
 
-						result = &Connection{
+						*connection = Connection{
 							Source:   NewSocket(source_host, source_port),
 							Target:   NewSocket(target_host, target_port),
 							Protocol: Protocol(protocol),
 							Type:     typ,
 						}
+
+						return true
 
 					}
 
@@ -314,7 +325,7 @@ func ParseConnection(value string) *Connection {
 
 	}
 
-	return result
+	return false
 
 }
 
@@ -322,15 +333,7 @@ func ToConnection(value string) Connection {
 
 	var connection Connection
 
-	if value != "" {
-
-		tmp := ParseConnection(value)
-
-		if tmp != nil {
-			connection = *tmp
-		}
-
-	}
+	connection.Parse(value)
 
 	return connection
 
@@ -366,7 +369,7 @@ func isValidEndpoint(socket Socket) bool {
 	return socket.IsValid() && socket.HasHost() && socket.HasPort()
 }
 
-func (connection *Connection) IsIdentical(value Connection) bool {
+func (connection *Connection) Equal(value Connection) bool {
 
 	var result bool = false
 

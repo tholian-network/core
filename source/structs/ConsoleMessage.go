@@ -89,7 +89,7 @@ func NewConsoleMessage(method string, value string) ConsoleMessage {
 
 }
 
-func (message *ConsoleMessage) IsSame(other ConsoleMessage) bool {
+func (message *ConsoleMessage) Matches(other ConsoleMessage) bool {
 
 	var result bool
 

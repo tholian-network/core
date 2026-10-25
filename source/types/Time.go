@@ -23,6 +23,14 @@ func NewTime() Time {
 
 }
 
+func IsTime(value string) bool {
+
+	var time Time
+
+	return value != "" && time.Parse(value)
+
+}
+
 func ParseTime(value string) *Time {
 
 	var result *Time = nil
@@ -123,53 +131,65 @@ func (time *Time) AddTime(other Time) {
 
 func (time *Time) IsAfter(other Time) bool {
 
-	var result bool
-
 	if time.Hour > other.Hour {
-		result = true
+
+		return true
+
 	} else if time.Hour == other.Hour {
 
 		if time.Minute > other.Minute {
-			result = true
+
+			return true
+
 		} else if time.Minute == other.Minute {
 
 			if time.Second > other.Second {
-				result = true
+
+				return true
+
 			} else if time.Second == other.Second {
-				result = false
+
+				return false
+
 			}
 
 		}
 
 	}
 
-	return result
+	return false
 
 }
 
 func (time *Time) IsBefore(other Time) bool {
 
-	var result bool
-
 	if time.Hour < other.Hour {
-		result = true
+
+		return true
+
 	} else if time.Hour == other.Hour {
 
 		if time.Minute < other.Minute {
-			result = true
+
+			return true
+
 		} else if time.Minute == other.Minute {
 
 			if time.Second < other.Second {
-				result = true
+
+				return true
+
 			} else if time.Second == other.Second {
-				result = false
+
+				return false
+
 			}
 
 		}
 
 	}
 
-	return result
+	return false
 
 }
 
@@ -189,23 +209,21 @@ func (time *Time) IsPast() bool {
 
 }
 
-func (time *Time) IsSame(other Time) bool {
-
-	var result bool
+func (time *Time) Equal(other Time) bool {
 
 	if time.Hour == other.Hour {
 
 		if time.Minute == other.Minute {
 
 			if time.Second == other.Second {
-				result = true
+				return true
 			}
 
 		}
 
 	}
 
-	return result
+	return false
 
 }
 
@@ -297,8 +315,6 @@ func (time *Time) Offset(offset string) {
 
 func (time *Time) Parse(value string) bool {
 
-	var result bool
-
 	if strings.Contains(value, ":") {
 
 		chunks := strings.Split(value, ":")
@@ -334,9 +350,9 @@ func (time *Time) Parse(value string) bool {
 			}
 
 			if value == "00:00:00" && time.Hour == 0 && time.Minute == 0 && time.Second == 0 {
-				result = true
+				return true
 			} else if err1 == nil && err2 == nil && err3 == nil {
-				result = true
+				return true
 			}
 
 		} else if len(chunks) == 2 {
@@ -361,16 +377,16 @@ func (time *Time) Parse(value string) bool {
 			}
 
 			if value == "00:00" && time.Hour == 0 && time.Minute == 0 {
-				result = true
+				return true
 			} else if err1 == nil && err2 == nil {
-				result = true
+				return true
 			}
 
 		}
 
 	}
 
-	return result
+	return false
 
 }
 

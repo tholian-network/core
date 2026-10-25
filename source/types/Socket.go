@@ -24,6 +24,17 @@ func NewSocket(host string, port uint16) Socket {
 func ParseSocket(value string) *Socket {
 
 	var result *Socket = nil
+	var socket Socket
+
+	if socket.Parse(value) == true {
+		result = &socket
+	}
+
+	return result
+
+}
+
+func (socket *Socket) Parse(value string) bool {
 
 	if strings.HasPrefix(value, "[") && strings.Contains(value, "]:") {
 
@@ -31,14 +42,18 @@ func ParseSocket(value string) *Socket {
 		tmp2, err := strconv.ParseInt(strings.Split(value, "]:")[1], 10, 16)
 
 		if err == nil {
-			socket := NewSocket(tmp1, uint16(tmp2))
-			result = &socket
+
+			*socket = NewSocket(tmp1, uint16(tmp2))
+
+			return true
+
 		}
 
 	} else if strings.HasPrefix(value, "[") && strings.HasSuffix(value, "]") {
 
-		socket := NewSocket(value, uint16(0))
-		result = &socket
+		*socket = NewSocket(value, uint16(0))
+
+		return true
 
 	} else if strings.Contains(value, ".") && strings.Contains(value, ":") {
 
@@ -46,8 +61,11 @@ func ParseSocket(value string) *Socket {
 		tmp2, err := strconv.ParseInt(strings.Split(value, ":")[1], 10, 16)
 
 		if err == nil {
-			socket := NewSocket(tmp1, uint16(tmp2))
-			result = &socket
+
+			*socket = NewSocket(tmp1, uint16(tmp2))
+
+			return true
+
 		}
 
 	} else if strings.Contains(value, ":") {
@@ -56,18 +74,22 @@ func ParseSocket(value string) *Socket {
 		tmp2, err := strconv.ParseInt(strings.Split(value, ":")[1], 10, 16)
 
 		if err == nil {
-			socket := NewSocket(tmp1, uint16(tmp2))
-			result = &socket
+
+			*socket = NewSocket(tmp1, uint16(tmp2))
+
+			return true
+
 		}
 
 	} else if strings.Contains(value, ".") {
 
-		socket := NewSocket(value, uint16(0))
-		result = &socket
+		*socket = NewSocket(value, uint16(0))
+
+		return true
 
 	}
 
-	return result
+	return false
 
 }
 
@@ -75,18 +97,25 @@ func ToSocket(value string) Socket {
 
 	var socket Socket
 
-	if value != "" {
-
-		tmp := ParseSocket(value)
-
-		if tmp != nil {
-			socket = *tmp
-		}
-
-	}
+	socket.Parse(value)
 
 	return socket
 
+}
+
+func IsSocket(value string) bool {
+
+	var socket Socket
+
+	return socket.Parse(value)
+
+}
+
+func (socket *Socket) Equal(other Socket) bool {
+	return socket.Host == other.Host &&
+		socket.Port == other.Port &&
+		socket.Scope == other.Scope &&
+		socket.Type == other.Type
 }
 
 func (socket *Socket) IsUnset() bool {
@@ -94,7 +123,7 @@ func (socket *Socket) IsUnset() bool {
 }
 
 func (socket *Socket) IsAny() bool {
-	return socket.Host == HostAny || socket.Host == HostWildcard
+	return socket.Host == Any || socket.Host == HostWildcard
 }
 
 func (socket *Socket) IsWildcard() bool {
@@ -184,7 +213,7 @@ func (socket *Socket) SetHost(value string) {
 			socket.Type = AddressTypeDomain
 		}
 
-	} else if value == HostAny || value == "all" || value == HostWildcard {
+	} else if value == Any || value == "all" || value == HostWildcard {
 
 		socket.Host = HostWildcard
 		socket.Scope = "public"

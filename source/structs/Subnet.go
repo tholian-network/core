@@ -134,7 +134,7 @@ func (subnet *Subnet) ContainsSubnet(value Subnet) bool {
 
 }
 
-func (subnet *Subnet) IsIdentical(value Subnet) bool {
+func (subnet *Subnet) Equal(value Subnet) bool {
 
 	var result bool = false
 

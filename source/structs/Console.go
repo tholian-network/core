@@ -847,7 +847,7 @@ func (console *Console) writeProgress(raw string) {
 
 					last_message := console.Messages[last_progress]
 
-					if message.IsSame(last_message) {
+					if message.Matches(last_message) {
 
 						if console.Stdout != nil {
 
