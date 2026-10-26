@@ -40,8 +40,6 @@ func ToSubnet(value string) Subnet {
 
 func (subnet *Subnet) Contains(value string) bool {
 
-	var result bool = false
-
 	if types.IsIPv6(value) {
 
 		ipv6 := types.ParseIPv6(value)
@@ -49,7 +47,8 @@ func (subnet *Subnet) Contains(value string) bool {
 		if ipv6 != nil {
 
 			tmp := NewSubnet(ipv6.String(), 128)
-			result = subnet.ContainsSubnet(tmp)
+
+			return subnet.ContainsSubnet(tmp)
 
 		}
 
@@ -60,19 +59,18 @@ func (subnet *Subnet) Contains(value string) bool {
 		if ipv4 != nil {
 
 			tmp := NewSubnet(ipv4.String(), 32)
-			result = subnet.ContainsSubnet(tmp)
+
+			return subnet.ContainsSubnet(tmp)
 
 		}
 
 	}
 
-	return result
+	return false
 
 }
 
 func (subnet *Subnet) ContainsSubnet(value Subnet) bool {
-
-	var result bool = false
 
 	if subnet.Type == types.AddressTypeIPv4 && value.Type == types.AddressTypeIPv4 {
 
@@ -86,16 +84,18 @@ func (subnet *Subnet) ContainsSubnet(value Subnet) bool {
 				bytes_subnet := ipv4_subnet.Bytes(subnet.Prefix)
 				bytes_value := ipv4_value.Bytes(subnet.Prefix)
 
-				result = true
+				matches_bytes := true
 
 				for b := 0; b < len(bytes_subnet); b++ {
 
 					if bytes_subnet[b] != bytes_value[b] {
-						result = false
+						matches_bytes = false
 						break
 					}
 
 				}
+
+				return matches_bytes
 
 			}
 
@@ -113,16 +113,18 @@ func (subnet *Subnet) ContainsSubnet(value Subnet) bool {
 				bytes_subnet := ipv6_subnet.Bytes(subnet.Prefix)
 				bytes_value := ipv6_value.Bytes(subnet.Prefix)
 
-				result = true
+				matches_bytes := true
 
 				for b := 0; b < len(bytes_subnet); b++ {
 
 					if bytes_subnet[b] != bytes_value[b] {
-						result = false
+						matches_bytes = false
 						break
 					}
 
 				}
+
+				return matches_bytes
 
 			}
 
@@ -130,19 +132,17 @@ func (subnet *Subnet) ContainsSubnet(value Subnet) bool {
 
 	}
 
-	return result
+	return false
 
 }
 
 func (subnet *Subnet) Equal(value Subnet) bool {
 
-	var result bool = false
-
 	if subnet.Address == value.Address && subnet.Prefix == value.Prefix {
-		result = true
+		return true
 	}
 
-	return result
+	return false
 
 }
 
@@ -375,7 +375,7 @@ func (subnet *Subnet) SetScope(value string) {
 
 func (subnet *Subnet) Addresses() uint {
 
-	var result uint
+	result := uint(0)
 
 	if subnet.IsValid() && subnet.Prefix != 0 {
 

@@ -161,165 +161,133 @@ func (response *Response) IsValid() bool {
 
 func (response *Response) MatchesAntique(antique Antique) bool {
 
-	result := false
-
 	for p := 0; p < len(response.Packages); p++ {
 
 		if response.Packages[p].Matches(antique.Name, antique.Version.String(), antique.Architecture.String(), antique.Manager.String(), "any") {
-			result = true
-			break
+			return true
 		}
 
 	}
 
-	return result
+	return false
 
 }
 
 func (response *Response) MatchesConnection(connection types.Connection) bool {
 
-	result := false
-
 	for c := 0; c < len(response.Connections); c++ {
 
 		if response.Connections[c].Matches(connection.Source.Host, connection.Source.Port, connection.Protocol.String(), connection.Type) {
-			result = true
-			break
+			return true
 		} else if response.Connections[c].Matches(connection.Target.Host, connection.Target.Port, connection.Protocol.String(), connection.Type) {
-			result = true
-			break
+			return true
 		}
 
 	}
 
-	return result
+	return false
 
 }
 
 func (response *Response) MatchesDistribution(distribution Distribution) bool {
 
-	result := false
-
 	for d := 0; d < len(response.Distributions); d++ {
 
 		if response.Distributions[d].Matches(distribution.Name, distribution.Version, distribution.Manager, distribution.Vendor) {
-			result = true
-			break
+			return true
 		}
 
 	}
 
-	return result
+	return false
 
 }
 
 func (response *Response) MatchesNetwork(network Network) bool {
-
-	result := false
 
 	for n := 0; n < len(response.Networks); n++ {
 
 		for s := 0; s < len(network.Subnets); s++ {
 
 			if response.Networks[n].Matches(network.Subnets[s].Name, network.Subnets[s].String()) {
-				result = true
-				break
+				return true
 			}
 
 		}
 
-		if result == true {
-			break
-		}
-
 	}
 
-	return result
+	return false
 
 }
 
 func (response *Response) MatchesPackage(pkg Package) bool {
 
-	result := false
-
 	for p := 0; p < len(response.Packages); p++ {
 
 		if response.Packages[p].Matches(pkg.Name, pkg.Version.String(), pkg.Architecture.String(), pkg.Manager.String(), pkg.Vendor) {
-			result = true
-			break
+			return true
 		}
 
 	}
 
-	return result
+	return false
 
 }
 
 func (response *Response) MatchesProgram(program Program) bool {
 
-	result := false
-
 	for p := 0; p < len(response.Programs); p++ {
 
 		if response.Programs[p].Matches(program.Name, program.Command, program.Arguments) {
-			result = true
-			break
+			return true
 		}
 
 	}
 
-	return result
+	return false
 
 }
 
 func (response *Response) MatchesUpdate(update Update) bool {
 
-	result := false
-
 	for p := 0; p < len(response.Packages); p++ {
 
 		if response.Packages[p].Matches(update.Name, update.Version.String(), update.Architecture.String(), update.Manager.String(), "any") {
-			result = true
-			break
+			return true
 		}
 
 	}
 
-	return result
+	return false
 
 }
 
 func (response *Response) MatchesUser(user types.User) bool {
 
-	result := false
-
 	for u := 0; u < len(response.Users); u++ {
 
 		if response.Users[u].Matches(user.Name, user.Password, user.Type) {
-			result = true
-			break
+			return true
 		}
 
 	}
 
-	return result
+	return false
 
 }
 
 func (response *Response) MatchesVulnerability(vulnerability Vulnerability) bool {
 
-	result := false
-
 	for v := 0; v < len(response.Vulnerabilities); v++ {
 
 		if response.Vulnerabilities[v].Matches(vulnerability.Name, vulnerability.Type, vulnerability.Severity, vulnerability.State, vulnerability.Datetime.String()) {
-			result = true
-			break
+			return true
 		}
 
 	}
 
-	return result
+	return false
 
 }
 

@@ -2,7 +2,7 @@ package structs
 
 func toIncidentTypeIndex(typ string) int {
 
-	var result int
+	result := int(0)
 
 	switch typ {
 	case "Recon":   result = 1

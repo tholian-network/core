@@ -91,8 +91,6 @@ func NewConsoleMessage(method string, value string) ConsoleMessage {
 
 func (message *ConsoleMessage) Matches(other ConsoleMessage) bool {
 
-	var result bool
-
 	if message.Method == "Progress" && other.Method == "Progress" {
 
 		if strings.Contains(message.Value, " of ") && strings.Contains(other.Value, " of ") {
@@ -113,11 +111,11 @@ func (message *ConsoleMessage) Matches(other ConsoleMessage) bool {
 				// message: "Parsing Incidents (1 of 5) and some other things"
 				// other:   "Parsing Incidents (2 of 5) and some other things"
 				if prefix1 == prefix2 && suffix1 == suffix2 {
-					result = true
+					return true
 				}
 
 			} else if message.Value == other.Value {
-				result = true
+				return true
 			}
 
 		} else if strings.Contains(message.Value, " of ") && !strings.Contains(other.Value, " of ") {
@@ -133,7 +131,7 @@ func (message *ConsoleMessage) Matches(other ConsoleMessage) bool {
 				// message: "Parsing 1 of 5 Incidents"
 				// other:   "Parsing Incidents"
 				if strings.HasPrefix(other.Value, prefix1) && strings.HasSuffix(other.Value, suffix1) {
-					result = true
+					return true
 				}
 
 			}
@@ -151,30 +149,28 @@ func (message *ConsoleMessage) Matches(other ConsoleMessage) bool {
 				// message: "Parsing Incidents"
 				// other:   "Parsing 1 of 5 Incidents"
 				if strings.HasPrefix(message.Value, prefix2) && strings.HasSuffix(message.Value, suffix2) {
-					result = true
+					return true
 				}
 
 			}
 
 		} else if strings.HasPrefix(message.Value, "Export") && strings.HasPrefix(other.Value, "Export") {
-			result = true
+			return true
 		} else if strings.HasPrefix(message.Value, "Parse") && strings.HasPrefix(other.Value, "Parse") {
-			result = true
+			return true
 		} else if strings.HasPrefix(message.Value, "Update") && strings.HasPrefix(other.Value, "Update") {
-			result = true
+			return true
 		} else if message.Value == other.Value {
-			result = true
+			return true
 		}
 
-	} else {
+	} else if message.Method == other.Method && message.Value == other.Value {
 
-		if message.Method == other.Method && message.Value == other.Value {
-			result = true
-		}
+		return true
 
 	}
 
-	return result
+	return false
 
 }
 

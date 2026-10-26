@@ -195,21 +195,17 @@ func (program *Program) AddDependency(value matchers.Package) {
 
 func (program *Program) HasDependency(dependency matchers.Package) bool {
 
-	var result bool
-
 	for d := 0; d < len(program.Dependencies); d++ {
 
 		other := program.Dependencies[d]
 
-		if dependency.Name == other.Name &&
-			dependency.Version == other.Version {
-			result = true
-			break
+		if dependency.Name == other.Name && dependency.Version == other.Version {
+			return true
 		}
 
 	}
 
-	return result
+	return false
 
 }
 

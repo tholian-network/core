@@ -112,7 +112,7 @@ func NewConsole(stdout *os.File, stderr *os.File, offset int) *Console {
 
 func (console *Console) GetOffset() int {
 
-	var result int
+	result := int(0)
 
 	console.mutex.RLock()
 
@@ -126,7 +126,7 @@ func (console *Console) GetOffset() int {
 
 func (console *Console) HasErrors() bool {
 
-	var result bool
+	result := false
 
 	console.mutex.RLock()
 
@@ -147,7 +147,7 @@ func (console *Console) HasErrors() bool {
 
 func (console *Console) SetOffset(offset int) bool {
 
-	var result bool
+	result := false
 
 	console.mutex.Lock()
 
@@ -164,7 +164,7 @@ func (console *Console) SetOffset(offset int) bool {
 
 func (console *Console) UseColors() bool {
 
-	var result bool
+	result := false
 
 	console.mutex.RLock()
 
@@ -180,7 +180,7 @@ func (console *Console) UseColors() bool {
 
 func (console *Console) UseMethod(method string) bool {
 
-	var result bool
+	result := false
 
 	console.mutex.RLock()
 
@@ -198,7 +198,7 @@ func (console *Console) UseMethod(method string) bool {
 
 func (console *Console) DisableMethod(method string) bool {
 
-	var result bool
+	result := false
 
 	console.mutex.Lock()
 
@@ -217,7 +217,7 @@ func (console *Console) DisableMethod(method string) bool {
 
 func (console *Console) EnableMethod(method string) bool {
 
-	var result bool
+	result := false
 
 	console.mutex.Lock()
 
@@ -315,7 +315,7 @@ func (console *Console) Reset(offset bool, errors bool, warnings bool) {
 
 func (console *Console) Length() int {
 
-	var result int
+	result := int(0)
 
 	console.mutex.RLock()
 

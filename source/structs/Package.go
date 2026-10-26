@@ -59,90 +59,63 @@ func (pkg *Package) IsValid() bool {
 
 	if pkg.Name != "" {
 
-		result := true
-
 		if pkg.Datetime.IsValid() == false {
-			result = false
+			return false
 		}
 
 		if pkg.Version.IsValid() == false {
-			result = false
+			return false
 		}
 
 		if pkg.Architecture.IsValid() == false {
-			result = false
+			return false
 		}
 
 		if pkg.Manager.IsValid() == false {
-			result = false
+			return false
 		}
 
-		if result == true {
+		for m := 0; m < len(pkg.Maintainers); m++ {
 
-			for m := 0; m < len(pkg.Maintainers); m++ {
-
-				if pkg.Maintainers[m].IsValid() == false {
-					result = false
-					break
-				}
-
+			if pkg.Maintainers[m].IsValid() == false {
+				return false
 			}
 
 		}
 
-		if result == true {
+		for c := 0; c < len(pkg.Conflicts); c++ {
 
-			for c := 0; c < len(pkg.Conflicts); c++ {
-
-				if pkg.Conflicts[c].IsValid() == false {
-					result = false
-					break
-				}
-
+			if pkg.Conflicts[c].IsValid() == false {
+				return false
 			}
 
 		}
 
-		if result == true {
+		for d := 0; d < len(pkg.Dependencies); d++ {
 
-			for d := 0; d < len(pkg.Dependencies); d++ {
-
-				if pkg.Dependencies[d].IsValid() == false {
-					result = false
-					break
-				}
-
+			if pkg.Dependencies[d].IsValid() == false {
+				return false
 			}
 
 		}
 
-		if result == true {
+		for p := 0; p < len(pkg.Provides); p++ {
 
-			for p := 0; p < len(pkg.Provides); p++ {
-
-				if pkg.Provides[p].IsValid() == false {
-					result = false
-					break
-				}
-
+			if pkg.Provides[p].IsValid() == false {
+				return false
 			}
 
 		}
 
-		if result == true {
+		for r := 0; r < len(pkg.Replaces); r++ {
 
-			for r := 0; r < len(pkg.Replaces); r++ {
-
-				if pkg.Replaces[r].IsValid() == false {
-					result = false
-					break
-				}
-
+			if pkg.Replaces[r].IsValid() == false {
+				return false
 			}
 
 		}
 
-		return result
+		return true
 
 	}
 
@@ -253,21 +226,17 @@ func (pkg *Package) AddDependency(value matchers.Package) {
 
 func (pkg *Package) HasDependency(dependency matchers.Package) bool {
 
-	var result bool
-
 	for d := 0; d < len(pkg.Dependencies); d++ {
 
 		other := pkg.Dependencies[d]
 
-		if dependency.Name == other.Name &&
-			dependency.Version == other.Version {
-			result = true
-			break
+		if dependency.Name == other.Name && dependency.Version == other.Version {
+			return true
 		}
 
 	}
 
-	return result
+	return false
 
 }
 
@@ -408,18 +377,15 @@ func (pkg *Package) SetDependencies(value []matchers.Package) {
 
 func (pkg *Package) HasFilesystem(value string) bool {
 
-	var result bool
-
 	for f := 0; f < len(pkg.Filesystem); f++ {
 
 		if pkg.Filesystem[f] == value {
-			result = true
-			break
+			return true
 		}
 
 	}
 
-	return result
+	return false
 
 }
 

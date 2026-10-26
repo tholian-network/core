@@ -25,11 +25,7 @@ func NewInternet() Internet {
 
 func (internet *Internet) AddNetwork(value Network) bool {
 
-	var result bool = false
-
 	if strings.HasPrefix(value.Name, "AS") {
-
-		result = true
 
 		var network = value
 
@@ -40,20 +36,21 @@ func (internet *Internet) AddNetwork(value Network) bool {
 			check := internet.AddSubnet(network.Subnets[s])
 
 			if check == false {
-				result = false
+				return false
 			}
 
 		}
 
+		return true
+
 	}
 
-	return result
+	return false
 
 }
 
 func (internet *Internet) AddSubnet(value Subnet) bool {
 
-	var result bool = false
 	var subnet = value
 
 	if subnet.Type == types.AddressTypeIPv6 {
@@ -70,10 +67,15 @@ func (internet *Internet) AddSubnet(value Subnet) bool {
 		_, ok2 := internet.Mapv6[prefix][hash]
 
 		if ok2 == true {
-			result = false
+
+			return false
+
 		} else {
+
 			internet.Mapv6[prefix][hash] = &subnet
-			result = true
+
+			return true
+
 		}
 
 	} else if subnet.Type == types.AddressTypeIPv4 {
@@ -90,15 +92,20 @@ func (internet *Internet) AddSubnet(value Subnet) bool {
 		_, ok2 := internet.Mapv4[prefix][hash]
 
 		if ok2 == true {
-			result = false
+
+			return false
+
 		} else {
+
 			internet.Mapv4[prefix][hash] = &subnet
-			result = true
+
+			return true
+
 		}
 
 	}
 
-	return result
+	return false
 
 }
 
@@ -287,7 +294,7 @@ func (internet *Internet) SearchSubnet(value Subnet) Subnet {
 
 func (internet *Internet) SetNetworks(values []Network) bool {
 
-	var result bool = true
+	result := true
 
 	for v := 0; v < len(values); v++ {
 
@@ -305,7 +312,7 @@ func (internet *Internet) SetNetworks(values []Network) bool {
 
 func (internet *Internet) SetSubnets(values []Subnet) bool {
 
-	var result bool = true
+	result := true
 
 	for v := 0; v < len(values); v++ {
 

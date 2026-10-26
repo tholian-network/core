@@ -151,165 +151,133 @@ func (incident *Incident) IsValid() bool {
 
 func (incident *Incident) MatchesAntique(antique Antique) bool {
 
-	result := false
-
 	for p := 0; p < len(incident.Packages); p++ {
 
 		if incident.Packages[p].Matches(antique.Name, antique.Version.String(), antique.Architecture.String(), antique.Manager.String(), "any") {
-			result = true
-			break
+			return true
 		}
 
 	}
 
-	return result
+	return false
 
 }
 
 func (incident *Incident) MatchesConnection(connection types.Connection) bool {
 
-	result := false
-
 	for c := 0; c < len(incident.Connections); c++ {
 
 		if incident.Connections[c].Matches(connection.Source.Host, connection.Source.Port, connection.Protocol.String(), connection.Type) {
-			result = true
-			break
+			return true
 		} else if incident.Connections[c].Matches(connection.Target.Host, connection.Target.Port, connection.Protocol.String(), connection.Type) {
-			result = true
-			break
+			return true
 		}
 
 	}
 
-	return result
+	return false
 
 }
 
 func (incident *Incident) MatchesDistribution(distribution Distribution) bool {
 
-	result := false
-
 	for d := 0; d < len(incident.Distributions); d++ {
 
 		if incident.Distributions[d].Matches(distribution.Name, distribution.Version, distribution.Manager, distribution.Vendor) {
-			result = true
-			break
+			return true
 		}
 
 	}
 
-	return result
+	return false
 
 }
 
 func (incident *Incident) MatchesNetwork(network Network) bool {
-
-	result := false
 
 	for n := 0; n < len(incident.Networks); n++ {
 
 		for s := 0; s < len(network.Subnets); s++ {
 
 			if incident.Networks[n].Matches(network.Subnets[s].Name, network.Subnets[s].String()) {
-				result = true
-				break
+				return true
 			}
 
 		}
 
-		if result == true {
-			break
-		}
-
 	}
 
-	return result
+	return false
 
 }
 
 func (incident *Incident) MatchesPackage(pkg Package) bool {
 
-	result := false
-
 	for p := 0; p < len(incident.Packages); p++ {
 
 		if incident.Packages[p].Matches(pkg.Name, pkg.Version.String(), pkg.Architecture.String(), pkg.Manager.String(), pkg.Vendor) {
-			result = true
-			break
+			return true
 		}
 
 	}
 
-	return result
+	return false
 
 }
 
 func (incident *Incident) MatchesProgram(program Program) bool {
 
-	result := false
-
 	for p := 0; p < len(incident.Programs); p++ {
 
 		if incident.Programs[p].Matches(program.Name, program.Command, program.Arguments) {
-			result = true
-			break
+			return true
 		}
 
 	}
 
-	return result
+	return false
 
 }
 
 func (incident *Incident) MatchesUpdate(update Update) bool {
 
-	result := false
-
 	for p := 0; p < len(incident.Packages); p++ {
 
 		if incident.Packages[p].Matches(update.Name, update.Version.String(), update.Architecture.String(), update.Manager.String(), "any") {
-			result = true
-			break
+			return true
 		}
 
 	}
 
-	return result
+	return false
 
 }
 
 func (incident *Incident) MatchesUser(user types.User) bool {
 
-	result := false
-
 	for u := 0; u < len(incident.Users); u++ {
 
 		if incident.Users[u].Matches(user.Name, user.Password, user.Type) {
-			result = true
-			break
+			return true
 		}
 
 	}
 
-	return result
+	return false
 
 }
 
 func (incident *Incident) MatchesVulnerability(vulnerability Vulnerability) bool {
 
-	result := false
-
 	for v := 0; v < len(incident.Vulnerabilities); v++ {
 
 		if incident.Vulnerabilities[v].Matches(vulnerability.Name, vulnerability.Type, vulnerability.Severity, vulnerability.State, vulnerability.Datetime.String()) {
-			result = true
-			break
+			return true
 		}
 
 	}
 
-	return result
+	return false
 
 }
 

@@ -30,23 +30,17 @@ func NewCountry(name string) Country {
 
 func (country *Country) IsValid() bool {
 
-	var result bool
-
-	if country.ISO != "" && country.Name != "" {
-
-		result = true
-
-		if country.Continent == "" {
-			result = false
-		}
+	if country.ISO != "" && country.Name != "" && country.Continent != "" {
 
 		if country.Geolocation.Latitude == 0 && country.Geolocation.Longitude == 0 {
-			result = false
+			return false
 		}
+
+		return true
 
 	}
 
-	return result
+	return false
 
 }
 
@@ -98,18 +92,15 @@ func (country *Country) AddAllegiance(value string) {
 
 func (country *Country) HasAllegiance(value string) bool {
 
-	var result bool
-
 	for a := 0; a < len(country.Allegiances); a++ {
 
 		if country.Allegiances[a] == value {
-			result = true
-			break
+			return true
 		}
 
 	}
 
-	return result
+	return false
 
 }
 
@@ -204,34 +195,28 @@ func (country *Country) SetTimezones(values []Timezone) {
 
 func (country *Country) HasTimezone(value string) bool {
 
-	var result bool
-
 	for t := 0; t < len(country.Timezones); t++ {
 
 		if country.Timezones[t].Name == value {
-			result = true
-			break
+			return true
 		}
 
 	}
 
-	return result
+	return false
 
 }
 
 func (country *Country) HasTimezoneOffset(value string) bool {
 
-	var result bool
-
 	for t := 0; t < len(country.Timezones); t++ {
 
 		if country.Timezones[t].Offset == value {
-			result = true
-			break
+			return true
 		}
 
 	}
 
-	return result
+	return false
 
 }
