@@ -393,7 +393,7 @@ func (subnet *Subnet) Addresses() uint {
 
 func (subnet *Subnet) Hash() string {
 
-	var hash string
+	hash := ""
 
 	if subnet.Type == types.AddressTypeIPv4 {
 

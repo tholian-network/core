@@ -45,49 +45,43 @@ func NewIncident(system string, typ string) Incident {
 
 func (incident *Incident) IsAfter(other Incident) bool {
 
-	var result bool
-
-	if incident.Datetime.IsSame(other.Datetime) {
+	if incident.Datetime.Equal(other.Datetime) {
 
 		index1 := toIncidentTypeIndex(incident.Type)
 		index2 := toIncidentTypeIndex(other.Type)
 
 		if index1 > index2 {
-			result = true
+			return true
 		}
 
-	} else {
-		result = incident.Datetime.IsAfter(other.Datetime)
+	} else if incident.Datetime.IsAfter(other.Datetime) {
+		return true
 	}
 
-	return result
+	return false
 
 }
 
 func (incident *Incident) IsBefore(other Incident) bool {
 
-	var result bool
-
-	if incident.Datetime.IsSame(other.Datetime) {
+	if incident.Datetime.Equal(other.Datetime) {
 
 		index1 := toIncidentTypeIndex(incident.Type)
 		index2 := toIncidentTypeIndex(other.Type)
 
 		if index1 < index2 {
-			result = true
+			return true
 		}
 
-	} else {
-		result = incident.Datetime.IsBefore(other.Datetime)
+	} else if incident.Datetime.IsBefore(other.Datetime) {
+		return true
 	}
 
-	return result
+	return false
 
 }
 
 func (incident *Incident) IsValid() bool {
-
-	var result bool
 
 	if incident.System != "" && incident.Type != "" && incident.Datetime.IsValid() {
 
@@ -96,7 +90,7 @@ func (incident *Incident) IsValid() bool {
 			if len(incident.Connections) > 0 || len(incident.Networks) > 0 {
 
 				if len(incident.Programs) > 0 || len(incident.Users) > 0 {
-					result = true
+					return true
 				}
 
 			}
@@ -106,7 +100,7 @@ func (incident *Incident) IsValid() bool {
 			if len(incident.Vulnerabilities) > 0 {
 
 				if len(incident.Packages) > 0 || len(incident.Programs) > 0 {
-					result = true
+					return true
 				}
 
 			}
@@ -116,7 +110,7 @@ func (incident *Incident) IsValid() bool {
 			if len(incident.Distributions) > 0 && len(incident.Vulnerabilities) > 0 {
 
 				if len(incident.Packages) > 0 || len(incident.Programs) > 0 {
-					result = true
+					return true
 				}
 
 			}
@@ -126,7 +120,7 @@ func (incident *Incident) IsValid() bool {
 			if len(incident.Distributions) > 0 && len(incident.Vulnerabilities) > 0 {
 
 				if len(incident.Packages) > 0 || len(incident.Programs) > 0 || len(incident.Users) > 0 {
-					result = true
+					return true
 				}
 
 			}
@@ -136,7 +130,7 @@ func (incident *Incident) IsValid() bool {
 			if len(incident.Connections) > 0 || len(incident.Networks) > 0 {
 
 				if len(incident.Programs) > 0 || len(incident.Users) > 0 {
-					result = true
+					return true
 				}
 
 			}
@@ -144,20 +138,20 @@ func (incident *Incident) IsValid() bool {
 		} else if incident.Type == "Destroy" {
 
 			if len(incident.Packages) > 0 || len(incident.Programs) > 0 || len(incident.Users) > 0 {
-				result = true
+				return true
 			}
 
 		}
 
 	}
 
-	return result
+	return false
 
 }
 
 func (incident *Incident) MatchesAntique(antique Antique) bool {
 
-	var result bool
+	result := false
 
 	for p := 0; p < len(incident.Packages); p++ {
 
@@ -174,7 +168,7 @@ func (incident *Incident) MatchesAntique(antique Antique) bool {
 
 func (incident *Incident) MatchesConnection(connection types.Connection) bool {
 
-	var result bool
+	result := false
 
 	for c := 0; c < len(incident.Connections); c++ {
 
@@ -194,7 +188,7 @@ func (incident *Incident) MatchesConnection(connection types.Connection) bool {
 
 func (incident *Incident) MatchesDistribution(distribution Distribution) bool {
 
-	var result bool
+	result := false
 
 	for d := 0; d < len(incident.Distributions); d++ {
 
@@ -211,7 +205,7 @@ func (incident *Incident) MatchesDistribution(distribution Distribution) bool {
 
 func (incident *Incident) MatchesNetwork(network Network) bool {
 
-	var result bool
+	result := false
 
 	for n := 0; n < len(incident.Networks); n++ {
 
@@ -236,7 +230,7 @@ func (incident *Incident) MatchesNetwork(network Network) bool {
 
 func (incident *Incident) MatchesPackage(pkg Package) bool {
 
-	var result bool
+	result := false
 
 	for p := 0; p < len(incident.Packages); p++ {
 
@@ -253,7 +247,7 @@ func (incident *Incident) MatchesPackage(pkg Package) bool {
 
 func (incident *Incident) MatchesProgram(program Program) bool {
 
-	var result bool
+	result := false
 
 	for p := 0; p < len(incident.Programs); p++ {
 
@@ -270,7 +264,7 @@ func (incident *Incident) MatchesProgram(program Program) bool {
 
 func (incident *Incident) MatchesUpdate(update Update) bool {
 
-	var result bool
+	result := false
 
 	for p := 0; p < len(incident.Packages); p++ {
 
@@ -287,7 +281,7 @@ func (incident *Incident) MatchesUpdate(update Update) bool {
 
 func (incident *Incident) MatchesUser(user types.User) bool {
 
-	var result bool
+	result := false
 
 	for u := 0; u < len(incident.Users); u++ {
 
@@ -304,7 +298,7 @@ func (incident *Incident) MatchesUser(user types.User) bool {
 
 func (incident *Incident) MatchesVulnerability(vulnerability Vulnerability) bool {
 
-	var result bool
+	result := false
 
 	for v := 0; v < len(incident.Vulnerabilities); v++ {
 
@@ -759,7 +753,7 @@ func (incident *Incident) SetVulnerabilities(values []matchers.Vulnerability) {
 
 func (incident *Incident) Hash() string {
 
-	var hash string
+	hash := ""
 
 	if incident.Type != "" {
 

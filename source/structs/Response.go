@@ -45,80 +45,74 @@ func NewResponse(system string, typ string) Response {
 
 func (response *Response) IsAfter(other Response) bool {
 
-	var result bool
-
-	if response.Datetime.IsSame(other.Datetime) {
+	if response.Datetime.Equal(other.Datetime) {
 
 		index1 := toIncidentTypeIndex(response.Type)
 		index2 := toIncidentTypeIndex(other.Type)
 
 		if index1 > index2 {
-			result = true
+			return true
 		}
 
-	} else {
-		result = response.Datetime.IsAfter(other.Datetime)
+	} else if response.Datetime.IsAfter(other.Datetime) {
+		return true
 	}
 
-	return result
+	return false
 
 }
 
 func (response *Response) IsBefore(other Response) bool {
 
-	var result bool
-
-	if response.Datetime.IsSame(other.Datetime) {
+	if response.Datetime.Equal(other.Datetime) {
 
 		index1 := toIncidentTypeIndex(response.Type)
 		index2 := toIncidentTypeIndex(other.Type)
 
 		if index1 < index2 {
-			result = true
+			return true
 		}
 
-	} else {
-		result = response.Datetime.IsBefore(other.Datetime)
+	} else if response.Datetime.IsBefore(other.Datetime) {
+		return true
 	}
 
-	return result
+	return false
 
 }
 
 func (response *Response) IsValid() bool {
-
-	var result bool
 
 	if response.System != "" && response.Type != "" && response.Datetime.IsValid() {
 
 		if response.Type == "Update" {
 
 			if len(response.Packages) > 0 || len(response.Programs) > 0 {
-				result = true
+				return true
 			}
 
 		} else if response.Type == "Forbid" {
 
 			if len(response.Connections) > 0 || len(response.Networks) > 0 || len(response.Programs) > 0 || len(response.Users) > 0 {
-				result = true
+				return true
 			}
 
 		} else if response.Type == "Permit" {
 
 			if len(response.Connections) > 0 || len(response.Networks) > 0 || len(response.Programs) > 0 || len(response.Users) > 0 {
-				result = true
+				return true
 			}
 
 		} else if response.Type == "Recon" {
 
 			if len(response.Connections) > 0 || len(response.Networks) > 0 {
-				result = true
+				return true
 			}
 
 		} else if response.Type == "Intel" {
 
 			if len(response.Connections) > 0 || len(response.Networks) > 0 {
-				result = true
+				return true
 			}
 
 		} else if response.Type == "Conquer" {
@@ -126,7 +120,7 @@ func (response *Response) IsValid() bool {
 			if len(response.Distributions) > 0 && len(response.Vulnerabilities) > 0 {
 
 				if len(response.Connections) > 0 || len(response.Networks) > 0 {
-					result = true
+					return true
 				}
 
 			}
@@ -136,7 +130,7 @@ func (response *Response) IsValid() bool {
 			if len(response.Distributions) > 0 && len(response.Vulnerabilities) > 0 {
 
 				if len(response.Connections) > 0 || len(response.Networks) > 0 {
-					result = true
+					return true
 				}
 
 			}
@@ -146,7 +140,7 @@ func (response *Response) IsValid() bool {
 			if len(response.Connections) > 0 || len(response.Networks) > 0 {
 
 				if len(response.Programs) > 0 || len(response.Users) > 0 {
-					result = true
+					return true
 				}
 
 			}
@@ -154,20 +148,20 @@ func (response *Response) IsValid() bool {
 		} else if response.Type == "Destroy" {
 
 			if len(response.Packages) > 0 || len(response.Programs) > 0 || len(response.Users) > 0 {
-				result = true
+				return true
 			}
 
 		}
 
 	}
 
-	return result
+	return false
 
 }
 
 func (response *Response) MatchesAntique(antique Antique) bool {
 
-	var result bool
+	result := false
 
 	for p := 0; p < len(response.Packages); p++ {
 
@@ -184,7 +178,7 @@ func (response *Response) MatchesAntique(antique Antique) bool {
 
 func (response *Response) MatchesConnection(connection types.Connection) bool {
 
-	var result bool
+	result := false
 
 	for c := 0; c < len(response.Connections); c++ {
 
@@ -204,7 +198,7 @@ func (response *Response) MatchesConnection(connection types.Connection) bool {
 
 func (response *Response) MatchesDistribution(distribution Distribution) bool {
 
-	var result bool
+	result := false
 
 	for d := 0; d < len(response.Distributions); d++ {
 
@@ -221,7 +215,7 @@ func (response *Response) MatchesDistribution(distribution Distribution) bool {
 
 func (response *Response) MatchesNetwork(network Network) bool {
 
-	var result bool
+	result := false
 
 	for n := 0; n < len(response.Networks); n++ {
 
@@ -246,7 +240,7 @@ func (response *Response) MatchesNetwork(network Network) bool {
 
 func (response *Response) MatchesPackage(pkg Package) bool {
 
-	var result bool
+	result := false
 
 	for p := 0; p < len(response.Packages); p++ {
 
@@ -263,7 +257,7 @@ func (response *Response) MatchesPackage(pkg Package) bool {
 
 func (response *Response) MatchesProgram(program Program) bool {
 
-	var result bool
+	result := false
 
 	for p := 0; p < len(response.Programs); p++ {
 
@@ -280,7 +274,7 @@ func (response *Response) MatchesProgram(program Program) bool {
 
 func (response *Response) MatchesUpdate(update Update) bool {
 
-	var result bool
+	result := false
 
 	for p := 0; p < len(response.Packages); p++ {
 
@@ -297,7 +291,7 @@ func (response *Response) MatchesUpdate(update Update) bool {
 
 func (response *Response) MatchesUser(user types.User) bool {
 
-	var result bool
+	result := false
 
 	for u := 0; u < len(response.Users); u++ {
 
@@ -314,7 +308,7 @@ func (response *Response) MatchesUser(user types.User) bool {
 
 func (response *Response) MatchesVulnerability(vulnerability Vulnerability) bool {
 
-	var result bool
+	result := false
 
 	for v := 0; v < len(response.Vulnerabilities); v++ {
 
@@ -775,7 +769,7 @@ func (response *Response) SetVulnerabilities(value []matchers.Vulnerability) {
 
 func (response *Response) Hash() string {
 
-	var hash string
+	hash := ""
 
 	if response.Type != "" {
 
