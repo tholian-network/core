@@ -26,14 +26,13 @@ Elastic, Kibana, SIEM, SOAR, or custom dashboards.
 - **Interoperability**: Canonical strings map cleanly to native field types in
   external search and analytics platforms.
 
-
 ## Repository Layout
 
-| Path                                 | Purpose                              |
-|:-------------------------------------|:-------------------------------------|
-| [source/types](./source/types)       | Primitive types                      |
-| [source/structs](./source/structs)   | Nested data structures               |
-| [source/matchers](./source/matchers) | Matching rules for types and structs |
+| Path                                 | Purpose                             |
+|:-------------------------------------|:------------------------------------|
+| [source/types](./source/types)       | Primitive types                     |
+| [source/structs](./source/structs)   | Nested data structures              |
+| [source/matchers](./source/matchers) | Matcher rules for types and structs |
 
 The Go module is named `tholian-core` and targets Go `1.27.1`.
 
@@ -83,7 +82,7 @@ subnets use `address/prefix`, and domains are stored without a trailing dot.
 Go's `encoding/json` escapes characters such as `>` as `\u003e` by default;
 decoding restores the canonical value.
 
-## External Integration
+## Usage
 
 The canonical JSON forms are designed to be published as standalone JSON Schema
 definitions under `schemas/` using JSON Schema Draft 2020-12. The schema files
@@ -98,7 +97,7 @@ schemas will follow semantic versioning:
 - Minor releases add optional fields or new type definitions.
 - Major releases may change canonical string forms or required fields.
 
-### Mapping into Elastic and Kibana
+### Usage: Elastic and Kibana
 
 The preferred mapping strategy is to keep the canonical value intact and use a
 native field type where one exists:
@@ -138,21 +137,20 @@ a Logstash filter. The mapping above is guidance for integrators. A dedicated
 Elastic Common Schema (ECS) mapping will only be documented once it is actually
 published and tested.
 
+## Usage: Tholian Core
 
-## Using Tholian Core
-
-The module is consumed through Go's module system. In the Tholian Network
-repositories it is checked out next to the consuming project and referenced with
+The module is consumed through Go's module system. In the Tholian Network, all
+repositories are checked out next to the consuming project and referenced with
 a local replacement:
 
 ```text
 /path/to/Software/tholian-network/
-├── core/
-└── convoy/
-└── detective/
-└── firewall/
-└── guard/
-└── intel/
+|- core/         # this module
+|- convoy/       # tholian-convoy repository
+|- detective/    # tholian-detective repository
+|- firewall/     # tholian-firewall repository
+|- guard/        # tholian-guard repository
+|- intel/        # tholian-intel repository
 ```
 
 ```go
@@ -190,15 +188,6 @@ go test ./...;
 # optional static checks
 go vet ./...;
 ```
-
-## Compatibility
-
-The canonical wire format is a compatibility boundary. Consumers should treat
-changes to string forms, required fields, and validation rules as breaking
-changes. Additive fields and new type definitions are backward compatible.
-
-When integrating Tholian Core, pin a released module version or a specific Git
-revision instead of tracking the default branch.
 
 ## License
 
