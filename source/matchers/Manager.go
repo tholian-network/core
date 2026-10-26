@@ -70,7 +70,7 @@ func (manager *Manager) SetName(value string) {
 
 func (manager *Manager) Hash() string {
 
-	var hash string
+	hash := ""
 
 	if manager.Name != "" {
 		hash = manager.Name

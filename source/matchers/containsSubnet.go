@@ -4,7 +4,7 @@ import "tholian-core/types"
 
 func containsSubnet(subnet_a string, subnet_b string) bool {
 
-	var result bool = false
+	result := false
 
 	address_a, prefix_a := toSubnet(subnet_a)
 	address_b, prefix_b := toSubnet(subnet_b)

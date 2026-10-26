@@ -59,16 +59,14 @@ func (connection *Connection) IsDomain() bool {
 
 func (connection *Connection) Equal(value Connection) bool {
 
-	var result bool = false
-
 	if connection.Socket.Host == value.Socket.Host &&
 		connection.Socket.Port == value.Socket.Port &&
 		connection.Protocol == value.Protocol &&
 		connection.Type == value.Type {
-		result = true
+		return true
 	}
 
-	return result
+	return false
 
 }
 
@@ -309,7 +307,7 @@ func (connection *Connection) SetType(value string) {
 
 func (connection *Connection) Hash() string {
 
-	var hash string
+	hash := ""
 
 	if connection.HasPort() {
 

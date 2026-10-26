@@ -35,9 +35,10 @@ func ToTime(value string) Time {
 
 }
 
-func (time *Time) IsIdentical(value Time) bool {
+func (time *Time) Equal(value Time) bool {
 
-	if time.From == value.From && time.Until == value.Until {
+	if time.From == value.From &&
+		time.Until == value.Until {
 		return true
 	}
 
@@ -47,7 +48,8 @@ func (time *Time) IsIdentical(value Time) bool {
 
 func (time *Time) IsValid() bool {
 
-	if time.From != Any || time.Until != Any {
+	if time.From != Any ||
+		time.Until != Any {
 		return true
 	}
 
@@ -61,8 +63,8 @@ func (time *Time) Matches(time_ string) bool {
 
 func (time *Time) MatchesTime(value string) bool {
 
-	var matches_from bool
-	var matches_until bool
+	matches_from := false
+	matches_until := false
 
 	current := types.ToTime(value)
 
@@ -161,7 +163,7 @@ func (time *Time) SetUntil(value string) {
 
 func (time *Time) Hash() string {
 
-	var hash string
+	hash := ""
 
 	checksum := crc32.ChecksumIEEE([]byte(strings.Join([]string{
 		time.From,

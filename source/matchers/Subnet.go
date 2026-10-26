@@ -49,13 +49,12 @@ func (subnet *Subnet) HasSubnet() bool {
 
 func (subnet *Subnet) Equal(value Subnet) bool {
 
-	var result bool = false
-
-	if subnet.Name == value.Name && subnet.Subnet == value.Subnet {
-		result = true
+	if subnet.Name == value.Name &&
+		subnet.Subnet == value.Subnet {
+		return true
 	}
 
-	return result
+	return false
 
 }
 
@@ -110,7 +109,7 @@ func (subnet *Subnet) SetSubnet(value string) {
 
 func (subnet *Subnet) Hash() string {
 
-	var hash string
+	hash := ""
 
 	if subnet.HasName() {
 

@@ -35,9 +35,10 @@ func ToDatetime(value string) Datetime {
 
 }
 
-func (datetime *Datetime) IsIdentical(value Datetime) bool {
+func (datetime *Datetime) Equal(value Datetime) bool {
 
-	if datetime.From == value.From && datetime.Until == value.Until {
+	if datetime.From == value.From &&
+		datetime.Until == value.Until {
 		return true
 	}
 
@@ -47,7 +48,8 @@ func (datetime *Datetime) IsIdentical(value Datetime) bool {
 
 func (datetime *Datetime) IsValid() bool {
 
-	if datetime.From != Any || datetime.Until != Any {
+	if datetime.From != Any ||
+		datetime.Until != Any {
 		return true
 	}
 
@@ -61,8 +63,8 @@ func (datetime *Datetime) Matches(datetime_ string) bool {
 
 func (datetime *Datetime) MatchesDatetime(value string) bool {
 
-	var matches_from bool
-	var matches_until bool
+	matches_from := false
+	matches_until := false
 
 	current := types.ToDatetime(value)
 
@@ -161,7 +163,7 @@ func (datetime *Datetime) SetUntil(value string) {
 
 func (datetime *Datetime) Hash() string {
 
-	var hash string
+	hash := ""
 
 	checksum := crc32.ChecksumIEEE([]byte(strings.Join([]string{
 		datetime.From,
