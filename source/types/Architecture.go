@@ -156,6 +156,10 @@ func (architecture Architecture) Equal(other Architecture) bool {
 	return architecture == other
 }
 
+func (architecture Architecture) Hash() string {
+	return toHash(architecture.String())
+}
+
 func (architecture Architecture) String() string {
 	return string(architecture)
 }

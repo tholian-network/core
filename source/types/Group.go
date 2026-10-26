@@ -1,5 +1,6 @@
 package types
 
+import "strconv"
 import "strings"
 
 type Group struct {
@@ -66,5 +67,16 @@ func (group *Group) SetType(value string) {
 	} else if value == "program" {
 		group.Type = "program"
 	}
+
+}
+
+func (group Group) Hash() string {
+
+	return toHash(
+		strconv.FormatUint(uint64(group.ID), 10),
+		group.Name,
+		group.Password,
+		group.Type,
+	)
 
 }

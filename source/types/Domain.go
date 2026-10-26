@@ -159,6 +159,10 @@ func (domain Domain) Equal(other Domain) bool {
 	return domain == other
 }
 
+func (domain Domain) Hash() string {
+	return toHash(domain.String())
+}
+
 func (domain Domain) IsValid() bool {
 	return IsDomain(string(domain))
 }

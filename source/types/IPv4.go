@@ -212,6 +212,10 @@ func (ipv4 IPv4) Equal(other IPv4) bool {
 	return ipv4 == other
 }
 
+func (ipv4 IPv4) Hash() string {
+	return toHash(ipv4.String())
+}
+
 func (ipv4 IPv4) IsUnspecified() bool {
 	return ipv4 == IPv4{}
 }

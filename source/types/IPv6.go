@@ -203,6 +203,10 @@ func (ipv6 IPv6) Equal(other IPv6) bool {
 	return ipv6 == other
 }
 
+func (ipv6 IPv6) Hash() string {
+	return toHash(ipv6.String())
+}
+
 func (ipv6 IPv6) IsUnspecified() bool {
 	return ipv6 == IPv6{}
 }

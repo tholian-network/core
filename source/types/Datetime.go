@@ -733,6 +733,10 @@ func (datetime *Datetime) Equal(other Datetime) bool {
 
 }
 
+func (datetime Datetime) Hash() string {
+	return toHash(datetime.String())
+}
+
 func (datetime *Datetime) IsValid() bool {
 
 	if datetime.Year > 1752 {

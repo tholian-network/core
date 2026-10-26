@@ -98,6 +98,10 @@ func (maintainer *Maintainer) Equal(value Maintainer) bool {
 
 }
 
+func (maintainer Maintainer) Hash() string {
+	return toHash(maintainer.Name, maintainer.Email)
+}
+
 func (maintainer *Maintainer) IsValid() bool {
 
 	if maintainer.Name != "" {

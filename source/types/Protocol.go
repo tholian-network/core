@@ -147,6 +147,10 @@ func (protocol Protocol) Equal(other Protocol) bool {
 	return protocol == other
 }
 
+func (protocol Protocol) Hash() string {
+	return toHash(protocol.String())
+}
+
 func (protocol Protocol) IsAny() bool {
 	return protocol == "" || protocol == Protocol(Any)
 }

@@ -208,6 +208,10 @@ func (version *Version) Equal(other Version) bool {
 
 }
 
+func (version Version) Hash() string {
+	return toHash(version.String())
+}
+
 func (version *Version) IsValid() bool {
 
 	if version.Upstream.Major != 0 || version.Upstream.Minor != 0 || version.Upstream.Patch != 0 {

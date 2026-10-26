@@ -1,5 +1,6 @@
 package types
 
+import "strconv"
 import "strings"
 
 type User struct {
@@ -150,5 +151,24 @@ func (user *User) SetType(value string) {
 	} else if value == "program" {
 		user.Type = "program"
 	}
+
+}
+
+func (user User) Hash() string {
+
+	values := make([]string, 0)
+
+	values = append(values, strconv.FormatUint(uint64(user.ID), 10))
+	values = append(values, user.Name)
+	values = append(values, user.Password)
+	values = append(values, user.Folder)
+	values = append(values, user.Shell)
+	values = append(values, user.Type)
+
+	for g := 0; g < len(user.Groups); g++ {
+		values = append(values, user.Groups[g].Hash())
+	}
+
+	return toHash(values...)
 
 }

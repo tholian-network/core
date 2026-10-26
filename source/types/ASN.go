@@ -95,6 +95,10 @@ func (asn ASN) Equal(other ASN) bool {
 	return asn == other
 }
 
+func (asn ASN) Hash() string {
+	return toHash(asn.String())
+}
+
 func (asn ASN) IsValid() bool {
 	return asn >= 0
 }

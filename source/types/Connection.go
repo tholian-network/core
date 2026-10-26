@@ -386,6 +386,19 @@ func (connection *Connection) Equal(value Connection) bool {
 
 }
 
+func (connection Connection) Hash() string {
+
+	return toHash(
+		connection.Source.Host,
+		strconv.FormatUint(uint64(connection.Source.Port), 10),
+		connection.Target.Host,
+		strconv.FormatUint(uint64(connection.Target.Port), 10),
+		connection.Protocol.String(),
+		connection.Type,
+	)
+
+}
+
 func (connection *Connection) IsValid() bool {
 
 	if connection.Protocol.IsValid() == false {

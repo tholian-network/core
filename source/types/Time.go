@@ -227,6 +227,10 @@ func (time *Time) Equal(other Time) bool {
 
 }
 
+func (time Time) Hash() string {
+	return toHash(time.String())
+}
+
 func (time *Time) IsValid() bool {
 
 	if time.Hour >= 0 && time.Hour <= 24 {

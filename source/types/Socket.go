@@ -118,6 +118,17 @@ func (socket *Socket) Equal(other Socket) bool {
 		socket.Type == other.Type
 }
 
+func (socket Socket) Hash() string {
+
+	return toHash(
+		socket.Host,
+		strconv.FormatUint(uint64(socket.Port), 10),
+		socket.Scope,
+		socket.Type,
+	)
+
+}
+
 func (socket *Socket) IsUnset() bool {
 	return socket.Host == "" && socket.Port == 0 && socket.Type == ""
 }

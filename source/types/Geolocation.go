@@ -245,3 +245,6 @@ func (geolocation *Geolocation) UnmarshalJSON(data []byte) error {
 
 }
 
+func (geolocation Geolocation) Hash() string {
+	return toHash(geolocation.String())
+}

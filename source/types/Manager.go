@@ -124,6 +124,10 @@ func (manager Manager) Equal(other Manager) bool {
 	return manager == other
 }
 
+func (manager Manager) Hash() string {
+	return toHash(manager.String())
+}
+
 func (manager Manager) String() string {
 	return string(manager)
 }
