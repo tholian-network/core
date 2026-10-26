@@ -70,6 +70,158 @@ func NewSystem() System {
 
 }
 
+func (system *System) Equal(value System) bool {
+
+	if system.Name != value.Name ||
+		system.Hostname != value.Hostname ||
+		system.Datetime.Equal(value.Datetime) == false ||
+		system.Distribution.Equal(value.Distribution) == false ||
+		system.Fingerprint.Equal(value.Fingerprint) == false ||
+		system.BIOS.Equal(value.BIOS) == false ||
+		system.Board.Equal(value.Board) == false {
+		return false
+	}
+
+	if len(system.Devices) != len(value.Devices) {
+		return false
+	}
+
+	for d := 0; d < len(system.Devices); d++ {
+
+		if system.Devices[d].Equal(value.Devices[d]) == false {
+			return false
+		}
+
+	}
+
+	if len(system.Drives) != len(value.Drives) {
+		return false
+	}
+
+	for d := 0; d < len(system.Drives); d++ {
+
+		if system.Drives[d].Equal(value.Drives[d]) == false {
+			return false
+		}
+
+	}
+
+	if len(system.Incidents) != len(value.Incidents) {
+		return false
+	}
+
+	for i := 0; i < len(system.Incidents); i++ {
+
+		if system.Incidents[i].Equal(value.Incidents[i]) == false {
+			return false
+		}
+
+	}
+
+	if len(system.Mitigations) != len(value.Mitigations) {
+		return false
+	}
+
+	for m := 0; m < len(system.Mitigations); m++ {
+
+		if system.Mitigations[m].Equal(value.Mitigations[m]) == false {
+			return false
+		}
+
+	}
+
+	if len(system.Networks) != len(value.Networks) {
+		return false
+	}
+
+	for n := 0; n < len(system.Networks); n++ {
+
+		if system.Networks[n].Equal(value.Networks[n]) == false {
+			return false
+		}
+
+	}
+
+	if len(system.Packages) != len(value.Packages) {
+		return false
+	}
+
+	for p := 0; p < len(system.Packages); p++ {
+
+		if system.Packages[p].Equal(value.Packages[p]) == false {
+			return false
+		}
+
+	}
+
+	if len(system.Programs) != len(value.Programs) {
+		return false
+	}
+
+	for p := 0; p < len(system.Programs); p++ {
+
+		if system.Programs[p].Equal(value.Programs[p]) == false {
+			return false
+		}
+
+	}
+
+	if len(system.Responses) != len(value.Responses) {
+		return false
+	}
+
+	for r := 0; r < len(system.Responses); r++ {
+
+		if system.Responses[r].Equal(value.Responses[r]) == false {
+			return false
+		}
+
+	}
+
+	if len(system.Services) != len(value.Services) {
+		return false
+	}
+
+	for s := 0; s < len(system.Services); s++ {
+
+		if system.Services[s].Equal(value.Services[s]) == false {
+			return false
+		}
+
+	}
+
+	if len(system.Antiques) != len(value.Antiques) {
+		return false
+	}
+
+	for a := 0; a < len(system.Antiques); a++ {
+
+		if system.Antiques[a].Equal(value.Antiques[a]) == false {
+			return false
+		}
+
+	}
+
+	if len(system.Updates) != len(value.Updates) {
+		return false
+	}
+
+	for u := 0; u < len(system.Updates); u++ {
+
+		if system.Updates[u].Equal(value.Updates[u]) == false {
+			return false
+		}
+
+	}
+
+	if equalSystemUsers(system.Users, value.Users) == false {
+		return false
+	}
+
+	return true
+
+}
+
 func (system *System) IsValid() bool {
 
 	// Ignore BIOS, Board, Devices and Time
@@ -172,7 +324,7 @@ func (system *System) IsValid() bool {
 
 }
 
-func (system *System) ToJSON() string {
+func (system *System) MarshalJSON() string {
 
 	var buffer bytes.Buffer
 
@@ -260,6 +412,10 @@ func (system *System) SetDistribution(distribution Distribution) {
 
 }
 
+func (system *System) SetHostname(value string) {
+	system.Hostname = strings.TrimSpace(value)
+}
+
 func (system *System) AddIncident(value Incident) {
 
 	if value.IsValid() {
@@ -312,10 +468,6 @@ func (system *System) SetName(value string) {
 	system.Name = strings.TrimSpace(value)
 }
 
-func (system *System) SetHostname(value string) {
-	system.Hostname = strings.TrimSpace(value)
-}
-
 func (system *System) SetNetworks(networks []Network) {
 
 	var filtered []Network
@@ -361,6 +513,30 @@ func (system *System) SetPrograms(programs []Program) {
 	}
 
 	system.Programs = filtered
+
+}
+
+func (system *System) AddResponse(value Response) {
+
+	if value.IsValid() {
+		system.Responses = append(system.Responses, value)
+	}
+
+}
+
+func (system *System) SetResponses(responses []Response) {
+
+	var filtered []Response
+
+	for r := 0; r < len(responses); r++ {
+
+		if responses[r].IsValid() {
+			filtered = append(filtered, responses[r])
+		}
+
+	}
+
+	system.Responses = filtered
 
 }
 
@@ -421,5 +597,77 @@ func (system *System) SetUsers(users []types.User) {
 	}
 
 	system.Users = filtered
+
+}
+
+func (system *System) Hash() string {
+
+	hash := ""
+
+	if system.Name != "" {
+
+		values := make([]string, 0)
+
+		values = append(values, system.Name)
+		values = append(values, system.Hostname)
+		values = append(values, system.Datetime.String())
+		values = append(values, system.Distribution.Hash())
+		values = append(values, system.Fingerprint.Hash())
+		values = append(values, system.BIOS.Hash())
+		values = append(values, system.Board.Hash())
+
+		for d := 0; d < len(system.Devices); d++ {
+			values = append(values, system.Devices[d].Hash())
+		}
+
+		for d := 0; d < len(system.Drives); d++ {
+			values = append(values, system.Drives[d].Hash())
+		}
+
+		for i := 0; i < len(system.Incidents); i++ {
+			values = append(values, system.Incidents[i].Hash())
+		}
+
+		for m := 0; m < len(system.Mitigations); m++ {
+			values = append(values, system.Mitigations[m].Hash())
+		}
+
+		for n := 0; n < len(system.Networks); n++ {
+			values = append(values, system.Networks[n].Hash())
+		}
+
+		for p := 0; p < len(system.Packages); p++ {
+			values = append(values, system.Packages[p].Hash())
+		}
+
+		for p := 0; p < len(system.Programs); p++ {
+			values = append(values, system.Programs[p].Hash())
+		}
+
+		for r := 0; r < len(system.Responses); r++ {
+			values = append(values, system.Responses[r].Hash())
+		}
+
+		for s := 0; s < len(system.Services); s++ {
+			values = append(values, system.Services[s].Hash())
+		}
+
+		for a := 0; a < len(system.Antiques); a++ {
+			values = append(values, system.Antiques[a].Hash())
+		}
+
+		for u := 0; u < len(system.Updates); u++ {
+			values = append(values, system.Updates[u].Hash())
+		}
+
+		for u := 0; u < len(system.Users); u++ {
+			values = append(values, system.Users[u].Hash())
+		}
+
+		hash = toHash(values...)
+
+	}
+
+	return hash
 
 }

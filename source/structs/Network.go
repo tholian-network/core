@@ -27,6 +27,39 @@ func (network *Network) HasSubnets() bool {
 	return len(network.Subnets) > 0
 }
 
+func (network *Network) Equal(value Network) bool {
+
+	if network.Name != value.Name {
+		return false
+	}
+
+	if len(network.Subnets) != len(value.Subnets) {
+		return false
+	}
+
+	for s := 0; s < len(network.Subnets); s++ {
+
+		found := false
+
+		for o := 0; o < len(value.Subnets); o++ {
+
+			if network.Subnets[s].Equal(value.Subnets[o]) {
+				found = true
+				break
+			}
+
+		}
+
+		if found == false {
+			return false
+		}
+
+	}
+
+	return true
+
+}
+
 func (network *Network) IsValid() bool {
 
 	if network.HasName() == false {
@@ -121,5 +154,33 @@ func (network *Network) SetSubnets(value []Subnet) {
 	})
 
 	network.Subnets = filtered
+
+}
+
+func (network *Network) Hash() string {
+
+	hash := ""
+
+	if network.Name != "" || len(network.Subnets) > 0 {
+
+		values := make([]string, 0)
+
+		values = append(values, network.Name)
+
+		hashes := make([]string, 0)
+
+		for s := 0; s < len(network.Subnets); s++ {
+			hashes = append(hashes, network.Subnets[s].Hash())
+		}
+
+		sort.Strings(hashes)
+
+		values = append(values, hashes...)
+
+		hash = toHash(values...)
+
+	}
+
+	return hash
 
 }

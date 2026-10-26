@@ -1,6 +1,7 @@
 package structs
 
 import "sort"
+import "strconv"
 import "strings"
 
 type Timeslot struct {
@@ -24,6 +25,42 @@ func NewTimeslot(offset string, weight float64) Timeslot {
 	timeslot.SetWeight(weight)
 
 	return timeslot
+
+}
+
+func (timeslot *Timeslot) Equal(value Timeslot) bool {
+
+	if timeslot.Offset != value.Offset ||
+		timeslot.Population != value.Population ||
+		timeslot.Weight != value.Weight {
+		return false
+	}
+
+	if len(timeslot.Countries) != len(value.Countries) {
+		return false
+	}
+
+	for c := 0; c < len(timeslot.Countries); c++ {
+
+		if timeslot.Countries[c] != value.Countries[c] {
+			return false
+		}
+
+	}
+
+	if len(timeslot.Timezones) != len(value.Timezones) {
+		return false
+	}
+
+	for t := 0; t < len(timeslot.Timezones); t++ {
+
+		if timeslot.Timezones[t] != value.Timezones[t] {
+			return false
+		}
+
+	}
+
+	return true
 
 }
 
@@ -186,4 +223,32 @@ func (timeslot *Timeslot) SetPopulation(value uint) {
 
 func (timeslot *Timeslot) SetWeight(value float64) {
 	timeslot.Weight = value
+}
+
+func (timeslot *Timeslot) Hash() string {
+
+	hash := ""
+
+	if timeslot.Offset != "" {
+
+		values := make([]string, 0)
+
+		values = append(values, timeslot.Offset)
+		values = append(values, strconv.FormatUint(uint64(timeslot.Population), 10))
+		values = append(values, strconv.FormatFloat(timeslot.Weight, 'f', -1, 64))
+
+		for c := 0; c < len(timeslot.Countries); c++ {
+			values = append(values, timeslot.Countries[c])
+		}
+
+		for t := 0; t < len(timeslot.Timezones); t++ {
+			values = append(values, timeslot.Timezones[t])
+		}
+
+		hash = toHash(values...)
+
+	}
+
+	return hash
+
 }

@@ -19,6 +19,16 @@ func NewMitigation(incident Incident, response Response) Mitigation {
 
 }
 
+func (mitigation *Mitigation) Equal(value Mitigation) bool {
+
+	if mitigation.Incident.Equal(value.Incident) && mitigation.Response.Equal(value.Response) {
+		return true
+	}
+
+	return false
+
+}
+
 func (mitigation *Mitigation) IsValid() bool {
 
 	if mitigation.Incident.IsValid() &&

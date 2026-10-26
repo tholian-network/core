@@ -81,6 +81,102 @@ func (incident *Incident) IsBefore(other Incident) bool {
 
 }
 
+func (incident *Incident) Equal(value Incident) bool {
+
+	if incident.System != value.System ||
+		incident.Type != value.Type ||
+		incident.Datetime.Equal(value.Datetime) == false {
+		return false
+	}
+
+	if len(incident.Connections) != len(value.Connections) {
+		return false
+	}
+
+	for c := 0; c < len(incident.Connections); c++ {
+
+		if incident.Connections[c].Equal(value.Connections[c]) == false {
+			return false
+		}
+
+	}
+
+	if len(incident.Distributions) != len(value.Distributions) {
+		return false
+	}
+
+	for d := 0; d < len(incident.Distributions); d++ {
+
+		if incident.Distributions[d].Equal(value.Distributions[d]) == false {
+			return false
+		}
+
+	}
+
+	if len(incident.Networks) != len(value.Networks) {
+		return false
+	}
+
+	for n := 0; n < len(incident.Networks); n++ {
+
+		if incident.Networks[n].Equal(value.Networks[n]) == false {
+			return false
+		}
+
+	}
+
+	if len(incident.Packages) != len(value.Packages) {
+		return false
+	}
+
+	for p := 0; p < len(incident.Packages); p++ {
+
+		if incident.Packages[p].Equal(value.Packages[p]) == false {
+			return false
+		}
+
+	}
+
+	if len(incident.Programs) != len(value.Programs) {
+		return false
+	}
+
+	for p := 0; p < len(incident.Programs); p++ {
+
+		if incident.Programs[p].Equal(value.Programs[p]) == false {
+			return false
+		}
+
+	}
+
+	if len(incident.Users) != len(value.Users) {
+		return false
+	}
+
+	for u := 0; u < len(incident.Users); u++ {
+
+		if incident.Users[u].Equal(value.Users[u]) == false {
+			return false
+		}
+
+	}
+
+	if len(incident.Vulnerabilities) != len(value.Vulnerabilities) {
+		return false
+	}
+
+	for v := 0; v < len(incident.Vulnerabilities); v++ {
+
+		if incident.Vulnerabilities[v].Equal(value.Vulnerabilities[v]) == false {
+			return false
+		}
+
+	}
+
+	return true
+
+}
+
 func (incident *Incident) IsValid() bool {
 
 	if incident.System != "" && incident.Type != "" && incident.Datetime.IsValid() {

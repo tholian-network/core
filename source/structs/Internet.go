@@ -3,6 +3,7 @@ package structs
 import "tholian-core/types"
 import "encoding/hex"
 import "sort"
+import "strconv"
 import "strings"
 
 type Internet struct {
@@ -20,6 +21,80 @@ func NewInternet() Internet {
 	internet.Networks = make(map[string]*Network)
 
 	return internet
+
+}
+
+func (internet *Internet) Equal(value Internet) bool {
+
+	if len(internet.Mapv4) != len(value.Mapv4) ||
+		len(internet.Mapv6) != len(value.Mapv6) ||
+		len(internet.Networks) != len(value.Networks) {
+		return false
+	}
+
+	for prefix, subnets := range internet.Mapv4 {
+
+		other, ok := value.Mapv4[prefix]
+
+		if ok == false || len(subnets) != len(other) {
+			return false
+		}
+
+		for hash, subnet := range subnets {
+
+			otherSubnet, ok := other[hash]
+
+			if ok == false || subnet == nil || otherSubnet == nil {
+				return false
+			}
+
+			if subnet.Equal(*otherSubnet) == false {
+				return false
+			}
+
+		}
+
+	}
+
+	for prefix, subnets := range internet.Mapv6 {
+
+		other, ok := value.Mapv6[prefix]
+
+		if ok == false || len(subnets) != len(other) {
+			return false
+		}
+
+		for hash, subnet := range subnets {
+
+			otherSubnet, ok := other[hash]
+
+			if ok == false || subnet == nil || otherSubnet == nil {
+				return false
+			}
+
+			if subnet.Equal(*otherSubnet) == false {
+				return false
+			}
+
+		}
+
+	}
+
+	for name, network := range internet.Networks {
+
+		other, ok := value.Networks[name]
+
+		if ok == false || network == nil || other == nil {
+			return false
+		}
+
+		if network.Equal(*other) == false {
+			return false
+		}
+
+	}
+
+	return true
 
 }
 
@@ -325,5 +400,92 @@ func (internet *Internet) SetSubnets(values []Subnet) bool {
 	}
 
 	return result
+
+}
+
+func (internet *Internet) Hash() string {
+
+	values := make([]string, 0)
+
+	prefixes4 := make([]uint8, 0)
+
+	for prefix := range internet.Mapv4 {
+		prefixes4 = append(prefixes4, prefix)
+	}
+
+	sort.Slice(prefixes4, func(a int, b int) bool {
+		return prefixes4[a] < prefixes4[b]
+	})
+
+	for p := 0; p < len(prefixes4); p++ {
+
+		prefix := prefixes4[p]
+		hashes := make([]string, 0)
+
+		for hash := range internet.Mapv4[prefix] {
+			hashes = append(hashes, hash)
+		}
+
+		sort.Strings(hashes)
+
+		for h := 0; h < len(hashes); h++ {
+			subnet := internet.Mapv4[prefix][hashes[h]]
+			values = append(values, "v4")
+			values = append(values, strconv.FormatUint(uint64(prefix), 10))
+			values = append(values, subnet.Hash())
+		}
+
+	}
+
+	prefixes6 := make([]uint8, 0)
+
+	for prefix := range internet.Mapv6 {
+		prefixes6 = append(prefixes6, prefix)
+	}
+
+	sort.Slice(prefixes6, func(a int, b int) bool {
+		return prefixes6[a] < prefixes6[b]
+	})
+
+	for p := 0; p < len(prefixes6); p++ {
+
+		prefix := prefixes6[p]
+		hashes := make([]string, 0)
+
+		for hash := range internet.Mapv6[prefix] {
+			hashes = append(hashes, hash)
+		}
+
+		sort.Strings(hashes)
+
+		for h := 0; h < len(hashes); h++ {
+			subnet := internet.Mapv6[prefix][hashes[h]]
+			values = append(values, "v6")
+			values = append(values, strconv.FormatUint(uint64(prefix), 10))
+			values = append(values, subnet.Hash())
+		}
+
+	}
+
+	names := make([]string, 0)
+
+	for name := range internet.Networks {
+		names = append(names, name)
+	}
+
+	sort.Strings(names)
+
+	for n := 0; n < len(names); n++ {
+		network := internet.Networks[names[n]]
+		values = append(values, "net")
+		values = append(values, names[n])
+		values = append(values, network.Hash())
+	}
+
+	if len(values) == 0 {
+		return ""
+	}
+
+	return toHash(values...)
 
 }

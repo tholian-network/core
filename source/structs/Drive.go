@@ -1,5 +1,6 @@
 package structs
 
+import "strconv"
 import "strings"
 
 type Drive struct {
@@ -19,6 +20,21 @@ func NewDrive(name string, typ string) Drive {
 	drive.SetType(typ)
 
 	return drive
+
+}
+
+func (drive *Drive) Equal(value Drive) bool {
+
+	if drive.Name == value.Name &&
+		drive.Size == value.Size &&
+		drive.Free == value.Free &&
+		drive.Used == value.Used &&
+		drive.Mountpoint == value.Mountpoint &&
+		drive.Type == value.Type {
+		return true
+	}
+
+	return false
 
 }
 
@@ -67,5 +83,26 @@ func (drive *Drive) SetType(value string) {
 	} else if value == "remote" {
 		drive.Type = "remote"
 	}
+
+}
+
+func (drive *Drive) Hash() string {
+
+	hash := ""
+
+	if drive.Name != "" {
+
+		hash = toHash(
+			drive.Name,
+			strconv.FormatUint(drive.Size, 10),
+			strconv.FormatUint(drive.Free, 10),
+			strconv.FormatUint(drive.Used, 10),
+			drive.Mountpoint,
+			drive.Type,
+		)
+
+	}
+
+	return hash
 
 }

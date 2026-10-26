@@ -81,6 +81,102 @@ func (response *Response) IsBefore(other Response) bool {
 
 }
 
+func (response *Response) Equal(value Response) bool {
+
+	if response.System != value.System ||
+		response.Type != value.Type ||
+		response.Datetime.Equal(value.Datetime) == false {
+		return false
+	}
+
+	if len(response.Connections) != len(value.Connections) {
+		return false
+	}
+
+	for c := 0; c < len(response.Connections); c++ {
+
+		if response.Connections[c].Equal(value.Connections[c]) == false {
+			return false
+		}
+
+	}
+
+	if len(response.Distributions) != len(value.Distributions) {
+		return false
+	}
+
+	for d := 0; d < len(response.Distributions); d++ {
+
+		if response.Distributions[d].Equal(value.Distributions[d]) == false {
+			return false
+		}
+
+	}
+
+	if len(response.Networks) != len(value.Networks) {
+		return false
+	}
+
+	for n := 0; n < len(response.Networks); n++ {
+
+		if response.Networks[n].Equal(value.Networks[n]) == false {
+			return false
+		}
+
+	}
+
+	if len(response.Packages) != len(value.Packages) {
+		return false
+	}
+
+	for p := 0; p < len(response.Packages); p++ {
+
+		if response.Packages[p].Equal(value.Packages[p]) == false {
+			return false
+		}
+
+	}
+
+	if len(response.Programs) != len(value.Programs) {
+		return false
+	}
+
+	for p := 0; p < len(response.Programs); p++ {
+
+		if response.Programs[p].Equal(value.Programs[p]) == false {
+			return false
+		}
+
+	}
+
+	if len(response.Users) != len(value.Users) {
+		return false
+	}
+
+	for u := 0; u < len(response.Users); u++ {
+
+		if response.Users[u].Equal(value.Users[u]) == false {
+			return false
+		}
+
+	}
+
+	if len(response.Vulnerabilities) != len(value.Vulnerabilities) {
+		return false
+	}
+
+	for v := 0; v < len(response.Vulnerabilities); v++ {
+
+		if response.Vulnerabilities[v].Equal(value.Vulnerabilities[v]) == false {
+			return false
+		}
+
+	}
+
+	return true
+
+}
+
 func (response *Response) IsValid() bool {
 
 	if response.System != "" && response.Type != "" && response.Datetime.IsValid() {

@@ -24,6 +24,21 @@ func NewUpdate(manager string) Update {
 
 }
 
+func (update *Update) Equal(value Update) bool {
+
+	if update.Name == value.Name &&
+		update.Version.Equal(value.Version) &&
+		update.Architecture.Equal(value.Architecture) &&
+		update.Manager.Equal(value.Manager) &&
+		update.Vendor == value.Vendor &&
+		update.URL == value.URL {
+		return true
+	}
+
+	return false
+
+}
+
 func (update *Update) IsValid() bool {
 
 	if update.Name != "" &&
@@ -86,5 +101,26 @@ func (update *Update) SetVersion(value string) {
 	if version.IsValid() {
 		update.Version = version
 	}
+
+}
+
+func (update *Update) Hash() string {
+
+	hash := ""
+
+	if update.Name != "" {
+
+		hash = toHash(
+			update.Name,
+			update.Version.String(),
+			update.Architecture.String(),
+			update.Manager.String(),
+			update.Vendor,
+			update.URL,
+		)
+
+	}
+
+	return hash
 
 }

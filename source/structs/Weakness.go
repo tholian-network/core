@@ -42,6 +42,52 @@ func ToWeakness(value string) Weakness {
 
 }
 
+func (weakness *Weakness) Equal(value Weakness) bool {
+
+	if weakness.Name != value.Name || weakness.Description != value.Description {
+		return false
+	}
+
+	if len(weakness.Impacts) != len(value.Impacts) {
+		return false
+	}
+
+	for i := 0; i < len(weakness.Impacts); i++ {
+
+		if weakness.Impacts[i] != value.Impacts[i] {
+			return false
+		}
+
+	}
+
+	if len(weakness.References) != len(value.References) {
+		return false
+	}
+
+	for r := 0; r < len(weakness.References); r++ {
+
+		if weakness.References[r] != value.References[r] {
+			return false
+		}
+
+	}
+
+	if len(weakness.Scopes) != len(value.Scopes) {
+		return false
+	}
+
+	for s := 0; s < len(weakness.Scopes); s++ {
+
+		if weakness.Scopes[s] != value.Scopes[s] {
+			return false
+		}
+
+	}
+
+	return true
+
+}
+
 func (weakness *Weakness) IsValid() bool {
 
 	if weakness.Name != "" {
@@ -239,5 +285,36 @@ func (weakness *Weakness) SetScopes(values []string) {
 	}
 
 	weakness.Scopes = filtered
+
+}
+
+func (weakness *Weakness) Hash() string {
+
+	hash := ""
+
+	if weakness.Name != "" {
+
+		values := make([]string, 0)
+
+		values = append(values, weakness.Name)
+		values = append(values, weakness.Description)
+
+		for i := 0; i < len(weakness.Impacts); i++ {
+			values = append(values, weakness.Impacts[i])
+		}
+
+		for r := 0; r < len(weakness.References); r++ {
+			values = append(values, weakness.References[r])
+		}
+
+		for s := 0; s < len(weakness.Scopes); s++ {
+			values = append(values, weakness.Scopes[s])
+		}
+
+		hash = toHash(values...)
+
+	}
+
+	return hash
 
 }

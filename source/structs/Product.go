@@ -240,3 +240,22 @@ func (product *Product) SetVersion(value string) {
 	}
 
 }
+
+func (product *Product) Hash() string {
+
+	hash := ""
+
+	if product.Name != "" {
+
+		hash = toHash(
+			product.Name,
+			product.Version,
+			product.Vendor,
+			product.Type,
+		)
+
+	}
+
+	return hash
+
+}

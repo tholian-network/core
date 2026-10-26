@@ -1,6 +1,7 @@
 package structs
 
 import "tholian-core/types"
+import "strconv"
 import "strings"
 
 type Country struct {
@@ -25,6 +26,64 @@ func NewCountry(name string) Country {
 	country.Timezones = make([]Timezone, 0)
 
 	return country
+
+}
+
+func (country *Country) Equal(value Country) bool {
+
+	if country.ISO != value.ISO ||
+		country.Name != value.Name ||
+		country.Continent != value.Continent ||
+		country.Geolocation != value.Geolocation ||
+		country.Population != value.Population {
+		return false
+	}
+
+	if (country.Registry == nil) != (value.Registry == nil) {
+		return false
+	}
+
+	if country.Registry != nil && *country.Registry != *value.Registry {
+		return false
+	}
+
+	if len(country.Allegiances) != len(value.Allegiances) {
+		return false
+	}
+
+	for a := 0; a < len(country.Allegiances); a++ {
+
+		if country.Allegiances[a] != value.Allegiances[a] {
+			return false
+		}
+
+	}
+
+	if len(country.Subnets) != len(value.Subnets) {
+		return false
+	}
+
+	for s := 0; s < len(country.Subnets); s++ {
+
+		if country.Subnets[s].Equal(value.Subnets[s]) == false {
+			return false
+		}
+
+	}
+
+	if len(country.Timezones) != len(value.Timezones) {
+		return false
+	}
+
+	for t := 0; t < len(country.Timezones); t++ {
+
+		if country.Timezones[t].Equal(value.Timezones[t]) == false {
+			return false
+		}
+
+	}
+
+	return true
 
 }
 
@@ -218,5 +277,46 @@ func (country *Country) HasTimezoneOffset(value string) bool {
 	}
 
 	return false
+
+}
+
+func (country *Country) Hash() string {
+
+	hash := ""
+
+	if country.Name != "" {
+
+		values := make([]string, 0)
+
+		values = append(values, country.ISO)
+		values = append(values, country.Name)
+		values = append(values, country.Continent)
+		values = append(values, strconv.FormatFloat(country.Geolocation.Latitude, 'f', -1, 64))
+		values = append(values, strconv.FormatFloat(country.Geolocation.Longitude, 'f', -1, 64))
+		values = append(values, strconv.FormatUint(uint64(country.Population), 10))
+
+		if country.Registry != nil {
+			values = append(values, *country.Registry)
+		} else {
+			values = append(values, "")
+		}
+
+		for a := 0; a < len(country.Allegiances); a++ {
+			values = append(values, country.Allegiances[a])
+		}
+
+		for s := 0; s < len(country.Subnets); s++ {
+			values = append(values, country.Subnets[s].Hash())
+		}
+
+		for t := 0; t < len(country.Timezones); t++ {
+			values = append(values, country.Timezones[t].Hash())
+		}
+
+		hash = toHash(values...)
+
+	}
+
+	return hash
 
 }

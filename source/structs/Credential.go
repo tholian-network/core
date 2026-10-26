@@ -1,6 +1,7 @@
 package structs
 
 import "bytes"
+import "encoding/hex"
 import "strings"
 
 type Credential struct {
@@ -20,6 +21,40 @@ func NewCredential(name string, typ string) Credential {
 	credential.Passwords = make([]string, 0)
 
 	return credential
+
+}
+
+func (credential *Credential) Equal(value Credential) bool {
+
+	if credential.Name != value.Name || credential.Type != value.Type {
+		return false
+	}
+
+	if len(credential.Keys) != len(value.Keys) {
+		return false
+	}
+
+	for k := 0; k < len(credential.Keys); k++ {
+
+		if bytes.Equal(credential.Keys[k], value.Keys[k]) == false {
+			return false
+		}
+
+	}
+
+	if len(credential.Passwords) != len(value.Passwords) {
+		return false
+	}
+
+	for p := 0; p < len(credential.Passwords); p++ {
+
+		if credential.Passwords[p] != value.Passwords[p] {
+			return false
+		}
+
+	}
+
+	return true
 
 }
 
@@ -152,5 +187,32 @@ func (credential *Credential) SetType(value string) {
 	} else if value == "program" {
 		credential.Type = "program"
 	}
+
+}
+
+func (credential *Credential) Hash() string {
+
+	hash := ""
+
+	if credential.Name != "" {
+
+		values := make([]string, 0)
+
+		values = append(values, credential.Name)
+		values = append(values, credential.Type)
+
+		for k := 0; k < len(credential.Keys); k++ {
+			values = append(values, hex.EncodeToString(credential.Keys[k]))
+		}
+
+		for p := 0; p < len(credential.Passwords); p++ {
+			values = append(values, credential.Passwords[p])
+		}
+
+		hash = toHash(values...)
+
+	}
+
+	return hash
 
 }

@@ -681,3 +681,22 @@ func (pkg *Package) SetVersion(value string) {
 	}
 
 }
+
+func (pkg *Package) Hash() string {
+
+	hash := ""
+
+	if pkg.Name != "" {
+
+		hash = toHash(
+			pkg.Name,
+			pkg.Version.String(),
+			pkg.Architecture.String(),
+			pkg.Manager.String(),
+		)
+
+	}
+
+	return hash
+
+}

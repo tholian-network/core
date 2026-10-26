@@ -139,3 +139,15 @@ func (distribution *Distribution) SetVendor(value string) {
 func (distribution *Distribution) SetVersion(value string) {
 	distribution.Version = strings.TrimSpace(value)
 }
+
+func (distribution *Distribution) Hash() string {
+
+	hash := ""
+
+	if distribution.Name != "" {
+		hash = toHash(distribution.Name, distribution.Version, distribution.Vendor, distribution.Kernel)
+	}
+
+	return hash
+
+}

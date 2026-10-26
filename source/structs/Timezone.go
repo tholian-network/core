@@ -18,6 +18,33 @@ func NewTimezone(name string, offset string) Timezone {
 
 }
 
+func (timezone *Timezone) Equal(value Timezone) bool {
+
+	if timezone.Name == value.Name && timezone.Offset == value.Offset {
+		return true
+	}
+
+	return false
+
+}
+
+func (timezone *Timezone) Hash() string {
+
+	hash := ""
+
+	if timezone.Name != "" {
+
+		hash = toHash(
+			timezone.Name,
+			timezone.Offset,
+		)
+
+	}
+
+	return hash
+
+}
+
 func (timezone *Timezone) SetName(value string) {
 
 	value = strings.TrimSpace(value)

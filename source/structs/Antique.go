@@ -26,6 +26,22 @@ func NewAntique(manager string, service string) Antique {
 
 }
 
+func (antique *Antique) Equal(value Antique) bool {
+
+	if antique.Name == value.Name &&
+		antique.Version.Equal(value.Version) &&
+		antique.Architecture.Equal(value.Architecture) &&
+		antique.Manager.Equal(value.Manager) &&
+		antique.Vendor == value.Vendor &&
+		antique.Service == value.Service &&
+		antique.URL == value.URL {
+		return true
+	}
+
+	return false
+
+}
+
 func (antique *Antique) IsValid() bool {
 
 	if antique.Name != "" &&
@@ -93,5 +109,27 @@ func (antique *Antique) SetVersion(value string) {
 	if version.IsValid() {
 		antique.Version = version
 	}
+
+}
+
+func (antique *Antique) Hash() string {
+
+	hash := ""
+
+	if antique.Name != "" {
+
+		hash = toHash(
+			antique.Name,
+			antique.Version.String(),
+			antique.Architecture.String(),
+			antique.Manager.String(),
+			antique.Vendor,
+			antique.Service,
+			antique.URL,
+		)
+
+	}
+
+	return hash
 
 }

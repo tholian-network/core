@@ -2,6 +2,8 @@ package structs
 
 import "tholian-core/matchers"
 import utils_path "tholian-core/utils/path"
+import "sort"
+import "strconv"
 import "strings"
 
 type Program struct {
@@ -33,6 +35,97 @@ func NewProgram(pid uint, name string) Program {
 	program.Packages = make([]Package, 0)
 
 	return program
+
+}
+
+func (program *Program) Equal(value Program) bool {
+
+	if program.PID != value.PID ||
+		program.Name != value.Name ||
+		program.Command != value.Command ||
+		program.Folder != value.Folder {
+		return false
+	}
+
+	if len(program.Arguments) != len(value.Arguments) {
+		return false
+	}
+
+	for a := 0; a < len(program.Arguments); a++ {
+
+		if program.Arguments[a] != value.Arguments[a] {
+			return false
+		}
+
+	}
+
+	if len(program.Environment) != len(value.Environment) {
+		return false
+	}
+
+	for key, val := range program.Environment {
+
+		other, ok := value.Environment[key]
+
+		if ok == false || other != val {
+			return false
+		}
+
+	}
+
+	if program.User.Equal(value.User) == false || program.Manager.Equal(value.Manager) == false {
+		return false
+	}
+
+	if len(program.Filesystem) != len(value.Filesystem) {
+		return false
+	}
+
+	for f := 0; f < len(program.Filesystem); f++ {
+
+		if program.Filesystem[f] != value.Filesystem[f] {
+			return false
+		}
+
+	}
+
+	if len(program.Connections) != len(value.Connections) {
+		return false
+	}
+
+	for c := 0; c < len(program.Connections); c++ {
+
+		if program.Connections[c].Equal(value.Connections[c]) == false {
+			return false
+		}
+
+	}
+
+	if len(program.Dependencies) != len(value.Dependencies) {
+		return false
+	}
+
+	for d := 0; d < len(program.Dependencies); d++ {
+
+		if program.Dependencies[d].Equal(value.Dependencies[d]) == false {
+			return false
+		}
+
+	}
+
+	if len(program.Packages) != len(value.Packages) {
+		return false
+	}
+
+	for p := 0; p < len(program.Packages); p++ {
+
+		if program.Packages[p].Equal(value.Packages[p]) == false {
+			return false
+		}
+
+	}
+
+	return true
 
 }
 
@@ -506,5 +599,63 @@ func (program *Program) SetUser(value matchers.User) {
 	if value.IsValid() {
 		program.User = value
 	}
+
+}
+
+func (program *Program) Hash() string {
+
+	hash := ""
+
+	if program.Name != "" {
+
+		values := make([]string, 0)
+
+		values = append(values, strconv.FormatUint(uint64(program.PID), 10))
+		values = append(values, program.Name)
+		values = append(values, program.Command)
+
+		for a := 0; a < len(program.Arguments); a++ {
+			values = append(values, program.Arguments[a])
+		}
+
+		values = append(values, program.Folder)
+
+		keys := make([]string, 0)
+
+		for key, _ := range program.Environment {
+			keys = append(keys, key)
+		}
+
+		sort.Strings(keys)
+
+		for k := 0; k < len(keys); k++ {
+			values = append(values, keys[k])
+			values = append(values, program.Environment[keys[k]])
+		}
+
+		values = append(values, program.User.Hash())
+		values = append(values, program.Manager.Hash())
+
+		for f := 0; f < len(program.Filesystem); f++ {
+			values = append(values, program.Filesystem[f])
+		}
+
+		for c := 0; c < len(program.Connections); c++ {
+			values = append(values, program.Connections[c].Hash())
+		}
+
+		for d := 0; d < len(program.Dependencies); d++ {
+			values = append(values, program.Dependencies[d].Hash())
+		}
+
+		for p := 0; p < len(program.Packages); p++ {
+			values = append(values, program.Packages[p].Hash())
+		}
+
+		hash = toHash(values...)
+
+	}
+
+	return hash
 
 }
