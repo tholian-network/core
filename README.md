@@ -6,9 +6,9 @@ Tholian's cyber defense projects.
 
 The project is not a runtime, database, or transport protocol. It is a small Go
 module that gives every consumer the same vocabulary and the same JSON wire
-format. That makes it possible to correlate data from the Tholian Endpoint Agent,
-Tholian Firewall, Tholian Oversight Dashboard, and our provided threat intelligence
-tooling without repeatedly reinterpreting the same values.
+format. That makes it possible to correlate data from all Tholian Agent
+implementations and our provided threat intelligence tooling without repeatedly
+reinterpreting the same values.
 
 The JSON representations are intentionally documented and stable, so that they
 can be consumed by external tools and proprietary cyber security stacks such as
@@ -146,11 +146,17 @@ a local replacement:
 ```text
 /path/to/Software/tholian-network/
 |- core/         # this module
-|- convoy/       # tholian-convoy repository
-|- detective/    # tholian-detective repository
-|- firewall/     # tholian-firewall repository
-|- guard/        # tholian-guard repository
-|- intel/        # tholian-intel repository
+|
+|- assembly/     # Tholian Assembly  (Operator interface)
+|- oversight/    # Tholian Oversight (Dashboard interface)
+|
+|- convoy/       # Tholian Convoy    (Offensive Pentest Agent)
+|- evac/         # Tholian Evac      (Emergency Backup and Restore Agent)
+|- firewall/     # Tholian Firewall  (Defensive Firewall Agent)
+|- guard/        # Tholian Guard     (EDR Agent)
+|- recon/        # Tholian Recon     (Threat Intelligence Agent)
+|- scout/        # Tholian Scout     (SBOM/HBOM Agent)
+\- warps/        # Tholian Warps     (Network Soft Router Agent)
 ```
 
 ```go
