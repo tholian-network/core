@@ -55,6 +55,8 @@ declared JSON fields.
 | `Time`            | `"11:59:59"`                                                 |
 | `Datetime`        | `"2026-10-19 11:59:59"`                                      |
 | `Architecture`    | `"x86_64"`                                                   |
+| `Group`           | `"wheel:user:1000:secret"`                                   |
+| `User`            | `"alice:user:1000:%2Fhome%2Falice:%2Fbin%2Fbash:secret:wheel:user:1000:secret"` |
 
 A network with one subnet is encoded as:
 
@@ -78,6 +80,12 @@ The exact string forms are part of the API contract.
 
 IPv6 addresses are expanded to eight lowercase groups, sockets use `host:port`,
 subnets use `address/prefix`, and domains are stored without a trailing dot.
+
+`Group` and `User` values use the canonical forms
+`name:type:id:password` and `name:type:id:folder:shell:password:groups`.
+Textual fields are URL query escaped, and `groups` is a comma-separated list of
+canonical `Group` strings. Passwords are part of the wire format, so payloads
+containing users or groups must be handled as sensitive data.
 
 Go's `encoding/json` escapes characters such as `>` as `\u003e` by default;
 decoding restores the canonical value.

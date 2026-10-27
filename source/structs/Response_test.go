@@ -553,13 +553,13 @@ func TestResponseMatches(t *testing.T) {
 		t.Fatal("MatchesUpdate should not match")
 	}
 
-	user := types.ToUser("alice", 1000)
+	user := types.ToUser("alice:user:1000")
 
 	if response.MatchesUser(user) == false {
 		t.Fatal("MatchesUser should match")
 	}
 
-	otherUser := types.ToUser("bob", 1001)
+	otherUser := types.ToUser("bob:user:1001")
 
 	if response.MatchesUser(otherUser) == true {
 		t.Fatal("MatchesUser should not match")

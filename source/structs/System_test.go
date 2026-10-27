@@ -124,7 +124,7 @@ func systemTestValidUpdate() Update {
 }
 
 func systemTestValidUser() types.User {
-	return types.ToUser("example-user", 1000)
+	return types.ToUser("example-user:user:1000")
 }
 
 func systemTestPopulatedSystem() System {

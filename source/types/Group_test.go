@@ -1,5 +1,6 @@
 package types
 
+import "encoding/json"
 import "testing"
 
 func TestNewGroup(t *testing.T) {
@@ -20,9 +21,33 @@ func TestNewGroup(t *testing.T) {
 
 }
 
+func TestToGroupMinimal(t *testing.T) {
+
+	group1 := ToGroup("wheel")
+	group2 := ToGroup("wheel:user")
+	group3 := ToGroup("wheel:user:1000")
+
+	if group1.ID != 0 || group1.Name != "wheel" || group1.Type != "" || group1.Password != "" {
+		t.Fatalf("ToGroup(%q) = %#v, expected only the name", "wheel", group1)
+	}
+
+	if group2.ID != 0 || group2.Name != "wheel" || group2.Type != "user" || group2.Password != "" {
+		t.Fatalf("ToGroup(%q) = %#v, expected the name and type", "wheel:user", group2)
+	}
+
+	if group3.ID != 1000 || group3.Name != "wheel" || group3.Type != "user" || group3.Password != "" {
+		t.Fatalf("ToGroup(%q) = %#v, expected the name, type and ID", "wheel:user:1000", group3)
+	}
+
+	if group3.IsValid() == false {
+		t.Fatal("ToGroup() returned an invalid group")
+	}
+
+}
+
 func TestToGroup(t *testing.T) {
 
-	group := ToGroup("  wheel  ")
+	group := ToGroup("wheel:user:1000:secret")
 
 	if group.Name != "wheel" {
 		t.Fatalf("ToGroup().Name = %q, expected %q", group.Name, "wheel")
@@ -32,8 +57,16 @@ func TestToGroup(t *testing.T) {
 		t.Fatalf("ToGroup().Type = %q, expected %q", group.Type, "user")
 	}
 
-	if group.ID != 0 {
-		t.Fatalf("ToGroup().ID = %d, expected 0", group.ID)
+	if group.ID != 1000 {
+		t.Fatalf("ToGroup().ID = %d, expected 1000", group.ID)
+	}
+
+	if group.Password != "secret" {
+		t.Fatalf("ToGroup().Password = %q, expected %q", group.Password, "secret")
+	}
+
+	if group.IsValid() == false {
+		t.Fatal("ToGroup() returned an invalid group")
 	}
 
 	empty := ToGroup("")
@@ -181,6 +214,164 @@ func TestGroupHash(t *testing.T) {
 
 		if first == variant.Hash() {
 			t.Errorf("Hash() did not change for %#v", variant)
+		}
+
+	}
+
+}
+
+func TestGroupString(t *testing.T) {
+
+	tests := []struct {
+		group    Group
+		expected string
+	}{
+		{Group{}, "::0:"},
+		{Group{ID: 1000, Name: "wheel", Password: "secret", Type: "user"}, "wheel:user:1000:secret"},
+		{Group{ID: 1000, Name: "wheel", Password: "sec:ret,with space%", Type: "user"}, "wheel:user:1000:sec%3Aret%2Cwith+space%25"},
+	}
+
+	for _, test := range tests {
+
+		if result := test.group.String(); result != test.expected {
+			t.Errorf("Group%#v.String() = %q, expected %q", test.group, result, test.expected)
+		}
+
+	}
+
+}
+
+func TestGroupMarshalJSON(t *testing.T) {
+
+	group := Group{ID: 1000, Name: "wheel", Password: "secret", Type: "user"}
+
+	data, err := json.Marshal(group)
+
+	if err != nil {
+		t.Fatalf("Marshal() returned an error: %v", err)
+	}
+
+	if string(data) != `"wheel:user:1000:secret"` {
+		t.Fatalf("Marshal() = %s, expected %q", data, `"wheel:user:1000:secret"`)
+	}
+
+}
+
+func TestGroupUnmarshalJSON(t *testing.T) {
+
+	original := Group{ID: 1000, Name: "wheel", Password: "sec:ret,with space%", Type: "user"}
+
+	data, err := json.Marshal(original)
+
+	if err != nil {
+		t.Fatalf("Marshal() returned an error: %v", err)
+	}
+
+	var decoded Group
+
+	if err := json.Unmarshal(data, &decoded); err != nil {
+		t.Fatalf("Unmarshal() returned an error: %v", err)
+	}
+
+	if decoded != original {
+		t.Fatalf("Unmarshal() = %#v, expected %#v", decoded, original)
+	}
+
+}
+
+func TestGroupUnmarshalJSONSanitizes(t *testing.T) {
+
+	var group Group
+
+	if err := json.Unmarshal([]byte(`" wheel :invalid:65535:secret"`), &group); err != nil {
+		t.Fatalf("Unmarshal() returned an error: %v", err)
+	}
+
+	expected := Group{ID: 65535, Name: "wheel", Password: "secret", Type: ""}
+
+	if group != expected {
+		t.Fatalf("Unmarshal() = %#v, expected %#v", group, expected)
+	}
+
+}
+
+func TestGroupUnmarshalJSONErrors(t *testing.T) {
+
+	original := Group{ID: 1000, Name: "wheel", Password: "secret", Type: "user"}
+
+	inputs := []string{
+		`not-quoted`,
+		`123`,
+	}
+
+	for _, input := range inputs {
+
+		group := original
+
+		if err := json.Unmarshal([]byte(input), &group); err == nil {
+			t.Errorf("Unmarshal(%s) accepted malformed JSON", input)
+		}
+
+		if group != original {
+			t.Errorf("Unmarshal(%s) changed the value to %#v", input, group)
+		}
+
+	}
+
+}
+
+func TestGroupUnmarshalJSONIgnoresInvalid(t *testing.T) {
+
+	original := Group{ID: 1000, Name: "wheel", Password: "secret", Type: "user"}
+
+	inputs := []string{
+		`"wheel:user"`,
+		`"wheel:user:not-a-number:secret"`,
+		`"wheel:user:70000:secret"`,
+	}
+
+	for _, input := range inputs {
+
+		group := original
+
+		if err := json.Unmarshal([]byte(input), &group); err != nil {
+			t.Errorf("Unmarshal(%s) returned an error: %v", input, err)
+		}
+
+		if group != original {
+			t.Errorf("Unmarshal(%s) changed the value to %#v", input, group)
+		}
+
+	}
+
+}
+
+func TestGroupUnmarshalJSONPartial(t *testing.T) {
+
+	tests := []struct {
+		input    string
+		expected Group
+	}{
+		{
+			`"wheel:user:1000"`,
+			Group{ID: 1000, Name: "wheel", Type: "user"},
+		},
+		{
+			`"wheel:user:1000:%zz"`,
+			Group{ID: 1000, Name: "wheel", Type: "user"},
+		},
+	}
+
+	for _, test := range tests {
+
+		var group Group
+
+		if err := json.Unmarshal([]byte(test.input), &group); err != nil {
+			t.Fatalf("Unmarshal(%s) returned an error: %v", test.input, err)
+		}
+
+		if group != test.expected {
+			t.Fatalf("Unmarshal(%s) = %#v, expected %#v", test.input, group, test.expected)
 		}
 
 	}

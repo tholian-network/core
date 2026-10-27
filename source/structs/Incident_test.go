@@ -529,13 +529,13 @@ func TestIncidentMatches(t *testing.T) {
 		t.Fatal("MatchesUpdate should not match")
 	}
 
-	user := types.ToUser("alice", 1000)
+	user := types.ToUser("alice:user:1000")
 
 	if incident.MatchesUser(user) == false {
 		t.Fatal("MatchesUser should match")
 	}
 
-	otherUser := types.ToUser("bob", 1001)
+	otherUser := types.ToUser("bob:user:1001")
 
 	if incident.MatchesUser(otherUser) == true {
 		t.Fatal("MatchesUser should not match")
