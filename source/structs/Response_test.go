@@ -45,6 +45,18 @@ func ResponseTestPackage() matchers.Package {
 
 }
 
+func ResponseTestProduct() matchers.Product {
+
+	product := matchers.NewProduct()
+	product.SetVendor("acme")
+	product.SetProduct("widget")
+	product.SetVersion("1-2-3")
+	product.SetType("software")
+
+	return product
+
+}
+
 func ResponseTestProgram() matchers.Program {
 
 	program := matchers.NewProgram()
@@ -72,6 +84,15 @@ func ResponseTestVulnerability() matchers.Vulnerability {
 
 }
 
+func ResponseTestWeakness() matchers.Weakness {
+
+	weakness := matchers.NewWeakness()
+	weakness.SetName("CWE-79")
+
+	return weakness
+
+}
+
 func ResponseTestBase(typ string) Response {
 
 	response := NewResponse("machine", typ)
@@ -88,9 +109,11 @@ func ResponseTestRich() Response {
 	response.AddDistribution(ResponseTestDistribution())
 	response.AddNetwork(ResponseTestNetwork())
 	response.AddPackage(ResponseTestPackage())
+	response.AddProduct(ResponseTestProduct())
 	response.AddProgram(ResponseTestProgram())
 	response.AddUser(ResponseTestUser())
 	response.AddVulnerability(ResponseTestVulnerability())
+	response.AddWeakness(ResponseTestWeakness())
 
 	return response
 
@@ -116,9 +139,11 @@ func TestResponseNew(t *testing.T) {
 		len(response.Distributions) != 0 ||
 		len(response.Networks) != 0 ||
 		len(response.Packages) != 0 ||
+		len(response.Products) != 0 ||
 		len(response.Programs) != 0 ||
 		len(response.Users) != 0 ||
-		len(response.Vulnerabilities) != 0 {
+		len(response.Vulnerabilities) != 0 ||
+		len(response.Weaknesses) != 0 {
 		t.Fatal("new response has non-empty collections")
 	}
 
@@ -275,12 +300,16 @@ func TestResponseEqual(t *testing.T) {
 		{"networks-value", func(value *Response) { value.Networks[0].Name = "other" }},
 		{"packages-length", func(value *Response) { value.Packages = append(value.Packages, value.Packages[0]) }},
 		{"packages-value", func(value *Response) { value.Packages[0].Name = "nginx" }},
+		{"products-length", func(value *Response) { value.Products = append(value.Products, value.Products[0]) }},
+		{"products-value", func(value *Response) { value.Products[0].Vendor = "other" }},
 		{"programs-length", func(value *Response) { value.Programs = append(value.Programs, value.Programs[0]) }},
 		{"programs-value", func(value *Response) { value.Programs[0].Name = "other" }},
 		{"users-length", func(value *Response) { value.Users = append(value.Users, value.Users[0]) }},
 		{"users-value", func(value *Response) { value.Users[0].Name = "bob" }},
 		{"vulnerabilities-length", func(value *Response) { value.Vulnerabilities = append(value.Vulnerabilities, value.Vulnerabilities[0]) }},
 		{"vulnerabilities-value", func(value *Response) { value.Vulnerabilities[0].Name = "CVE-2020-0000" }},
+		{"weaknesses-length", func(value *Response) { value.Weaknesses = append(value.Weaknesses, value.Weaknesses[0]) }},
+		{"weaknesses-value", func(value *Response) { value.Weaknesses[0].Name = "CWE-999" }},
 	}
 
 	for _, c := range cases {
@@ -386,9 +415,11 @@ func TestResponseMatches(t *testing.T) {
 	response.AddDistribution(ResponseTestDistribution())
 	response.AddNetwork(ResponseTestNetwork())
 	response.AddPackage(ResponseTestPackage())
+	response.AddProduct(ResponseTestProduct())
 	response.AddProgram(ResponseTestProgram())
 	response.AddUser(ResponseTestUser())
 	response.AddVulnerability(ResponseTestVulnerability())
+	response.AddWeakness(ResponseTestWeakness())
 
 	antique := NewAntique("apt", "openssl")
 	antique.SetName("openssl")
@@ -474,6 +505,23 @@ func TestResponseMatches(t *testing.T) {
 		t.Fatal("MatchesPackage should not match")
 	}
 
+	product := NewProduct("software")
+	product.SetVendor("acme")
+	product.SetProduct("widget")
+	product.SetVersion("1-2-3")
+	product.SetState("published")
+
+	if response.MatchesProduct(product) == false {
+		t.Fatal("MatchesProduct should match")
+	}
+
+	otherProduct := product
+	otherProduct.SetVendor("other")
+
+	if response.MatchesProduct(otherProduct) == true {
+		t.Fatal("MatchesProduct should not match")
+	}
+
 	program := NewProgram(1234, "stealth.mjs")
 	program.SetCommand("/usr/bin/node")
 	program.SetArguments([]string{"serve"})
@@ -529,6 +577,22 @@ func TestResponseMatches(t *testing.T) {
 
 	if response.MatchesVulnerability(otherVulnerability) == true {
 		t.Fatal("MatchesVulnerability should not match")
+	}
+
+	weakness := NewWeakness()
+	weakness.SetName("CWE-79")
+	weakness.AddImpact("Read Application Data")
+	weakness.AddScope("Confidentiality")
+
+	if response.MatchesWeakness(weakness) == false {
+		t.Fatal("MatchesWeakness should match")
+	}
+
+	otherWeakness := weakness
+	otherWeakness.SetName("CWE-89")
+
+	if response.MatchesWeakness(otherWeakness) == true {
+		t.Fatal("MatchesWeakness should not match")
 	}
 
 }
@@ -695,6 +759,46 @@ func TestResponseCollectionHelpers(t *testing.T) {
 
 	})
 
+	t.Run("products", func(t *testing.T) {
+
+		response := ResponseTestBase("Permit")
+		valid := ResponseTestProduct()
+		invalid := matchers.NewProduct()
+
+		response.AddProduct(valid)
+		response.AddProduct(valid)
+		response.AddProduct(invalid)
+
+		if len(response.Products) != 1 {
+			t.Fatalf("AddProduct did not filter or deduplicate: %d", len(response.Products))
+		}
+
+		response.SetProducts([]matchers.Product{valid, invalid, valid})
+
+		if len(response.Products) != 2 {
+			t.Fatalf("SetProducts did not filter: %d", len(response.Products))
+		}
+
+		response.RemoveProduct(valid)
+
+		if len(response.Products) != 1 {
+			t.Fatalf("RemoveProduct failed: %d", len(response.Products))
+		}
+
+		response.RemoveProduct(invalid)
+
+		if len(response.Products) != 1 {
+			t.Fatalf("RemoveProduct removed an unknown value: %d", len(response.Products))
+		}
+
+		response.RemoveProduct(valid)
+
+		if len(response.Products) != 0 {
+			t.Fatalf("RemoveProduct did not remove the last value: %d", len(response.Products))
+		}
+
+	})
+
 	t.Run("programs", func(t *testing.T) {
 
 		response := ResponseTestBase("Destroy")
@@ -815,6 +919,46 @@ func TestResponseCollectionHelpers(t *testing.T) {
 
 	})
 
+	t.Run("weaknesses", func(t *testing.T) {
+
+		response := ResponseTestBase("Permit")
+		valid := ResponseTestWeakness()
+		invalid := matchers.NewWeakness()
+
+		response.AddWeakness(valid)
+		response.AddWeakness(valid)
+		response.AddWeakness(invalid)
+
+		if len(response.Weaknesses) != 1 {
+			t.Fatalf("AddWeakness did not filter or deduplicate: %d", len(response.Weaknesses))
+		}
+
+		response.SetWeaknesses([]matchers.Weakness{valid, invalid, valid})
+
+		if len(response.Weaknesses) != 2 {
+			t.Fatalf("SetWeaknesses did not filter: %d", len(response.Weaknesses))
+		}
+
+		response.RemoveWeakness(valid)
+
+		if len(response.Weaknesses) != 1 {
+			t.Fatalf("RemoveWeakness failed: %d", len(response.Weaknesses))
+		}
+
+		response.RemoveWeakness(invalid)
+
+		if len(response.Weaknesses) != 1 {
+			t.Fatalf("RemoveWeakness removed an unknown value: %d", len(response.Weaknesses))
+		}
+
+		response.RemoveWeakness(valid)
+
+		if len(response.Weaknesses) != 0 {
+			t.Fatalf("RemoveWeakness did not remove the last value: %d", len(response.Weaknesses))
+		}
+
+	})
+
 }
 
 func TestResponseHash(t *testing.T) {
@@ -841,6 +985,20 @@ func TestResponseHash(t *testing.T) {
 
 	if withPackage.Hash() == "" {
 		t.Fatal("expected a non-empty hash for a response with a package")
+	}
+
+	withProduct := ResponseTestBase("Update")
+	withProduct.AddProduct(ResponseTestProduct())
+
+	if withProduct.Hash() == withPackage.Hash() {
+		t.Fatal("expected products to change the hash")
+	}
+
+	withWeakness := ResponseTestBase("Update")
+	withWeakness.AddWeakness(ResponseTestWeakness())
+
+	if withWeakness.Hash() == withPackage.Hash() {
+		t.Fatal("expected weaknesses to change the hash")
 	}
 
 }

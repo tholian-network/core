@@ -71,6 +71,54 @@ func TestTimezoneSetOffset(t *testing.T) {
 
 }
 
+func TestTimezoneIsValid(t *testing.T) {
+
+	cases := []struct {
+		name     string
+		timezone Timezone
+		want     bool
+	}{
+		{"zero value", Timezone{}, false},
+		{"name only", Timezone{Name: "Europe/Berlin"}, false},
+		{"offset only", Timezone{Offset: "+01:00"}, false},
+		{"valid", NewTimezone("Europe/Berlin", "+01:00"), true},
+		{"valid negative", NewTimezone("America/New_York", "-05:00"), true},
+		{"invalid offset", Timezone{Name: "Europe/Berlin", Offset: "+1:00"}, false},
+		{"invalid offset minutes", Timezone{Name: "Europe/Berlin", Offset: "+01:99"}, false},
+	}
+
+	for _, c := range cases {
+
+		if c.timezone.IsValid() != c.want {
+			t.Errorf("%s: IsValid() = %v, expected %v", c.name, c.timezone.IsValid(), c.want)
+		}
+
+	}
+
+}
+
+func TestTimezoneString(t *testing.T) {
+
+	empty := Timezone{}
+
+	if empty.String() != "" {
+		t.Fatal("String() should be empty for an invalid timezone")
+	}
+
+	timezone := NewTimezone("Europe/Berlin", "+01:00")
+
+	if timezone.String() != "Europe/Berlin (UTC+01:00)" {
+		t.Fatalf("String() = %q", timezone.String())
+	}
+
+	negative := NewTimezone("America/New_York", "-05:00")
+
+	if negative.String() != "America/New_York (UTC-05:00)" {
+		t.Fatalf("String() = %q", negative.String())
+	}
+
+}
+
 func TestTimezoneEqual(t *testing.T) {
 
 	base := NewTimezone("Europe/Berlin", "+01:00")

@@ -123,6 +123,96 @@ func TestInternetNewInternet(t *testing.T) {
 
 }
 
+func TestInternetIsValid(t *testing.T) {
+
+	zero := Internet{}
+
+	if zero.IsValid() == true {
+		t.Fatal("a zero internet should be invalid")
+	}
+
+	empty := NewInternet()
+
+	if empty.IsValid() == false {
+		t.Fatal("an empty initialized internet should be valid")
+	}
+
+	valid := NewInternet()
+	valid.AddSubnet(ToSubnet("10.0.0.0/8"))
+	valid.AddSubnet(ToSubnet("[2001:db8::]/32"))
+
+	network := NewNetwork("AS64500")
+	network.AddSubnet(ToSubnet("192.0.2.0/24"))
+	valid.AddNetwork(network)
+
+	if valid.IsValid() == false {
+		t.Fatal("a populated internet should be valid")
+	}
+
+	cases := []struct {
+		name   string
+		mutate func(*Internet)
+	}{
+		{"missing IPv4 map", func(value *Internet) { value.Mapv4 = nil }},
+		{"missing IPv6 map", func(value *Internet) { value.Mapv6 = nil }},
+		{"missing networks map", func(value *Internet) { value.Networks = nil }},
+		{"nil subnet map", func(value *Internet) { value.Mapv4[8] = nil }},
+		{"nil subnet", func(value *Internet) { value.Mapv4[8] = map[string]*Subnet{"missing": nil} }},
+		{"wrong subnet key", func(value *Internet) {
+			subnet := ToSubnet("10.0.0.0/8")
+			value.Mapv4[8] = map[string]*Subnet{"wrong": &subnet}
+		}},
+		{"wrong subnet prefix", func(value *Internet) {
+			subnet := ToSubnet("10.0.0.0/9")
+			value.Mapv4[8] = map[string]*Subnet{subnet.Hash(): &subnet}
+		}},
+		{"wrong subnet type", func(value *Internet) {
+			subnet := ToSubnet("[2001:db8::]/32")
+			value.Mapv4[32] = map[string]*Subnet{subnet.Hash(): &subnet}
+		}},
+		{"invalid subnet", func(value *Internet) {
+			subnet := Subnet{Address: "not-an-address", Type: "ipv4", Prefix: 8}
+			value.Mapv4[8] = map[string]*Subnet{subnet.Hash(): &subnet}
+		}},
+		{"nil network", func(value *Internet) { value.Networks["AS64500"] = nil }},
+		{"wrong network key", func(value *Internet) {
+			value.Networks["AS64501"] = value.Networks["AS64500"]
+			delete(value.Networks, "AS64500")
+		}},
+		{"invalid network", func(value *Internet) {
+			value.Networks["AS64500"] = &Network{Name: "AS64500", Subnets: []Subnet{{}}}
+		}},
+		{"unregistered network subnet", func(value *Internet) {
+			network := NewNetwork("AS64501")
+			network.AddSubnet(ToSubnet("198.51.100.0/24"))
+			value.Networks["AS64501"] = &network
+		}},
+	}
+
+	for _, c := range cases {
+
+		t.Run(c.name, func(t *testing.T) {
+
+			other := NewInternet()
+			other.AddSubnet(ToSubnet("10.0.0.0/8"))
+			other.AddSubnet(ToSubnet("[2001:db8::]/32"))
+
+			otherNetwork := NewNetwork("AS64500")
+			otherNetwork.AddSubnet(ToSubnet("192.0.2.0/24"))
+			other.AddNetwork(otherNetwork)
+
+			c.mutate(&other)
+
+			if other.IsValid() == true {
+				t.Fatalf("internet should be invalid for %s", c.name)
+			}
+
+		})
+
+	}
+
+}
+
 func TestInternetEqual(t *testing.T) {
 
 	first := NewInternet()

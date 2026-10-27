@@ -1,5 +1,6 @@
 package structs
 
+import utils_strings "tholian-core/utils/strings"
 import "strings"
 
 type Timezone struct {
@@ -25,6 +26,28 @@ func (timezone *Timezone) Equal(value Timezone) bool {
 	}
 
 	return false
+
+}
+
+func (timezone *Timezone) IsValid() bool {
+
+	if strings.TrimSpace(timezone.Name) == "" {
+		return false
+	}
+
+	return utils_strings.IsTimezoneOffset(timezone.Offset)
+
+}
+
+func (timezone *Timezone) String() string {
+
+	result := ""
+
+	if timezone.IsValid() {
+		result = timezone.Name + " (UTC" + timezone.Offset + ")"
+	}
+
+	return result
 
 }
 
@@ -57,12 +80,9 @@ func (timezone *Timezone) SetName(value string) {
 
 func (timezone *Timezone) SetOffset(value string) {
 
-	if strings.HasPrefix(value, "+") || strings.HasPrefix(value, "-") {
-
-		if len(value) == 6 && string(value[3]) == ":" {
-			timezone.Offset = value
-		}
-
+	if utils_strings.IsTimezoneOffset(value) {
+		timezone.Offset = value
 	}
 
 }
+

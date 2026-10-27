@@ -16,9 +16,11 @@ type Response struct {
 	Distributions   []matchers.Distribution  `json:"distributions"`
 	Networks        []matchers.Network       `json:"networks"`
 	Packages        []matchers.Package       `json:"packages"`
+	Products        []matchers.Product       `json:"products"`
 	Programs        []matchers.Program       `json:"programs"`
 	Users           []matchers.User          `json:"users"`
 	Vulnerabilities []matchers.Vulnerability `json:"vulnerabilities"`
+	Weaknesses      []matchers.Weakness      `json:"weaknesses"`
 }
 
 func NewResponse(system string, typ string) Response {
@@ -32,9 +34,11 @@ func NewResponse(system string, typ string) Response {
 	response.Distributions = make([]matchers.Distribution, 0)
 	response.Networks = make([]matchers.Network, 0)
 	response.Packages = make([]matchers.Package, 0)
+	response.Products = make([]matchers.Product, 0)
 	response.Programs = make([]matchers.Program, 0)
 	response.Users = make([]matchers.User, 0)
 	response.Vulnerabilities = make([]matchers.Vulnerability, 0)
+	response.Weaknesses = make([]matchers.Weakness, 0)
 
 	response.SetSystem(system)
 	response.SetType(typ)
@@ -137,6 +141,18 @@ func (response *Response) Equal(value Response) bool {
 
 	}
 
+	if len(response.Products) != len(value.Products) {
+		return false
+	}
+
+	for p := 0; p < len(response.Products); p++ {
+
+		if response.Products[p].Equal(value.Products[p]) == false {
+			return false
+		}
+
+	}
+
 	if len(response.Programs) != len(value.Programs) {
 		return false
 	}
@@ -168,6 +184,18 @@ func (response *Response) Equal(value Response) bool {
 	for v := 0; v < len(response.Vulnerabilities); v++ {
 
 		if response.Vulnerabilities[v].Equal(value.Vulnerabilities[v]) == false {
+			return false
+		}
+
+	}
+
+	if len(response.Weaknesses) != len(value.Weaknesses) {
+		return false
+	}
+
+	for w := 0; w < len(response.Weaknesses); w++ {
+
+		if response.Weaknesses[w].Equal(value.Weaknesses[w]) == false {
 			return false
 		}
 
@@ -331,6 +359,20 @@ func (response *Response) MatchesPackage(pkg Package) bool {
 
 }
 
+func (response *Response) MatchesProduct(product Product) bool {
+
+	for p := 0; p < len(response.Products); p++ {
+
+		if response.Products[p].Matches(product.Vendor, product.Product, product.Version, product.Type) {
+			return true
+		}
+
+	}
+
+	return false
+
+}
+
 func (response *Response) MatchesProgram(program Program) bool {
 
 	for p := 0; p < len(response.Programs); p++ {
@@ -378,6 +420,54 @@ func (response *Response) MatchesVulnerability(vulnerability Vulnerability) bool
 	for v := 0; v < len(response.Vulnerabilities); v++ {
 
 		if response.Vulnerabilities[v].Matches(vulnerability.Name, vulnerability.Type, vulnerability.Severity, vulnerability.State, vulnerability.Datetime.String()) {
+			return true
+		}
+
+	}
+
+	return false
+
+}
+
+func (response *Response) MatchesWeakness(weakness Weakness) bool {
+
+	for _, matcher := range response.Weaknesses {
+
+		matches_name := matcher.MatchesName(weakness.Name)
+		matches_impact := false
+		matches_scope := false
+
+		if matcher.Impact == "any" {
+			matches_impact = true
+		} else {
+
+			for _, impact := range weakness.Impacts {
+
+				if matcher.MatchesImpact(impact) {
+					matches_impact = true
+					break
+				}
+
+			}
+
+		}
+
+		if matcher.Scope == "any" {
+			matches_scope = true
+		} else {
+
+			for _, scope := range weakness.Scopes {
+
+				if matcher.MatchesScope(scope) {
+					matches_scope = true
+					break
+				}
+
+			}
+
+		}
+
+		if matches_name && matches_impact && matches_scope {
 			return true
 		}
 
@@ -657,6 +747,64 @@ func (response *Response) SetPackages(value []matchers.Package) {
 
 }
 
+func (response *Response) AddProduct(value matchers.Product) {
+
+	if value.IsValid() {
+
+		found := false
+
+		for p := 0; p < len(response.Products); p++ {
+
+			if response.Products[p].Equal(value) {
+				found = true
+				break
+			}
+
+		}
+
+		if found == false {
+			response.Products = append(response.Products, value)
+		}
+
+	}
+
+}
+
+func (response *Response) RemoveProduct(value matchers.Product) {
+
+	index := -1
+
+	for p := 0; p < len(response.Products); p++ {
+
+		if response.Products[p].Equal(value) {
+			index = p
+			break
+		}
+
+	}
+
+	if index != -1 {
+		response.Products = append(response.Products[:index], response.Products[index+1:]...)
+	}
+
+}
+
+func (response *Response) SetProducts(value []matchers.Product) {
+
+	filtered := make([]matchers.Product, 0)
+
+	for v := 0; v < len(value); v++ {
+
+		if value[v].IsValid() {
+			filtered = append(filtered, value[v])
+		}
+
+	}
+
+	response.Products = filtered
+
+}
+
 func (response *Response) AddProgram(value matchers.Program) {
 
 	if value.IsValid() {
@@ -831,6 +979,64 @@ func (response *Response) SetVulnerabilities(value []matchers.Vulnerability) {
 
 }
 
+func (response *Response) AddWeakness(value matchers.Weakness) {
+
+	if value.IsValid() {
+
+		found := false
+
+		for w := 0; w < len(response.Weaknesses); w++ {
+
+			if response.Weaknesses[w].Equal(value) {
+				found = true
+				break
+			}
+
+		}
+
+		if found == false {
+			response.Weaknesses = append(response.Weaknesses, value)
+		}
+
+	}
+
+}
+
+func (response *Response) RemoveWeakness(value matchers.Weakness) {
+
+	index := -1
+
+	for w := 0; w < len(response.Weaknesses); w++ {
+
+		if response.Weaknesses[w].Equal(value) {
+			index = w
+			break
+		}
+
+	}
+
+	if index != -1 {
+		response.Weaknesses = append(response.Weaknesses[:index], response.Weaknesses[index+1:]...)
+	}
+
+}
+
+func (response *Response) SetWeaknesses(value []matchers.Weakness) {
+
+	filtered := make([]matchers.Weakness, 0)
+
+	for v := 0; v < len(value); v++ {
+
+		if value[v].IsValid() {
+			filtered = append(filtered, value[v])
+		}
+
+	}
+
+	response.Weaknesses = filtered
+
+}
+
 func (response *Response) Hash() string {
 
 	hash := ""
@@ -858,6 +1064,10 @@ func (response *Response) Hash() string {
 			uuid = append(uuid, pkg.Hash())
 		}
 
+		for _, product := range response.Products {
+			uuid = append(uuid, product.Hash())
+		}
+
 		for _, program := range response.Programs {
 			uuid = append(uuid, program.Hash())
 		}
@@ -868,6 +1078,10 @@ func (response *Response) Hash() string {
 
 		for _, vulnerability := range response.Vulnerabilities {
 			uuid = append(uuid, vulnerability.Hash())
+		}
+
+		for _, weakness := range response.Weaknesses {
+			uuid = append(uuid, toHash(weakness.Name, weakness.Impact, weakness.Scope))
 		}
 
 		checksum := crc32.ChecksumIEEE([]byte(strings.Join(uuid, "-")))

@@ -16,9 +16,11 @@ type Incident struct {
 	Distributions   []matchers.Distribution  `json:"distributions"`
 	Networks        []matchers.Network       `json:"networks"`
 	Packages        []matchers.Package       `json:"packages"`
+	Products        []matchers.Product       `json:"products"`
 	Programs        []matchers.Program       `json:"programs"`
 	Users           []matchers.User          `json:"users"`
 	Vulnerabilities []matchers.Vulnerability `json:"vulnerabilities"`
+	Weaknesses      []matchers.Weakness      `json:"weaknesses"`
 }
 
 func NewIncident(system string, typ string) Incident {
@@ -32,9 +34,11 @@ func NewIncident(system string, typ string) Incident {
 	incident.Distributions = make([]matchers.Distribution, 0)
 	incident.Networks = make([]matchers.Network, 0)
 	incident.Packages = make([]matchers.Package, 0)
+	incident.Products = make([]matchers.Product, 0)
 	incident.Programs = make([]matchers.Program, 0)
 	incident.Users = make([]matchers.User, 0)
 	incident.Vulnerabilities = make([]matchers.Vulnerability, 0)
+	incident.Weaknesses = make([]matchers.Weakness, 0)
 
 	incident.SetSystem(system)
 	incident.SetType(typ)
@@ -137,6 +141,18 @@ func (incident *Incident) Equal(value Incident) bool {
 
 	}
 
+	if len(incident.Products) != len(value.Products) {
+		return false
+	}
+
+	for p := 0; p < len(incident.Products); p++ {
+
+		if incident.Products[p].Equal(value.Products[p]) == false {
+			return false
+		}
+
+	}
+
 	if len(incident.Programs) != len(value.Programs) {
 		return false
 	}
@@ -168,6 +184,18 @@ func (incident *Incident) Equal(value Incident) bool {
 	for v := 0; v < len(incident.Vulnerabilities); v++ {
 
 		if incident.Vulnerabilities[v].Equal(value.Vulnerabilities[v]) == false {
+			return false
+		}
+
+	}
+
+	if len(incident.Weaknesses) != len(value.Weaknesses) {
+		return false
+	}
+
+	for w := 0; w < len(incident.Weaknesses); w++ {
+
+		if incident.Weaknesses[w].Equal(value.Weaknesses[w]) == false {
 			return false
 		}
 
@@ -321,6 +349,20 @@ func (incident *Incident) MatchesPackage(pkg Package) bool {
 
 }
 
+func (incident *Incident) MatchesProduct(product Product) bool {
+
+	for p := 0; p < len(incident.Products); p++ {
+
+		if incident.Products[p].Matches(product.Vendor, product.Product, product.Version, product.Type) {
+			return true
+		}
+
+	}
+
+	return false
+
+}
+
 func (incident *Incident) MatchesProgram(program Program) bool {
 
 	for p := 0; p < len(incident.Programs); p++ {
@@ -368,6 +410,54 @@ func (incident *Incident) MatchesVulnerability(vulnerability Vulnerability) bool
 	for v := 0; v < len(incident.Vulnerabilities); v++ {
 
 		if incident.Vulnerabilities[v].Matches(vulnerability.Name, vulnerability.Type, vulnerability.Severity, vulnerability.State, vulnerability.Datetime.String()) {
+			return true
+		}
+
+	}
+
+	return false
+
+}
+
+func (incident *Incident) MatchesWeakness(weakness Weakness) bool {
+
+	for _, matcher := range incident.Weaknesses {
+
+		matches_name := matcher.MatchesName(weakness.Name)
+		matches_impact := false
+		matches_scope := false
+
+		if matcher.Impact == "any" {
+			matches_impact = true
+		} else {
+
+			for _, impact := range weakness.Impacts {
+
+				if matcher.MatchesImpact(impact) {
+					matches_impact = true
+					break
+				}
+
+			}
+
+		}
+
+		if matcher.Scope == "any" {
+			matches_scope = true
+		} else {
+
+			for _, scope := range weakness.Scopes {
+
+				if matcher.MatchesScope(scope) {
+					matches_scope = true
+					break
+				}
+
+			}
+
+		}
+
+		if matches_name && matches_impact && matches_scope {
 			return true
 		}
 
@@ -641,6 +731,64 @@ func (incident *Incident) SetPackages(values []matchers.Package) {
 
 }
 
+func (incident *Incident) AddProduct(value matchers.Product) {
+
+	if value.IsValid() {
+
+		found := false
+
+		for p := 0; p < len(incident.Products); p++ {
+
+			if incident.Products[p].Equal(value) {
+				found = true
+				break
+			}
+
+		}
+
+		if found == false {
+			incident.Products = append(incident.Products, value)
+		}
+
+	}
+
+}
+
+func (incident *Incident) RemoveProduct(value matchers.Product) {
+
+	index := -1
+
+	for p := 0; p < len(incident.Products); p++ {
+
+		if incident.Products[p].Equal(value) {
+			index = p
+			break
+		}
+
+	}
+
+	if index != -1 {
+		incident.Products = append(incident.Products[:index], incident.Products[index+1:]...)
+	}
+
+}
+
+func (incident *Incident) SetProducts(values []matchers.Product) {
+
+	filtered := make([]matchers.Product, 0)
+
+	for _, value := range values {
+
+		if value.IsValid() {
+			filtered = append(filtered, value)
+		}
+
+	}
+
+	incident.Products = filtered
+
+}
+
 func (incident *Incident) AddProgram(value matchers.Program) {
 
 	if value.IsValid() {
@@ -815,6 +963,64 @@ func (incident *Incident) SetVulnerabilities(values []matchers.Vulnerability) {
 
 }
 
+func (incident *Incident) AddWeakness(value matchers.Weakness) {
+
+	if value.IsValid() {
+
+		found := false
+
+		for w := 0; w < len(incident.Weaknesses); w++ {
+
+			if incident.Weaknesses[w].Equal(value) {
+				found = true
+				break
+			}
+
+		}
+
+		if found == false {
+			incident.Weaknesses = append(incident.Weaknesses, value)
+		}
+
+	}
+
+}
+
+func (incident *Incident) RemoveWeakness(value matchers.Weakness) {
+
+	index := -1
+
+	for w := 0; w < len(incident.Weaknesses); w++ {
+
+		if incident.Weaknesses[w].Equal(value) {
+			index = w
+			break
+		}
+
+	}
+
+	if index != -1 {
+		incident.Weaknesses = append(incident.Weaknesses[:index], incident.Weaknesses[index+1:]...)
+	}
+
+}
+
+func (incident *Incident) SetWeaknesses(values []matchers.Weakness) {
+
+	filtered := make([]matchers.Weakness, 0)
+
+	for _, value := range values {
+
+		if value.IsValid() {
+			filtered = append(filtered, value)
+		}
+
+	}
+
+	incident.Weaknesses = filtered
+
+}
+
 func (incident *Incident) Hash() string {
 
 	hash := ""
@@ -842,6 +1048,10 @@ func (incident *Incident) Hash() string {
 			uuid = append(uuid, pkg.Hash())
 		}
 
+		for _, product := range incident.Products {
+			uuid = append(uuid, product.Hash())
+		}
+
 		for _, program := range incident.Programs {
 			uuid = append(uuid, program.Hash())
 		}
@@ -852,6 +1062,10 @@ func (incident *Incident) Hash() string {
 
 		for _, vulnerability := range incident.Vulnerabilities {
 			uuid = append(uuid, vulnerability.Hash())
+		}
+
+		for _, weakness := range incident.Weaknesses {
+			uuid = append(uuid, toHash(weakness.Name, weakness.Impact, weakness.Scope))
 		}
 
 		checksum := crc32.ChecksumIEEE([]byte(strings.Join(uuid, "-")))

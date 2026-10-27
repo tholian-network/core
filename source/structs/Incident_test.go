@@ -45,6 +45,18 @@ func IncidentTestPackage() matchers.Package {
 
 }
 
+func IncidentTestProduct() matchers.Product {
+
+	product := matchers.NewProduct()
+	product.SetVendor("acme")
+	product.SetProduct("widget")
+	product.SetVersion("1-2-3")
+	product.SetType("software")
+
+	return product
+
+}
+
 func IncidentTestProgram() matchers.Program {
 
 	program := matchers.NewProgram()
@@ -72,6 +84,15 @@ func IncidentTestVulnerability() matchers.Vulnerability {
 
 }
 
+func IncidentTestWeakness() matchers.Weakness {
+
+	weakness := matchers.NewWeakness()
+	weakness.SetName("CWE-79")
+
+	return weakness
+
+}
+
 func IncidentTestBase(typ string) Incident {
 
 	incident := NewIncident("machine", typ)
@@ -88,9 +109,11 @@ func IncidentTestRich() Incident {
 	incident.AddDistribution(IncidentTestDistribution())
 	incident.AddNetwork(IncidentTestNetwork())
 	incident.AddPackage(IncidentTestPackage())
+	incident.AddProduct(IncidentTestProduct())
 	incident.AddProgram(IncidentTestProgram())
 	incident.AddUser(IncidentTestUser())
 	incident.AddVulnerability(IncidentTestVulnerability())
+	incident.AddWeakness(IncidentTestWeakness())
 
 	return incident
 
@@ -116,9 +139,11 @@ func TestIncidentNew(t *testing.T) {
 		len(incident.Distributions) != 0 ||
 		len(incident.Networks) != 0 ||
 		len(incident.Packages) != 0 ||
+		len(incident.Products) != 0 ||
 		len(incident.Programs) != 0 ||
 		len(incident.Users) != 0 ||
-		len(incident.Vulnerabilities) != 0 {
+		len(incident.Vulnerabilities) != 0 ||
+		len(incident.Weaknesses) != 0 {
 		t.Fatal("new incident has non-empty collections")
 	}
 
@@ -258,12 +283,16 @@ func TestIncidentEqual(t *testing.T) {
 		{"networks-value", func(value *Incident) { value.Networks[0].Name = "other" }},
 		{"packages-length", func(value *Incident) { value.Packages = append(value.Packages, value.Packages[0]) }},
 		{"packages-value", func(value *Incident) { value.Packages[0].Name = "nginx" }},
+		{"products-length", func(value *Incident) { value.Products = append(value.Products, value.Products[0]) }},
+		{"products-value", func(value *Incident) { value.Products[0].Vendor = "other" }},
 		{"programs-length", func(value *Incident) { value.Programs = append(value.Programs, value.Programs[0]) }},
 		{"programs-value", func(value *Incident) { value.Programs[0].Name = "other" }},
 		{"users-length", func(value *Incident) { value.Users = append(value.Users, value.Users[0]) }},
 		{"users-value", func(value *Incident) { value.Users[0].Name = "bob" }},
 		{"vulnerabilities-length", func(value *Incident) { value.Vulnerabilities = append(value.Vulnerabilities, value.Vulnerabilities[0]) }},
 		{"vulnerabilities-value", func(value *Incident) { value.Vulnerabilities[0].Name = "CVE-2020-0000" }},
+		{"weaknesses-length", func(value *Incident) { value.Weaknesses = append(value.Weaknesses, value.Weaknesses[0]) }},
+		{"weaknesses-value", func(value *Incident) { value.Weaknesses[0].Name = "CWE-999" }},
 	}
 
 	for _, c := range cases {
@@ -362,9 +391,11 @@ func TestIncidentMatches(t *testing.T) {
 	incident.AddDistribution(IncidentTestDistribution())
 	incident.AddNetwork(IncidentTestNetwork())
 	incident.AddPackage(IncidentTestPackage())
+	incident.AddProduct(IncidentTestProduct())
 	incident.AddProgram(IncidentTestProgram())
 	incident.AddUser(IncidentTestUser())
 	incident.AddVulnerability(IncidentTestVulnerability())
+	incident.AddWeakness(IncidentTestWeakness())
 
 	antique := NewAntique("apt", "openssl")
 	antique.SetName("openssl")
@@ -450,6 +481,23 @@ func TestIncidentMatches(t *testing.T) {
 		t.Fatal("MatchesPackage should not match")
 	}
 
+	product := NewProduct("software")
+	product.SetVendor("acme")
+	product.SetProduct("widget")
+	product.SetVersion("1-2-3")
+	product.SetState("published")
+
+	if incident.MatchesProduct(product) == false {
+		t.Fatal("MatchesProduct should match")
+	}
+
+	otherProduct := product
+	otherProduct.SetVendor("other")
+
+	if incident.MatchesProduct(otherProduct) == true {
+		t.Fatal("MatchesProduct should not match")
+	}
+
 	program := NewProgram(1234, "stealth.mjs")
 	program.SetCommand("/usr/bin/node")
 	program.SetArguments([]string{"serve"})
@@ -505,6 +553,22 @@ func TestIncidentMatches(t *testing.T) {
 
 	if incident.MatchesVulnerability(otherVulnerability) == true {
 		t.Fatal("MatchesVulnerability should not match")
+	}
+
+	weakness := NewWeakness()
+	weakness.SetName("CWE-79")
+	weakness.AddImpact("Read Application Data")
+	weakness.AddScope("Confidentiality")
+
+	if incident.MatchesWeakness(weakness) == false {
+		t.Fatal("MatchesWeakness should match")
+	}
+
+	otherWeakness := weakness
+	otherWeakness.SetName("CWE-89")
+
+	if incident.MatchesWeakness(otherWeakness) == true {
+		t.Fatal("MatchesWeakness should not match")
 	}
 
 }
@@ -671,6 +735,46 @@ func TestIncidentCollectionHelpers(t *testing.T) {
 
 	})
 
+	t.Run("products", func(t *testing.T) {
+
+		incident := IncidentTestBase("Recon")
+		valid := IncidentTestProduct()
+		invalid := matchers.NewProduct()
+
+		incident.AddProduct(valid)
+		incident.AddProduct(valid)
+		incident.AddProduct(invalid)
+
+		if len(incident.Products) != 1 {
+			t.Fatalf("AddProduct did not filter or deduplicate: %d", len(incident.Products))
+		}
+
+		incident.SetProducts([]matchers.Product{valid, invalid, valid})
+
+		if len(incident.Products) != 2 {
+			t.Fatalf("SetProducts did not filter: %d", len(incident.Products))
+		}
+
+		incident.RemoveProduct(valid)
+
+		if len(incident.Products) != 1 {
+			t.Fatalf("RemoveProduct failed: %d", len(incident.Products))
+		}
+
+		incident.RemoveProduct(invalid)
+
+		if len(incident.Products) != 1 {
+			t.Fatalf("RemoveProduct removed an unknown value: %d", len(incident.Products))
+		}
+
+		incident.RemoveProduct(valid)
+
+		if len(incident.Products) != 0 {
+			t.Fatalf("RemoveProduct did not remove the last value: %d", len(incident.Products))
+		}
+
+	})
+
 	t.Run("programs", func(t *testing.T) {
 
 		incident := IncidentTestBase("Recon")
@@ -791,6 +895,46 @@ func TestIncidentCollectionHelpers(t *testing.T) {
 
 	})
 
+	t.Run("weaknesses", func(t *testing.T) {
+
+		incident := IncidentTestBase("Recon")
+		valid := IncidentTestWeakness()
+		invalid := matchers.NewWeakness()
+
+		incident.AddWeakness(valid)
+		incident.AddWeakness(valid)
+		incident.AddWeakness(invalid)
+
+		if len(incident.Weaknesses) != 1 {
+			t.Fatalf("AddWeakness did not filter or deduplicate: %d", len(incident.Weaknesses))
+		}
+
+		incident.SetWeaknesses([]matchers.Weakness{valid, invalid, valid})
+
+		if len(incident.Weaknesses) != 2 {
+			t.Fatalf("SetWeaknesses did not filter: %d", len(incident.Weaknesses))
+		}
+
+		incident.RemoveWeakness(valid)
+
+		if len(incident.Weaknesses) != 1 {
+			t.Fatalf("RemoveWeakness failed: %d", len(incident.Weaknesses))
+		}
+
+		incident.RemoveWeakness(invalid)
+
+		if len(incident.Weaknesses) != 1 {
+			t.Fatalf("RemoveWeakness removed an unknown value: %d", len(incident.Weaknesses))
+		}
+
+		incident.RemoveWeakness(valid)
+
+		if len(incident.Weaknesses) != 0 {
+			t.Fatalf("RemoveWeakness did not remove the last value: %d", len(incident.Weaknesses))
+		}
+
+	})
+
 }
 
 func TestIncidentHash(t *testing.T) {
@@ -817,6 +961,20 @@ func TestIncidentHash(t *testing.T) {
 
 	if withPackage.Hash() == "" {
 		t.Fatal("expected a non-empty hash for an incident with a package")
+	}
+
+	withProduct := IncidentTestBase("Recon")
+	withProduct.AddProduct(IncidentTestProduct())
+
+	if withProduct.Hash() == withPackage.Hash() {
+		t.Fatal("expected products to change the hash")
+	}
+
+	withWeakness := IncidentTestBase("Recon")
+	withWeakness.AddWeakness(IncidentTestWeakness())
+
+	if withWeakness.Hash() == withPackage.Hash() {
+		t.Fatal("expected weaknesses to change the hash")
 	}
 
 }

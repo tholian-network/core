@@ -98,6 +98,130 @@ func (internet *Internet) Equal(value Internet) bool {
 
 }
 
+func (internet *Internet) IsValid() bool {
+
+	if internet.Mapv4 == nil || internet.Mapv6 == nil || internet.Networks == nil {
+		return false
+	}
+
+	for prefix, subnets := range internet.Mapv4 {
+
+		if subnets == nil {
+			return false
+		}
+
+		for hash, subnet := range subnets {
+
+			if subnet == nil {
+				return false
+			}
+
+			if subnet.Type != types.AddressTypeIPv4 {
+				return false
+			}
+
+			if subnet.Prefix != prefix {
+				return false
+			}
+
+			if subnet.IsValid() == false {
+				return false
+			}
+
+			if subnet.Hash() != hash {
+				return false
+			}
+
+		}
+
+	}
+
+	for prefix, subnets := range internet.Mapv6 {
+
+		if subnets == nil {
+			return false
+		}
+
+		for hash, subnet := range subnets {
+
+			if subnet == nil {
+				return false
+			}
+
+			if subnet.Type != types.AddressTypeIPv6 {
+				return false
+			}
+
+			if subnet.Prefix != prefix {
+				return false
+			}
+
+			if subnet.IsValid() == false {
+				return false
+			}
+
+			if subnet.Hash() != hash {
+				return false
+			}
+
+		}
+
+	}
+
+	for name, network := range internet.Networks {
+
+		if network == nil {
+			return false
+		}
+
+		if network.Name != name {
+			return false
+		}
+
+		if network.IsValid() == false {
+			return false
+		}
+
+		for s := 0; s < len(network.Subnets); s++ {
+
+			subnet := network.Subnets[s]
+
+			if subnet.Type == types.AddressTypeIPv4 {
+
+				subnets, ok := internet.Mapv4[subnet.Prefix]
+
+				if ok == false {
+					return false
+				}
+
+				if _, ok := subnets[subnet.Hash()]; ok == false {
+					return false
+				}
+
+			} else if subnet.Type == types.AddressTypeIPv6 {
+
+				subnets, ok := internet.Mapv6[subnet.Prefix]
+
+				if ok == false {
+					return false
+				}
+
+				if _, ok := subnets[subnet.Hash()]; ok == false {
+					return false
+				}
+
+			} else {
+				return false
+			}
+
+		}
+
+	}
+
+	return true
+
+}
+
 func (internet *Internet) AddNetwork(value Network) bool {
 
 	if strings.HasPrefix(value.Name, "AS") {

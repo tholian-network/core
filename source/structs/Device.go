@@ -2,41 +2,11 @@ package structs
 
 import "strings"
 
-type DeviceSystem struct {
-	Name   string `json:"name"`
-	Vendor string `json:"vendor"`
-	Device string `json:"device"`
-}
-
 type Device struct {
 	Name      string        `json:"name"`
 	Bus       string        `json:"bus"`
 	System    *DeviceSystem `json:"system,omitempty"`
 	Subsystem *DeviceSystem `json:"subsystem,omitempty"`
-}
-
-func (system *DeviceSystem) Equal(value DeviceSystem) bool {
-
-	if system.Name == value.Name &&
-		system.Vendor == value.Vendor &&
-		system.Device == value.Device {
-		return true
-	}
-
-	return false
-
-}
-
-func (system *DeviceSystem) Hash() string {
-
-	hash := ""
-
-	if system.Name != "" || system.Vendor != "" || system.Device != "" {
-		hash = toHash(system.Name, system.Vendor, system.Device)
-	}
-
-	return hash
-
 }
 
 func NewDevice(bus string) Device {
@@ -139,11 +109,7 @@ func (device *Device) SetName(value string) {
 
 func (device *Device) SetSystem(value_vendor string, value_device string, value_name string) {
 
-	var system DeviceSystem
-
-	system.Vendor = strings.TrimSpace(value_vendor)
-	system.Device = strings.TrimSpace(value_device)
-	system.Name = strings.TrimSpace(value_name)
+	system := NewDeviceSystem(value_name, value_vendor, value_device)
 
 	device.System = &system
 
@@ -151,11 +117,7 @@ func (device *Device) SetSystem(value_vendor string, value_device string, value_
 
 func (device *Device) SetSubsystem(value_vendor string, value_device string, value_name string) {
 
-	var system DeviceSystem
-
-	system.Vendor = strings.TrimSpace(value_vendor)
-	system.Device = strings.TrimSpace(value_device)
-	system.Name = strings.TrimSpace(value_name)
+	system := NewDeviceSystem(value_name, value_vendor, value_device)
 
 	device.Subsystem = &system
 
