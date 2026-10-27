@@ -582,9 +582,11 @@ func (cache *Networks) Query(query matchers.Network) []*structs.Network {
 
 			} else {
 
+				query_subnet := structs.ToSubnet(query.Subnet)
+
 				for _, subnet := range network.Subnets {
 
-					if query.MatchesSubnet(subnet.String()) {
+					if subnet.ContainsSubnet(query_subnet) {
 						matches_subnet = true
 						break
 					}

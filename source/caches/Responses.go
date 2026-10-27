@@ -94,11 +94,8 @@ func (cache *Responses) Add(value structs.Response) bool {
 
 			if network.Name != "" && strings.HasPrefix(network.Name, "AS") {
 
-				subnet := structs.ToSubnet(network.Name)
-
-				if network.Subnet != "any" {
-					subnet.Parse(network.Subnet)
-				}
+				subnet := structs.ToSubnet(network.Subnet)
+				subnet.SetName(network.Name)
 
 				cache.networks.AddSubnet(subnet)
 
