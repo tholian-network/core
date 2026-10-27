@@ -193,7 +193,13 @@ func (weakness *Weakness) Hash() string {
 	hash := ""
 
 	if weakness.Name != "" {
-		hash = weakness.Name
+
+		hash = toHash(
+			weakness.Name,
+			weakness.Impact,
+			weakness.Scope,
+		)
+
 	}
 
 	return hash

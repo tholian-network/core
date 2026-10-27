@@ -197,7 +197,14 @@ func (distribution *Distribution) Hash() string {
 	hash := ""
 
 	if distribution.Name != "" {
-		hash = toHash(distribution.Name, distribution.Version, distribution.Vendor, distribution.Kernel)
+
+		hash = toHash(
+			distribution.Name,
+			distribution.Version,
+			distribution.Vendor,
+			distribution.Kernel,
+		)
+
 	}
 
 	return hash

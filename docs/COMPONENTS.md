@@ -173,12 +173,13 @@ String selectors initialize to `Any` (`"any"`); numeric selectors such as
 All 16 types implement `Hash() string`. Most implementations delegate to the
 shared CRC32-based `toHash(...)` helper.
 
-Current gaps and special cases:
+Current gaps:
 
 - Structs without `Hash()`: `Console`, `ConsoleMessage`.
 - Matchers without `Hash()`: `Unresolved`.
-- Structs that derive their hash directly from `Name`: `Provider`, `Proxy`.
-- Matchers that derive their hash from canonical identity fields instead of
-  `toHash(...)`: `Subnet`, `Network`, `Manager`, `Timezone`, `Distribution`,
-  `Connection`, `Weakness`.
+
+Special cases:
+
+- Matchers that derive their hash directly from `Name`: `Network`, `Manager`, `Subnet`.
+- Structs that derive their hash directly from `Name`: `Network`, `Provider`, `Proxy`.
 

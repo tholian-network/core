@@ -175,7 +175,11 @@ func (network *Network) Hash() string {
 
 	hash := ""
 
-	if network.Name != "" || len(network.Subnets) > 0 {
+	if network.HasName() {
+
+		hash = network.Name
+
+	} else if network.HasSubnets() {
 
 		values := make([]string, 0)
 
