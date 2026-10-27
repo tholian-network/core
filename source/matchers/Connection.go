@@ -5,10 +5,8 @@ import "strconv"
 import "strings"
 
 type Connection struct {
-	Socket struct {
-		Host string `json:"host"`
-		Port uint16 `json:"port"`
-	} `json:"socket"`
+	Host     string `json:"host"`
+	Port     uint16 `json:"port"`
 	Protocol string `json:"protocol"`
 	Type     string `json:"type"`
 }
@@ -17,8 +15,8 @@ func NewConnection() Connection {
 
 	var connection Connection
 
-	connection.Socket.Host = Any
-	connection.Socket.Port = 0
+	connection.Host = Any
+	connection.Port = 0
 	connection.Protocol = Any
 	connection.Type = Any
 
@@ -30,8 +28,8 @@ func ToConnection(value string) Connection {
 
 	var connection Connection
 
-	connection.Socket.Host = Any
-	connection.Socket.Port = 0
+	connection.Host = Any
+	connection.Port = 0
 	connection.Protocol = Any
 	connection.Type = Any
 
@@ -42,25 +40,25 @@ func ToConnection(value string) Connection {
 }
 
 func (connection *Connection) HasHost() bool {
-	return connection.Socket.Host != "" && connection.Socket.Host != Any && connection.Socket.Host != types.HostWildcard
+	return connection.Host != "" && connection.Host != Any && connection.Host != types.HostWildcard
 }
 
 func (connection *Connection) HasPort() bool {
-	return connection.Socket.Port != 0
+	return connection.Port != 0
 }
 
 func (connection *Connection) IsWildcard() bool {
-	return connection.Socket.Host == Any || connection.Socket.Host == types.HostWildcard
+	return connection.Host == Any || connection.Host == types.HostWildcard
 }
 
 func (connection *Connection) IsDomain() bool {
-	return types.IsDomain(connection.Socket.Host)
+	return types.IsDomain(connection.Host)
 }
 
 func (connection *Connection) Equal(value Connection) bool {
 
-	if connection.Socket.Host == value.Socket.Host &&
-		connection.Socket.Port == value.Socket.Port &&
+	if connection.Host == value.Host &&
+		connection.Port == value.Port &&
 		connection.Protocol == value.Protocol &&
 		connection.Type == value.Type {
 		return true
@@ -78,9 +76,9 @@ func (connection *Connection) IsValid() bool {
 
 	if connection.HasHost() {
 
-		if types.IsIPv4(connection.Socket.Host) == false &&
-			types.IsIPv6(connection.Socket.Host) == false &&
-			types.IsDomain(connection.Socket.Host) == false {
+		if types.IsIPv4(connection.Host) == false &&
+			types.IsIPv6(connection.Host) == false &&
+			types.IsDomain(connection.Host) == false {
 			return false
 		}
 
@@ -111,11 +109,11 @@ func (connection *Connection) Matches(host string, port uint16, protocol string,
 
 func (connection *Connection) MatchesHost(value string) bool {
 
-	if connection.Socket.Host == value {
+	if connection.Host == value {
 		return true
-	} else if connection.Socket.Host != Any && value != Any {
-		return containsSubnet(value, connection.Socket.Host)
-	} else if connection.Socket.Host == Any {
+	} else if connection.Host != Any && value != Any {
+		return containsSubnet(value, connection.Host)
+	} else if connection.Host == Any {
 		return true
 	}
 
@@ -125,9 +123,9 @@ func (connection *Connection) MatchesHost(value string) bool {
 
 func (connection *Connection) MatchesPort(value uint16) bool {
 
-	if connection.Socket.Port == value {
+	if connection.Port == value {
 		return true
-	} else if connection.Socket.Port == 0 {
+	} else if connection.Port == 0 {
 		return true
 	}
 
@@ -246,7 +244,7 @@ func (connection *Connection) SetHost(value string) {
 		ipv6 := types.ParseIPv6(value)
 
 		if ipv6 != nil {
-			connection.Socket.Host = ipv6.String()
+			connection.Host = ipv6.String()
 		}
 
 	} else if types.IsIPv4(value) {
@@ -254,7 +252,7 @@ func (connection *Connection) SetHost(value string) {
 		ipv4 := types.ParseIPv4(value)
 
 		if ipv4 != nil {
-			connection.Socket.Host = ipv4.String()
+			connection.Host = ipv4.String()
 		}
 
 	} else if types.IsDomain(value) {
@@ -262,11 +260,11 @@ func (connection *Connection) SetHost(value string) {
 		domain := types.ParseDomain(value)
 
 		if domain != nil {
-			connection.Socket.Host = domain.String()
+			connection.Host = domain.String()
 		}
 
 	} else if value == "all" || value == Any || value == types.HostWildcard {
-		connection.Socket.Host = Any
+		connection.Host = Any
 	}
 
 }
@@ -274,7 +272,7 @@ func (connection *Connection) SetHost(value string) {
 func (connection *Connection) SetPort(value uint16) {
 
 	if value > 0 {
-		connection.Socket.Port = value
+		connection.Port = value
 	}
 
 }
@@ -311,7 +309,7 @@ func (connection *Connection) Hash() string {
 
 	if connection.HasPort() {
 
-		hash = connection.Socket.Host + ":" + strconv.FormatUint(uint64(connection.Socket.Port), 10)
+		hash = connection.Host + ":" + strconv.FormatUint(uint64(connection.Port), 10)
 
 		if connection.Protocol == ProtocolTCP {
 			hash += "T"

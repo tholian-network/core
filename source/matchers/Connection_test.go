@@ -49,8 +49,8 @@ func TestConnectionParseSuffixes(t *testing.T) {
 
 		connection := ToConnection(c.value)
 
-		if connection.Socket.Host != c.host || connection.Socket.Port != c.port {
-			t.Errorf("ToConnection(%q) = %s:%d", c.value, connection.Socket.Host, connection.Socket.Port)
+		if connection.Host != c.host || connection.Port != c.port {
+			t.Errorf("ToConnection(%q) = %s:%d", c.value, connection.Host, connection.Port)
 		}
 
 		if connection.Protocol != c.protocol || connection.Type != c.typ {
