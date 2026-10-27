@@ -105,7 +105,13 @@ func (device *Device) IsValid() bool {
 
 		if device.Bus == "pci" {
 
-			if device.System.Vendor != "" && device.System.Device != "" {
+			// Subsystem is optional: some devices have no subsystem data at all.
+			// Subsystem == nil is valid, but a present Subsystem must be complete.
+			if device.System != nil && device.System.Vendor != "" && device.System.Device != "" {
+
+				if device.Subsystem == nil {
+					return true
+				}
 
 				if device.Subsystem.Vendor != "" && device.Subsystem.Device != "" {
 					return true
@@ -115,7 +121,7 @@ func (device *Device) IsValid() bool {
 
 		} else if device.Bus == "usb" {
 
-			if device.System.Vendor != "" && device.System.Device != "" {
+			if device.System != nil && device.System.Vendor != "" && device.System.Device != "" {
 				return true
 			}
 
