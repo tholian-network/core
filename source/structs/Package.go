@@ -175,6 +175,20 @@ func (pkg *Package) RemoveConflict(value matchers.Package) {
 
 }
 
+func (pkg *Package) HasConflict(value matchers.Package) bool {
+
+	for c := 0; c < len(pkg.Conflicts); c++ {
+
+		if pkg.Conflicts[c].Equal(value) {
+			return true
+		}
+
+	}
+
+	return false
+
+}
+
 func (pkg *Package) SetConflicts(value []matchers.Package) {
 
 	filtered := make([]matchers.Package, 0)
@@ -508,6 +522,20 @@ func (pkg *Package) RemoveMaintainer(value types.Maintainer) {
 
 }
 
+func (pkg *Package) HasMaintainer(value types.Maintainer) bool {
+
+	for m := 0; m < len(pkg.Maintainers); m++ {
+
+		if pkg.Maintainers[m].Equal(value) {
+			return true
+		}
+
+	}
+
+	return false
+
+}
+
 func (pkg *Package) SetMaintainers(value []types.Maintainer) {
 
 	filtered := make([]types.Maintainer, 0)
@@ -580,6 +608,20 @@ func (pkg *Package) RemoveProvide(value matchers.Package) {
 
 }
 
+func (pkg *Package) HasProvide(value matchers.Package) bool {
+
+	for p := 0; p < len(pkg.Provides); p++ {
+
+		if pkg.Provides[p].Equal(value) {
+			return true
+		}
+
+	}
+
+	return false
+
+}
+
 func (pkg *Package) SetProvides(value []matchers.Package) {
 
 	filtered := make([]matchers.Package, 0)
@@ -638,6 +680,20 @@ func (pkg *Package) RemoveReplace(value matchers.Package) {
 
 }
 
+func (pkg *Package) HasReplace(value matchers.Package) bool {
+
+	for r := 0; r < len(pkg.Replaces); r++ {
+
+		if pkg.Replaces[r].Equal(value) {
+			return true
+		}
+
+	}
+
+	return false
+
+}
+
 func (pkg *Package) SetReplaces(value []matchers.Package) {
 
 	filtered := make([]matchers.Package, 0)
@@ -679,6 +735,78 @@ func (pkg *Package) SetVersion(value string) {
 	if version.IsValid() {
 		pkg.Version = version
 	}
+
+}
+
+func (pkg *Package) AddUnresolved(value matchers.Unresolved) {
+
+	if len(value.Candidates) > 0 {
+
+		found := false
+
+		for u := 0; u < len(pkg.Unresolved); u++ {
+
+			if equalPackageUnresolved(pkg.Unresolved[u], value) {
+				found = true
+				break
+			}
+
+		}
+
+		if found == false {
+			pkg.Unresolved = append(pkg.Unresolved, value)
+		}
+
+	}
+
+}
+
+func (pkg *Package) RemoveUnresolved(value matchers.Unresolved) {
+
+	index := -1
+
+	for u := 0; u < len(pkg.Unresolved); u++ {
+
+		if equalPackageUnresolved(pkg.Unresolved[u], value) {
+			index = u
+			break
+		}
+
+	}
+
+	if index != -1 {
+		pkg.Unresolved = append(pkg.Unresolved[:index], pkg.Unresolved[index+1:]...)
+	}
+
+}
+
+func (pkg *Package) SetUnresolved(value []matchers.Unresolved) {
+
+	filtered := make([]matchers.Unresolved, 0)
+
+	for v := 0; v < len(value); v++ {
+
+		if len(value[v].Candidates) > 0 {
+			filtered = append(filtered, value[v])
+		}
+
+	}
+
+	pkg.Unresolved = filtered
+
+}
+
+func (pkg *Package) HasUnresolved(value matchers.Unresolved) bool {
+
+	for u := 0; u < len(pkg.Unresolved); u++ {
+
+		if equalPackageUnresolved(pkg.Unresolved[u], value) {
+			return true
+		}
+
+	}
+
+	return false
 
 }
 

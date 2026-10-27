@@ -140,6 +140,32 @@ func TestDeviceSetters(t *testing.T) {
 
 }
 
+func TestDeviceHasSystemAndSubsystem(t *testing.T) {
+
+	device := NewDevice("pci")
+
+	if device.HasSystem() == true || device.HasSubsystem() == true {
+		t.Fatal("HasSystem() or HasSubsystem() reported a missing value")
+	}
+
+	device.SetSystem("8086", "1234", "Intel")
+
+	if device.HasSystem() == false {
+		t.Fatal("HasSystem() did not find an existing system")
+	}
+
+	if device.HasSubsystem() == true {
+		t.Fatal("HasSubsystem() found a missing subsystem")
+	}
+
+	device.SetSubsystem("8086", "5678", "Sub")
+
+	if device.HasSubsystem() == false {
+		t.Fatal("HasSubsystem() did not find an existing subsystem")
+	}
+
+}
+
 func TestDeviceIsValid(t *testing.T) {
 
 	cases := []struct {

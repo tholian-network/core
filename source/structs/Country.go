@@ -242,6 +242,20 @@ func (country *Country) AddSubnet(value Subnet) {
 
 }
 
+func (country *Country) HasSubnet(value Subnet) bool {
+
+	for s := 0; s < len(country.Subnets); s++ {
+
+		if country.Subnets[s].Equal(value) {
+			return true
+		}
+
+	}
+
+	return false
+
+}
+
 func (country *Country) RemoveSubnet(value Subnet) {
 
 	index := -1
@@ -274,6 +288,48 @@ func (country *Country) SetSubnets(values []Subnet) {
 	}
 
 	country.Subnets = filtered
+
+}
+
+func (country *Country) AddTimezone(value Timezone) {
+
+	if value.Name != "" {
+
+		found := false
+
+		for t := 0; t < len(country.Timezones); t++ {
+
+			if country.Timezones[t].Equal(value) {
+				found = true
+				break
+			}
+
+		}
+
+		if found == false {
+			country.Timezones = append(country.Timezones, value)
+		}
+
+	}
+
+}
+
+func (country *Country) RemoveTimezone(value Timezone) {
+
+	index := -1
+
+	for t := 0; t < len(country.Timezones); t++ {
+
+		if country.Timezones[t].Equal(value) {
+			index = t
+			break
+		}
+
+	}
+
+	if index != -1 {
+		country.Timezones = append(country.Timezones[:index], country.Timezones[index+1:]...)
+	}
 
 }
 

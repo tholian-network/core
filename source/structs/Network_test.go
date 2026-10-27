@@ -225,6 +225,29 @@ func TestNetworkSetSubnets(t *testing.T) {
 
 }
 
+func TestNetworkHasSubnet(t *testing.T) {
+
+	network := NewNetwork("AS13335")
+
+	subnet := ToSubnet("10.0.0.0/8")
+	other := ToSubnet("10.1.0.0/16")
+
+	if network.HasSubnet(subnet) == true {
+		t.Fatal("HasSubnet did not report a missing subnet")
+	}
+
+	network.AddSubnet(subnet)
+
+	if network.HasSubnet(subnet) == false {
+		t.Fatal("HasSubnet did not find an existing subnet")
+	}
+
+	if network.HasSubnet(other) == true {
+		t.Fatal("HasSubnet found a different subnet")
+	}
+
+}
+
 func TestNetworkHash(t *testing.T) {
 
 	empty := NewNetwork("")

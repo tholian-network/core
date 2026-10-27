@@ -247,6 +247,38 @@ func TestWeaknessScopes(t *testing.T) {
 
 }
 
+func TestWeaknessHasImpactAndReference(t *testing.T) {
+
+	weakness := NewWeakness()
+
+	impact := "Execute Unauthorized Code or Commands"
+	reference := "https://example.com/advisory"
+
+	if weakness.HasImpact(impact) == true || weakness.HasReference(reference) == true {
+		t.Fatal("HasImpact() or HasReference() found a missing value")
+	}
+
+	weakness.AddImpact(impact)
+	weakness.AddReference(reference)
+
+	if weakness.HasImpact(impact) == false {
+		t.Fatal("HasImpact() did not find an existing impact")
+	}
+
+	if weakness.HasImpact("Modify Memory") == true {
+		t.Fatal("HasImpact() found a missing impact")
+	}
+
+	if weakness.HasReference(reference) == false {
+		t.Fatal("HasReference() did not find an existing reference")
+	}
+
+	if weakness.HasReference("https://example.com/other") == true {
+		t.Fatal("HasReference() found a missing reference")
+	}
+
+}
+
 func TestWeaknessEqual(t *testing.T) {
 
 	base := NewWeakness()

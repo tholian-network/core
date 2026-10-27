@@ -137,6 +137,20 @@ func (weakness *Weakness) AddImpact(value string) {
 
 }
 
+func (weakness *Weakness) HasImpact(value string) bool {
+
+	for i := 0; i < len(weakness.Impacts); i++ {
+
+		if weakness.Impacts[i] == value {
+			return true
+		}
+
+	}
+
+	return false
+
+}
+
 func (weakness *Weakness) RemoveImpact(value string) {
 
 	index := -1
@@ -192,6 +206,20 @@ func (weakness *Weakness) AddReference(value string) {
 		}
 
 	}
+
+}
+
+func (weakness *Weakness) HasReference(value string) bool {
+
+	for r := 0; r < len(weakness.References); r++ {
+
+		if weakness.References[r] == value {
+			return true
+		}
+
+	}
+
+	return false
 
 }
 

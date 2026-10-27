@@ -161,6 +161,14 @@ func (device *Device) SetSubsystem(value_vendor string, value_device string, val
 
 }
 
+func (device *Device) HasSystem() bool {
+	return device.System != nil
+}
+
+func (device *Device) HasSubsystem() bool {
+	return device.Subsystem != nil
+}
+
 func (device *Device) SetBus(value string) {
 
 	if value == "hid" {

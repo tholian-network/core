@@ -193,6 +193,10 @@ func (program *Program) IsValid() bool {
 
 }
 
+func (program *Program) SetPID(value uint) {
+	program.PID = value
+}
+
 func (program *Program) SetName(value string) {
 	program.Name = strings.TrimSpace(value)
 }
@@ -225,6 +229,20 @@ func (program *Program) AddConnection(value matchers.Connection) {
 		}
 
 	}
+
+}
+
+func (program *Program) HasConnection(value matchers.Connection) bool {
+
+	for c := 0; c < len(program.Connections); c++ {
+
+		if program.Connections[c].Equal(value) {
+			return true
+		}
+
+	}
+
+	return false
 
 }
 
@@ -452,6 +470,20 @@ func (program *Program) AddFilesystem(value string) {
 
 }
 
+func (program *Program) HasFilesystem(value string) bool {
+
+	for f := 0; f < len(program.Filesystem); f++ {
+
+		if program.Filesystem[f] == value {
+			return true
+		}
+
+	}
+
+	return false
+
+}
+
 func (program *Program) RemoveFilesystem(value string) {
 
 	index := -1
@@ -547,6 +579,20 @@ func (program *Program) AddPackage(value Package) {
 
 }
 
+func (program *Program) HasPackage(value Package) bool {
+
+	for p := 0; p < len(program.Packages); p++ {
+
+		if program.Packages[p].Equal(value) {
+			return true
+		}
+
+	}
+
+	return false
+
+}
+
 func (program *Program) RemovePackage(value Package) {
 
 	index := -1
@@ -562,6 +608,14 @@ func (program *Program) RemovePackage(value Package) {
 
 	if index != -1 {
 		program.Packages = append(program.Packages[:index], program.Packages[index+1:]...)
+	}
+
+}
+
+func (program *Program) RemovePackages(packages []Package) {
+
+	for p := 0; p < len(packages); p++ {
+		program.RemovePackage(packages[p])
 	}
 
 }

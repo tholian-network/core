@@ -638,6 +638,67 @@ func TestProgramPackages(t *testing.T) {
 
 }
 
+func TestProgramCollectionHelpers(t *testing.T) {
+
+	program := NewProgram(1, "program")
+
+	program.SetPID(1337)
+
+	if program.PID != 1337 {
+		t.Fatalf("SetPID did not update the PID: %d", program.PID)
+	}
+
+	client := programUnitClientConnection()
+	other := matchers.ToConnection("5.6.7.8:443TC")
+
+	program.AddConnection(client)
+
+	if program.HasConnection(client) == false {
+		t.Fatal("HasConnection did not find an existing connection")
+	}
+
+	if program.HasConnection(other) == true {
+		t.Fatal("HasConnection found a missing connection")
+	}
+
+	program.AddFilesystem("/tmp/a.so")
+
+	if program.HasFilesystem("/tmp/a.so") == false {
+		t.Fatal("HasFilesystem did not find an existing file")
+	}
+
+	if program.HasFilesystem("/tmp/b.so") == true {
+		t.Fatal("HasFilesystem found a missing file")
+	}
+
+	alpha := packageUnitValidPackage("alpha", "1.0.0")
+	beta := packageUnitValidPackage("beta", "2.0.0")
+	gamma := packageUnitValidPackage("gamma", "3.0.0")
+
+	program.AddPackages([]Package{alpha, beta, gamma})
+
+	if program.HasPackage(alpha) == false {
+		t.Fatal("HasPackage did not find an existing package")
+	}
+
+	if program.HasPackage(packageUnitValidPackage("delta", "4.0.0")) == true {
+		t.Fatal("HasPackage found a missing package")
+	}
+
+	program.RemovePackages([]Package{alpha, gamma})
+
+	if len(program.Packages) != 1 || program.HasPackage(beta) == false {
+		t.Fatalf("RemovePackages left unexpected packages: %+v", program.Packages)
+	}
+
+	program.RemovePackages([]Package{alpha})
+
+	if len(program.Packages) != 1 {
+		t.Fatal("RemovePackages removed an absent package")
+	}
+
+}
+
 func TestProgramHash(t *testing.T) {
 
 	empty := NewProgram(0, "")

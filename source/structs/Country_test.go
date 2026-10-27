@@ -238,6 +238,70 @@ func TestCountryTimezones(t *testing.T) {
 
 }
 
+func TestCountryTimezoneHelpers(t *testing.T) {
+
+	country := NewCountry("Germany")
+
+	berlin := NewTimezone("Europe/Berlin", "+01:00")
+	utc := NewTimezone("UTC", "+00:00")
+
+	country.AddTimezone(berlin)
+	country.AddTimezone(berlin)
+
+	if len(country.Timezones) != 1 {
+		t.Fatalf("AddTimezone() did not deduplicate: %#v", country.Timezones)
+	}
+
+	country.AddTimezone(Timezone{Offset: "+02:00"})
+
+	if len(country.Timezones) != 1 {
+		t.Fatal("AddTimezone() accepted an empty name")
+	}
+
+	if country.HasTimezone("Europe/Berlin") == false {
+		t.Fatal("AddTimezone() did not add the timezone")
+	}
+
+	country.RemoveTimezone(berlin)
+
+	if len(country.Timezones) != 0 {
+		t.Fatal("RemoveTimezone() did not remove the timezone")
+	}
+
+	country.RemoveTimezone(berlin)
+
+	country.AddTimezone(utc)
+	country.RemoveTimezone(berlin)
+
+	if len(country.Timezones) != 1 {
+		t.Fatal("RemoveTimezone() removed an absent timezone")
+	}
+
+}
+
+func TestCountryHasSubnet(t *testing.T) {
+
+	country := NewCountry("Germany")
+
+	subnet := ToSubnet("1.3.3.0/24")
+	other := ToSubnet("1.3.4.0/24")
+
+	if country.HasSubnet(subnet) == true {
+		t.Fatal("HasSubnet() found a missing subnet")
+	}
+
+	country.AddSubnet(subnet)
+
+	if country.HasSubnet(subnet) == false {
+		t.Fatal("HasSubnet() did not find an existing subnet")
+	}
+
+	if country.HasSubnet(other) == true {
+		t.Fatal("HasSubnet() found a different subnet")
+	}
+
+}
+
 func TestCountryEqual(t *testing.T) {
 
 	base := NewCountry("Germany")

@@ -704,6 +704,97 @@ func TestPackageReplaces(t *testing.T) {
 
 }
 
+func TestPackageHasMatchers(t *testing.T) {
+
+	pkg := NewPackage("apt")
+
+	alpha := packageUnitMatcher("alpha", "1.0")
+	beta := packageUnitMatcher("beta", "2.0")
+	alice := types.ToMaintainer("Alice <alice@example.com>")
+	bob := types.ToMaintainer("Bob <bob@example.com>")
+
+	if pkg.HasConflict(alpha) == true || pkg.HasProvide(alpha) == true || pkg.HasReplace(alpha) == true || pkg.HasMaintainer(alice) == true {
+		t.Fatal("empty package reported an existing entry")
+	}
+
+	pkg.AddConflict(alpha)
+	pkg.AddProvide(alpha)
+	pkg.AddReplace(alpha)
+	pkg.AddMaintainer(alice)
+
+	if pkg.HasConflict(alpha) == false {
+		t.Fatal("HasConflict did not find an existing conflict")
+	}
+
+	if pkg.HasProvide(alpha) == false {
+		t.Fatal("HasProvide did not find an existing provide")
+	}
+
+	if pkg.HasReplace(alpha) == false {
+		t.Fatal("HasReplace did not find an existing replace")
+	}
+
+	if pkg.HasMaintainer(alice) == false {
+		t.Fatal("HasMaintainer did not find an existing maintainer")
+	}
+
+	if pkg.HasConflict(beta) == true || pkg.HasProvide(beta) == true || pkg.HasReplace(beta) == true || pkg.HasMaintainer(bob) == true {
+		t.Fatal("package reported a missing entry")
+	}
+
+}
+
+func TestPackageUnresolved(t *testing.T) {
+
+	pkg := NewPackage("apt")
+
+	alpha := matchers.ToUnresolved("curl")
+	beta := matchers.ToUnresolved("wget")
+	gamma := matchers.ToUnresolved("git")
+
+	pkg.AddUnresolved(alpha)
+	pkg.AddUnresolved(matchers.ToUnresolved("curl"))
+
+	if len(pkg.Unresolved) != 1 {
+		t.Fatalf("AddUnresolved did not deduplicate: %d", len(pkg.Unresolved))
+	}
+
+	pkg.AddUnresolved(matchers.NewUnresolved())
+
+	if len(pkg.Unresolved) != 1 {
+		t.Fatal("AddUnresolved accepted an empty unresolved value")
+	}
+
+	if pkg.HasUnresolved(alpha) == false {
+		t.Fatal("HasUnresolved did not find an existing value")
+	}
+
+	if pkg.HasUnresolved(beta) == true {
+		t.Fatal("HasUnresolved found a missing value")
+	}
+
+	pkg.SetUnresolved([]matchers.Unresolved{alpha, matchers.NewUnresolved(), beta})
+
+	if len(pkg.Unresolved) != 2 {
+		t.Fatalf("SetUnresolved did not filter invalid entries: %d", len(pkg.Unresolved))
+	}
+
+	pkg.RemoveUnresolved(alpha)
+
+	if len(pkg.Unresolved) != 1 || pkg.HasUnresolved(alpha) == true || pkg.HasUnresolved(beta) == false {
+		t.Fatalf("RemoveUnresolved left unexpected entries: %+v", pkg.Unresolved)
+	}
+
+	noop := NewPackage("apt")
+	noop.SetUnresolved([]matchers.Unresolved{alpha, beta, gamma})
+	noop.RemoveUnresolved(matchers.ToUnresolved("absent"))
+
+	if len(noop.Unresolved) != 3 {
+		t.Fatal("RemoveUnresolved removed an absent value")
+	}
+
+}
+
 func TestPackageHash(t *testing.T) {
 
 	empty := NewPackage("apt")

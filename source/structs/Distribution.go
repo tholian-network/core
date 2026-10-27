@@ -90,6 +90,58 @@ func (distribution *Distribution) SetKernelArchitecture(value string) {
 
 }
 
+func (distribution *Distribution) AddKernelModule(value string) {
+
+	found := false
+
+	for k := 0; k < len(distribution.KernelModules); k++ {
+
+		if distribution.KernelModules[k] == value {
+			found = true
+			break
+		}
+
+	}
+
+	if found == false {
+		distribution.KernelModules = append(distribution.KernelModules, value)
+	}
+
+}
+
+func (distribution *Distribution) HasKernelModule(value string) bool {
+
+	for k := 0; k < len(distribution.KernelModules); k++ {
+
+		if distribution.KernelModules[k] == value {
+			return true
+		}
+
+	}
+
+	return false
+
+}
+
+func (distribution *Distribution) RemoveKernelModule(value string) {
+
+	index := -1
+
+	for k := 0; k < len(distribution.KernelModules); k++ {
+
+		if distribution.KernelModules[k] == value {
+			index = k
+			break
+		}
+
+	}
+
+	if index != -1 {
+		distribution.KernelModules = append(distribution.KernelModules[:index], distribution.KernelModules[index+1:]...)
+	}
+
+}
+
 func (distribution *Distribution) SetKernelModules(values []string) {
 
 	filtered := make([]string, 0)

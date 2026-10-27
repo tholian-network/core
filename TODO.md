@@ -1,19 +1,5 @@
 # TODO
 
-## Collection helpers
-
-- [ ] Add `Package.AddUnresolved`, `Package.RemoveUnresolved`, `Package.SetUnresolved`, and `Package.HasUnresolved`.
-- [ ] Add `Package.HasConflict`, `Package.HasProvide`, `Package.HasReplace`, and `Package.HasMaintainer`.
-- [ ] Add `Program.SetPID`.
-- [ ] Add `Program.HasConnection`, `Program.HasFilesystem`, and `Program.HasPackage`.
-- [ ] Add `Program.RemovePackages`.
-- [ ] Add `Country.AddTimezone`, `Country.RemoveTimezone`, and `Country.HasSubnet`.
-- [ ] Add `Credential.HasKey` and `Credential.HasPassword`.
-- [ ] Add `Device.HasSystem` and `Device.HasSubsystem`.
-- [ ] Add `Distribution.AddKernelModule`, `Distribution.RemoveKernelModule`, and `Distribution.HasKernelModule`.
-- [ ] Add `Network.String` and `Network.HasSubnet`.
-- [ ] Add `Weakness.HasImpact` and `Weakness.HasReference`.
-
 ## Matching helpers
 
 - [ ] Add `Incident.MatchesDevice`, `Incident.MatchesProduct`, and `Incident.MatchesWeakness`.

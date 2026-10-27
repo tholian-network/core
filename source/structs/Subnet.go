@@ -421,7 +421,7 @@ func (subnet *Subnet) Hash() string {
 
 func (subnet *Subnet) String() string {
 
-	var result string
+	result := ""
 
 	if subnet.IsValid() {
 		result = subnet.Address + "/" + strconv.FormatUint(uint64(subnet.Prefix), 10)

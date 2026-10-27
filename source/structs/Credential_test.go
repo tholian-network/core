@@ -164,6 +164,35 @@ func TestCredentialPasswords(t *testing.T) {
 
 }
 
+func TestCredentialHasKeyAndPassword(t *testing.T) {
+
+	credential := NewCredential("root", "user")
+
+	credential.AddKey([]byte{1, 2, 3})
+	credential.AddPassword("  secret  ")
+
+	if credential.HasKey([]byte{1, 2, 3}) == false {
+		t.Fatal("HasKey() did not find an existing key")
+	}
+
+	if credential.HasKey([]byte{4, 5, 6}) == true {
+		t.Fatal("HasKey() found a missing key")
+	}
+
+	if credential.HasPassword("secret") == false {
+		t.Fatal("HasPassword() did not find an existing password")
+	}
+
+	if credential.HasPassword("  secret  ") == false {
+		t.Fatal("HasPassword() did not trim the value")
+	}
+
+	if credential.HasPassword("other") == true {
+		t.Fatal("HasPassword() found a missing password")
+	}
+
+}
+
 func TestCredentialEqual(t *testing.T) {
 
 	base := NewCredential("root", "user")

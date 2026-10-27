@@ -95,6 +95,20 @@ func (credential *Credential) AddKey(value []byte) {
 
 }
 
+func (credential *Credential) HasKey(value []byte) bool {
+
+	for k := 0; k < len(credential.Keys); k++ {
+
+		if bytes.Equal(credential.Keys[k], value) {
+			return true
+		}
+
+	}
+
+	return false
+
+}
+
 func (credential *Credential) RemoveKey(value []byte) {
 
 	index := -1
@@ -144,6 +158,22 @@ func (credential *Credential) AddPassword(value string) {
 	if found == false {
 		credential.Passwords = append(credential.Passwords, value)
 	}
+
+}
+
+func (credential *Credential) HasPassword(value string) bool {
+
+	value = strings.TrimSpace(value)
+
+	for p := 0; p < len(credential.Passwords); p++ {
+
+		if credential.Passwords[p] == value {
+			return true
+		}
+
+	}
+
+	return false
 
 }
 

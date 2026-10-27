@@ -157,6 +157,40 @@ func TestDistributionSetKeywordsCopies(t *testing.T) {
 
 }
 
+func TestDistributionKernelModules(t *testing.T) {
+
+	distribution := NewDistribution()
+
+	distribution.AddKernelModule("ext4")
+	distribution.AddKernelModule("ext4")
+	distribution.AddKernelModule("nvme")
+
+	if len(distribution.KernelModules) != 2 {
+		t.Fatalf("AddKernelModule() did not deduplicate: %#v", distribution.KernelModules)
+	}
+
+	if distribution.HasKernelModule("ext4") == false {
+		t.Fatal("HasKernelModule() did not find an existing module")
+	}
+
+	if distribution.HasKernelModule("btrfs") == true {
+		t.Fatal("HasKernelModule() found a missing module")
+	}
+
+	distribution.RemoveKernelModule("ext4")
+
+	if len(distribution.KernelModules) != 1 || distribution.HasKernelModule("ext4") == true {
+		t.Fatalf("RemoveKernelModule() = %#v", distribution.KernelModules)
+	}
+
+	distribution.RemoveKernelModule("btrfs")
+
+	if len(distribution.KernelModules) != 1 {
+		t.Fatal("RemoveKernelModule() removed an absent module")
+	}
+
+}
+
 func TestDistributionIsValid(t *testing.T) {
 
 	distribution := NewDistribution()

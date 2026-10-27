@@ -105,6 +105,20 @@ func (network *Network) AddSubnet(value Subnet) {
 
 }
 
+func (network *Network) HasSubnet(value Subnet) bool {
+
+	for s := 0; s < len(network.Subnets); s++ {
+
+		if network.Subnets[s].Equal(value) {
+			return true
+		}
+
+	}
+
+	return false
+
+}
+
 func (network *Network) RemoveSubnet(value Subnet) {
 
 	var index int = -1
