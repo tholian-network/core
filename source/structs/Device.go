@@ -15,6 +15,30 @@ type Device struct {
 	Subsystem *DeviceSystem `json:"subsystem,omitempty"`
 }
 
+func (system *DeviceSystem) Equal(value DeviceSystem) bool {
+
+	if system.Name == value.Name &&
+		system.Vendor == value.Vendor &&
+		system.Device == value.Device {
+		return true
+	}
+
+	return false
+
+}
+
+func (system *DeviceSystem) Hash() string {
+
+	hash := ""
+
+	if system.Name != "" || system.Vendor != "" || system.Device != "" {
+		hash = toHash(system.Name, system.Vendor, system.Device)
+	}
+
+	return hash
+
+}
+
 func NewDevice(bus string) Device {
 
 	var device Device
@@ -27,29 +51,51 @@ func NewDevice(bus string) Device {
 
 func (device *Device) Equal(value Device) bool {
 
-	if device.Name == value.Name {
+	if device.Name != value.Name || device.Bus != value.Bus {
+		return false
+	}
 
-		if device.Bus == "pci" && value.Bus == "pci" {
+	if device.Bus == "pci" {
 
-			if device.System.Vendor == value.System.Vendor && device.System.Device == value.System.Device {
-
-				if device.Subsystem.Vendor == value.Subsystem.Vendor && device.Subsystem.Device == value.Subsystem.Device {
-					return true
-				}
-
-			}
-
-		} else if device.Bus == "usb" && value.Bus == "usb" {
-
-			if device.System.Vendor == value.System.Vendor && device.System.Device == value.System.Device {
-				return true
-			}
-
+		if (device.System == nil) != (value.System == nil) {
+			return false
 		}
+
+		if device.System != nil {
+			if device.System.Vendor != value.System.Vendor || device.System.Device != value.System.Device {
+				return false
+			}
+		}
+
+		if (device.Subsystem == nil) != (value.Subsystem == nil) {
+			return false
+		}
+
+		if device.Subsystem != nil {
+			if device.Subsystem.Vendor != value.Subsystem.Vendor || device.Subsystem.Device != value.Subsystem.Device {
+				return false
+			}
+		}
+
+		return true
+
+	} else if device.Bus == "usb" {
+
+		if (device.System == nil) != (value.System == nil) {
+			return false
+		}
+
+		if device.System != nil {
+			if device.System.Vendor != value.System.Vendor || device.System.Device != value.System.Device {
+				return false
+			}
+		}
+
+		return true
 
 	}
 
-	return false
+	return true
 
 }
 
@@ -124,5 +170,54 @@ func (device *Device) SetBus(value string) {
 	} else if value == "other" {
 		device.Bus = "other"
 	}
+
+}
+
+func (device *Device) Hash() string {
+
+	hash := ""
+
+	if device.Name != "" {
+
+		values := make([]string, 0)
+
+		values = append(values, device.Name)
+		values = append(values, device.Bus)
+
+		if device.Bus == "pci" {
+
+			if device.System != nil {
+				values = append(values, device.System.Vendor)
+				values = append(values, device.System.Device)
+			} else {
+				values = append(values, "")
+				values = append(values, "")
+			}
+
+			if device.Subsystem != nil {
+				values = append(values, device.Subsystem.Vendor)
+				values = append(values, device.Subsystem.Device)
+			} else {
+				values = append(values, "")
+				values = append(values, "")
+			}
+
+		} else if device.Bus == "usb" {
+
+			if device.System != nil {
+				values = append(values, device.System.Vendor)
+				values = append(values, device.System.Device)
+			} else {
+				values = append(values, "")
+				values = append(values, "")
+			}
+
+		}
+
+		hash = toHash(values...)
+
+	}
+
+	return hash
 
 }

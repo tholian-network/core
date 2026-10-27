@@ -1,6 +1,9 @@
 package types
 
-import "testing"
+import (
+	"encoding/json"
+	"testing"
+)
 
 func TestVersion(t *testing.T) {
 
@@ -537,5 +540,414 @@ func TestVersion(t *testing.T) {
 		}
 
 	})
+
+}
+
+func TestVersionFactories(t *testing.T) {
+
+	zeroVersion := NewVersion()
+
+	if zeroVersion.Equal(Version{}) == false {
+		t.Fatal("NewVersion() should return the zero value")
+	}
+
+	if zeroVersion.IsValid() == true {
+		t.Fatal("the zero version should be invalid")
+	}
+
+	valid := []string{"0.0.0", "0.0.1", "0.1.0", "1.0.0", "1.23.45", "v1.23.45", "2:1.23.45"}
+	invalid := []string{"", "not a version"}
+
+	for _, value := range valid {
+		if IsVersion(value) == false {
+			t.Errorf("IsVersion(%q) = false, expected true", value)
+		}
+	}
+
+	for _, value := range invalid {
+		if IsVersion(value) == true {
+			t.Errorf("IsVersion(%q) = true, expected false", value)
+		}
+	}
+
+	for _, value := range invalid {
+		if parsed := ParseVersion(value); parsed != nil {
+			t.Errorf("ParseVersion(%q) = %v, expected nil", value, parsed.String())
+		}
+	}
+
+	parsed := ParseVersion("1.23.45")
+
+	if parsed == nil {
+		t.Fatal("ParseVersion() returned nil for a valid value")
+	}
+
+	if parsed.Upstream.Major != 1 || parsed.Upstream.Minor != 23 || parsed.Upstream.Patch != 45 {
+		t.Errorf("ParseVersion() = %+v", parsed)
+	}
+
+	emptyVersion := ToVersion("")
+
+	if emptyVersion.Equal(Version{}) == false {
+		t.Fatal("ToVersion(\"\") should return the zero value")
+	}
+
+	var version Version
+
+	if version.Parse("1.23.45") == false {
+		t.Fatal("Version.Parse() returned false for a valid value")
+	}
+
+	if version.Upstream.Major != 1 || version.Upstream.Minor != 23 || version.Upstream.Patch != 45 {
+		t.Errorf("Version.Parse() = %+v", version)
+	}
+
+	if version.Parse("not a version") == true {
+		t.Fatal("Version.Parse() returned true for invalid input")
+	}
+
+}
+
+func TestVersionIsValid(t *testing.T) {
+
+	cases := []struct {
+		value string
+		valid bool
+	}{
+		{"0.0.0", false},
+		{"0.0.1", true},
+		{"0.1.0", true},
+		{"1.0.0", true},
+		{"1.23.45", true},
+	}
+
+	for _, c := range cases {
+
+		version := ToVersion(c.value)
+
+		if result := version.IsValid(); result != c.valid {
+			t.Errorf("ToVersion(%q).IsValid() = %v, expected %v", c.value, result, c.valid)
+		}
+
+	}
+
+}
+
+func TestVersionIncrementDecrement(t *testing.T) {
+
+	base := ToVersion("2:1.23.45alpha")
+
+	version := base
+	version.NextEpoche()
+
+	if version.Epoche != 3 {
+		t.Errorf("NextEpoche() = %d, expected 3", version.Epoche)
+	}
+
+	version = base
+	version.NextMajor()
+
+	if version.Upstream.Major != 2 {
+		t.Errorf("NextMajor() = %d, expected 2", version.Upstream.Major)
+	}
+
+	version = base
+	version.NextMinor()
+
+	if version.Upstream.Minor != 24 {
+		t.Errorf("NextMinor() = %d, expected 24", version.Upstream.Minor)
+	}
+
+	version = base
+	version.NextPatch()
+
+	if version.Upstream.Patch != 46 {
+		t.Errorf("NextPatch() = %d, expected 46", version.Upstream.Patch)
+	}
+
+	version = base
+	version.PrevEpoche()
+
+	if version.Epoche != 1 {
+		t.Errorf("PrevEpoche() = %d, expected 1", version.Epoche)
+	}
+
+	version = base
+	version.PrevMajor()
+
+	if version.Upstream.Major != 0 {
+		t.Errorf("PrevMajor() = %d, expected 0", version.Upstream.Major)
+	}
+
+	version = base
+	version.PrevMinor()
+
+	if version.Upstream.Minor != 22 {
+		t.Errorf("PrevMinor() = %d, expected 22", version.Upstream.Minor)
+	}
+
+	version = base
+	version.PrevPatch()
+
+	if version.Upstream.Patch != 44 {
+		t.Errorf("PrevPatch() = %d, expected 44", version.Upstream.Patch)
+	}
+
+	zero := NewVersion()
+	zero.PrevEpoche()
+	zero.PrevMajor()
+	zero.PrevMinor()
+	zero.PrevPatch()
+
+	if zero.Equal(Version{}) == false {
+		t.Fatal("Prev*() should not underflow the zero version")
+	}
+
+}
+
+func TestVersionNextPrevRelease(t *testing.T) {
+
+	version := ToVersion("1.23.45alpha")
+	version.NextRelease()
+
+	if version.Upstream.Release != "beta" {
+		t.Errorf("NextRelease() = %q, expected beta", version.Upstream.Release)
+	}
+
+	version.PrevRelease()
+
+	if version.Upstream.Release != "alpha" {
+		t.Errorf("PrevRelease() = %q, expected alpha", version.Upstream.Release)
+	}
+
+	version.PrevRelease()
+
+	if version.Upstream.Release != "alpha" {
+		t.Errorf("PrevRelease() at the first release = %q, expected alpha", version.Upstream.Release)
+	}
+
+	letter := ToVersion("1.23.45a")
+	letter.NextRelease()
+
+	if letter.Upstream.Release != "b" {
+		t.Errorf("NextRelease() = %q, expected b", letter.Upstream.Release)
+	}
+
+	letter.PrevRelease()
+
+	if letter.Upstream.Release != "a" {
+		t.Errorf("PrevRelease() = %q, expected a", letter.Upstream.Release)
+	}
+
+	empty := ToVersion("1.23.45")
+	empty.NextRelease()
+
+	if empty.Upstream.Release != "" {
+		t.Errorf("NextRelease() on an empty release = %q, expected empty", empty.Upstream.Release)
+	}
+
+	last := ToVersion("1.23.45omega")
+	last.NextRelease()
+
+	if last.Upstream.Release != "omega" {
+		t.Errorf("NextRelease() at the last release = %q, expected omega", last.Upstream.Release)
+	}
+
+}
+
+func TestVersionComparisonExtra(t *testing.T) {
+
+	version1 := ToVersion("1.23.45-r6")
+	version2 := ToVersion("1.23.45-r6")
+	version3 := ToVersion("1.23.45-r7")
+
+	if version1.Equal(version2) == false {
+		t.Fatal("identical versions should be equal")
+	}
+
+	if version1.IsAfter(version2) == true || version1.IsBefore(version2) == true {
+		t.Fatal("identical versions should be neither after nor before each other")
+	}
+
+	if version1.IsBefore(version3) == false || version3.IsAfter(version1) == false {
+		t.Fatal("release ordering failed")
+	}
+
+	if version1.Equal(version3) == true {
+		t.Fatal("different releases should not be equal")
+	}
+
+}
+
+func TestVersionHash(t *testing.T) {
+
+	version1 := ToVersion("1.23.45-r6")
+	version2 := ToVersion("1.23.45-r6")
+	version3 := ToVersion("1.23.45-r7")
+
+	if version1.Hash() == "" || version1.Hash() != version2.Hash() {
+		t.Fatal("Hash() should be deterministic for equal versions")
+	}
+
+	if version1.Hash() == version3.Hash() {
+		t.Fatal("different versions should not share a hash")
+	}
+
+}
+
+func TestVersionSemanticStringString(t *testing.T) {
+
+	version := ToVersion("2:1.23.45alpha+abc123~rev1")
+
+	if version.SemanticString() != "2:1.23.45" {
+		t.Errorf("SemanticString() = %q, expected \"2:1.23.45\"", version.SemanticString())
+	}
+
+	if version.String() != "2:1.23.45alpha+abc123~rev1" {
+		t.Errorf("String() = %q", version.String())
+	}
+
+	zero := NewVersion()
+
+	if zero.SemanticString() != "0:0.0.0" {
+		t.Errorf("zero SemanticString() = %q", zero.SemanticString())
+	}
+
+	if zero.String() != "0:0.0.0" {
+		t.Errorf("zero String() = %q", zero.String())
+	}
+
+}
+
+func TestVersionNavigation(t *testing.T) {
+
+	version := ToVersion("2:1.23.45alpha+abc123~rev1")
+
+	earlier := version.ToEarlier(true, true)
+
+	if earlier.Epoche != 2 || earlier.Upstream.Major != 1 {
+		t.Errorf("ToEarlier() epoche/major = %+v", earlier)
+	}
+
+	if earlier.Upstream.Minor != 22 || earlier.Upstream.Patch != 44 {
+		t.Errorf("ToEarlier() minor/patch = %d/%d, expected 22/44", earlier.Upstream.Minor, earlier.Upstream.Patch)
+	}
+
+	if earlier.Upstream.Release != "" || earlier.Upstream.Hash != "" || earlier.Revision != "" {
+		t.Errorf("ToEarlier() should clear release metadata: %+v", earlier)
+	}
+
+	earlierDefault := version.ToEarlier(false, false)
+
+	if result := earlierDefault.String(); result != "2:1.23.45" {
+		t.Errorf("ToEarlier(false, false) = %q", result)
+	}
+
+	earliest := version.ToEarliest(true, true)
+
+	if earliest.String() != "2:1.0.0" {
+		t.Errorf("ToEarliest(true, true) = %q", earliest.String())
+	}
+
+	earliestDefault := version.ToEarliest(false, false)
+
+	if result := earliestDefault.String(); result != "2:1.23.45" {
+		t.Errorf("ToEarliest(false, false) = %q", result)
+	}
+
+	later := version.ToLater(true, true)
+
+	if later.Epoche != 2 || later.Upstream.Minor != 24 || later.Upstream.Patch != 46 {
+		t.Errorf("ToLater(true, true) = %+v", later)
+	}
+
+	if later.Upstream.Release != "" || later.Upstream.Hash != "" || later.Revision != "" {
+		t.Errorf("ToLater() should clear release metadata: %+v", later)
+	}
+
+	laterDefault := version.ToLater(false, false)
+
+	if result := laterDefault.String(); result != "2:0.23.45" {
+		t.Errorf("ToLater(false, false) = %q", result)
+	}
+
+	latest := version.ToLatest(true, true)
+
+	if latest.String() != "2:1.999999999.999999999" {
+		t.Errorf("ToLatest(true, true) = %q", latest.String())
+	}
+
+	latestDefault := version.ToLatest(false, false)
+
+	if result := latestDefault.String(); result != "2:1.23.45" {
+		t.Errorf("ToLatest(false, false) = %q", result)
+	}
+
+	zeroMinor := ToVersion("1.0.0")
+	zeroMinorEarlier := zeroMinor.ToEarlier(true, true)
+
+	if result := zeroMinorEarlier.String(); result != "0:1.0.0" {
+		t.Errorf("ToEarlier() at zero minor/patch = %q", result)
+	}
+
+	maxVersion := ToVersion("1.999999999.999999999")
+	maxLater := maxVersion.ToLater(true, true)
+
+	if maxLater.Upstream.Minor != 999999999 || maxLater.Upstream.Patch != 999999999 {
+		t.Errorf("ToLater() should clamp at the maximum: %d/%d", maxLater.Upstream.Minor, maxLater.Upstream.Patch)
+	}
+
+}
+
+func TestVersionJSON(t *testing.T) {
+
+	original := ToVersion("2:1.23.45alpha+abc123~rev1")
+
+	data, err := json.Marshal(original)
+
+	if err != nil {
+		t.Fatalf("Marshal() returned error: %v", err)
+	}
+
+	if string(data) != `"2:1.23.45alpha+abc123~rev1"` {
+		t.Errorf("Marshal() = %s", string(data))
+	}
+
+	var decoded Version
+
+	if err := json.Unmarshal(data, &decoded); err != nil {
+		t.Fatalf("Unmarshal() returned error: %v", err)
+	}
+
+	if decoded.String() != original.String() {
+		t.Errorf("Unmarshal() = %q, expected %q", decoded.String(), original.String())
+	}
+
+	simple := ToVersion("1.23.45")
+	simpleData, err := json.Marshal(simple)
+
+	if err != nil {
+		t.Fatalf("Marshal() returned error: %v", err)
+	}
+
+	if string(simpleData) != `"0:1.23.45"` {
+		t.Errorf("Marshal() = %s, expected \"0:1.23.45\"", string(simpleData))
+	}
+
+	var malformed Version
+
+	if err := json.Unmarshal([]byte("123"), &malformed); err == nil {
+		t.Fatal("Unmarshal() should fail for malformed JSON")
+	}
+
+	unchanged := original
+
+	if err := json.Unmarshal([]byte(`"not a version"`), &unchanged); err != nil {
+		t.Fatalf("Unmarshal() of an invalid string returned error: %v", err)
+	}
+
+	if unchanged.String() != original.String() {
+		t.Fatal("Unmarshal() of an invalid string should leave the version unchanged")
+	}
 
 }

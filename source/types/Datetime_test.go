@@ -1,8 +1,12 @@
 package types
 
-import "strconv"
-import "testing"
-import "time"
+import (
+	"encoding/json"
+	"strconv"
+	"strings"
+	"testing"
+	"time"
+)
 
 func TestDatetime(t *testing.T) {
 
@@ -395,5 +399,340 @@ func TestDatetime(t *testing.T) {
 		}
 
 	})
+
+}
+
+func TestDatetimeFactories(t *testing.T) {
+
+	before := time.Now()
+	current := NewDatetime()
+	after := time.Now()
+
+	if current.IsValid() == false {
+		t.Fatalf("NewDatetime() = %+v, expected a valid datetime", current)
+	}
+
+	if current.Year != uint(before.Year()) && current.Year != uint(after.Year()) {
+		t.Fatalf("NewDatetime().Year = %d, expected the current year", current.Year)
+	}
+
+	valid := []string{
+		"2024-02-29T12:34:56Z",
+		"2024-02-29",
+		"20240229",
+		"2024-02",
+		"202402",
+		"2024-02-29 12:34:56",
+	}
+
+	for _, value := range valid {
+		if IsDatetime(value) == false {
+			t.Errorf("IsDatetime(%q) = false, expected true", value)
+		}
+	}
+
+	invalid := []string{
+		"",
+		"not a datetime",
+		"2024/02/29",
+		"1750-01-01",
+		"2024",
+	}
+
+	for _, value := range invalid {
+		if IsDatetime(value) == true {
+			t.Errorf("IsDatetime(%q) = true, expected false", value)
+		}
+	}
+
+	for _, value := range invalid {
+		if parsed := ParseDatetime(value); parsed != nil {
+			t.Errorf("ParseDatetime(%q) = %v, expected nil", value, parsed.String())
+		}
+	}
+
+	parsed := ParseDatetime("2024-02-29T12:34:56Z")
+
+	if parsed == nil {
+		t.Fatal("ParseDatetime() returned nil for a valid value")
+	}
+
+	if parsed.String() != "2024-02-29 12:34:56" {
+		t.Errorf("ParseDatetime().String() = %q", parsed.String())
+	}
+
+	empty := ToDatetime("")
+
+	if empty.String() != "0000-00-00 00:00:00" {
+		t.Fatal("ToDatetime(\"\") should return the zero value")
+	}
+
+	invalidValue := ToDatetime("not a datetime")
+
+	if invalidValue.String() != "0000-00-00 00:00:00" {
+		t.Fatal("ToDatetime() with invalid input should return the zero value")
+	}
+
+}
+
+func TestDatetimeEqualHashIsValid(t *testing.T) {
+
+	base := ToDatetime("2024-02-29T12:34:56Z")
+	same := ToDatetime("2024-02-29T12:34:56Z")
+	different := ToDatetime("2024-03-01T00:00:00Z")
+
+	if base.Equal(same) == false || base.Equal(different) == true {
+		t.Fatal("Datetime.Equal() failed")
+	}
+
+	if base.IsAfter(same) || base.IsBefore(same) {
+		t.Fatal("equal datetimes should be neither after nor before each other")
+	}
+
+	if base.Hash() == "" || base.Hash() != same.Hash() {
+		t.Fatal("Hash() should be deterministic for equal datetimes")
+	}
+
+	if base.Hash() == different.Hash() {
+		t.Fatal("different datetimes should not share a hash")
+	}
+
+	cases := []struct {
+		value Datetime
+		valid bool
+	}{
+		{Datetime{}, false},
+		{Datetime{Year: 1752, Month: 1, Day: 1}, false},
+		{Datetime{Year: 1753, Month: 1, Day: 1}, true},
+		{Datetime{Year: 2024, Month: 0, Day: 1}, false},
+		{Datetime{Year: 2024, Month: 13, Day: 1}, false},
+		{Datetime{Year: 2024, Month: 1, Day: 0}, false},
+		{Datetime{Year: 2024, Month: 1, Day: 32}, false},
+		{Datetime{Year: 2024, Month: 12, Day: 31}, true},
+	}
+
+	for _, c := range cases {
+		if result := c.value.IsValid(); result != c.valid {
+			t.Errorf("Datetime%+v.IsValid() = %v, expected %v", c.value, result, c.valid)
+		}
+	}
+
+}
+
+func TestDatetimeYesterdayTomorrow(t *testing.T) {
+
+	yesterdayCases := []struct {
+		value    string
+		expected string
+	}{
+		{"2024-03-15", "2024-03-14 00:00:00"},
+		{"2024-03-01", "2024-02-29 00:00:00"},
+		{"2023-03-01", "2023-02-28 00:00:00"},
+		{"2024-01-01", "2023-12-31 00:00:00"},
+		{"2024-01-15", "2024-01-14 00:00:00"},
+	}
+
+	for _, c := range yesterdayCases {
+		value := ToDatetime(c.value)
+
+		yesterday := value.Yesterday()
+		result := yesterday.String()
+
+		if result != c.expected {
+			t.Errorf("ToDatetime(%q).Yesterday() = %s, expected %s", c.value, result, c.expected)
+		}
+	}
+
+	tomorrowCases := []struct {
+		value    string
+		expected string
+	}{
+		{"2024-03-15", "2024-03-16 00:00:00"},
+		{"2024-02-29", "2024-03-01 00:00:00"},
+		{"2023-02-28", "2023-03-01 00:00:00"},
+		{"2024-12-31", "2025-01-01 00:00:00"},
+		{"2024-01-31", "2024-02-01 00:00:00"},
+	}
+
+	for _, c := range tomorrowCases {
+		value := ToDatetime(c.value)
+
+		tomorrow := value.Tomorrow()
+		result := tomorrow.String()
+
+		if result != c.expected {
+			t.Errorf("ToDatetime(%q).Tomorrow() = %s, expected %s", c.value, result, c.expected)
+		}
+	}
+
+}
+
+func TestDatetimeParseFormatsExtra(t *testing.T) {
+
+	cases := []struct {
+		value    string
+		expected string
+	}{
+		{"2024-02-29T12:34:56Z", "2024-02-29 12:34:56"},
+		{"2024-02-29T12:34:56.789Z", "2024-02-29 12:34:56"},
+		{"2024-02-29T12:34:56+02:00", "2024-02-29 12:34:56"},
+		{"2024-02-29T12:34:56-03:45", "2024-02-29 12:34:56"},
+		{"2024-02-29 12:34:56", "2024-02-29 12:34:56"},
+		{"2024-02-29", "2024-02-29 00:00:00"},
+		{"20240229", "2024-02-29 00:00:00"},
+		{"2024-02", "2024-02-01 00:00:00"},
+		{"202402", "2024-02-01 00:00:00"},
+	}
+
+	for _, c := range cases {
+
+		value := ToDatetime(c.value)
+
+		if result := value.String(); result != c.expected {
+			t.Errorf("ToDatetime(%q).String() = %q, expected %q", c.value, result, c.expected)
+		}
+
+	}
+
+	for _, value := range []string{"", "not a datetime", "2024/02/29", "1750-01-01"} {
+
+		var datetime Datetime
+
+		if datetime.Parse(value) == true {
+			t.Errorf("Datetime.Parse(%q) = true, expected false", value)
+		}
+
+	}
+
+}
+
+func TestDatetimeString(t *testing.T) {
+
+	cases := []struct {
+		value    Datetime
+		expected string
+	}{
+		{Datetime{}, "0000-00-00 00:00:00"},
+		{ToDatetime("2024-02-29T12:34:56Z"), "2024-02-29 12:34:56"},
+		{Datetime{Year: 2024, Month: 2, Day: 9, Hour: 1, Minute: 2, Second: 3}, "2024-02-09 01:02:03"},
+	}
+
+	for _, c := range cases {
+		if result := c.value.String(); result != c.expected {
+			t.Errorf("Datetime.String() = %q, expected %q", result, c.expected)
+		}
+	}
+
+}
+
+func TestDatetimeDifferenceZero(t *testing.T) {
+
+	earlier := ToDatetime("2024-02-29T12:34:56Z")
+	later := ToDatetime("2024-03-01T12:34:56Z")
+
+	if diff := earlier.ToDatetimeDifference(earlier); diff != (Datetime{}) {
+		t.Errorf("ToDatetimeDifference(equal) = %s, expected zero", diff.String())
+	}
+
+	if diff := later.ToDatetimeDifference(earlier); diff != (Datetime{}) {
+		t.Errorf("ToDatetimeDifference(later, earlier) = %s, expected zero", diff.String())
+	}
+
+	if diff := earlier.ToTimeDifference(earlier); diff != (Time{}) {
+		t.Errorf("ToTimeDifference(equal) = %s, expected zero", diff.String())
+	}
+
+	if diff := later.ToTimeDifference(earlier); diff != (Time{}) {
+		t.Errorf("ToTimeDifference(later, earlier) = %s, expected zero", diff.String())
+	}
+
+}
+
+func TestDatetimeFuturePastInvariants(t *testing.T) {
+
+	now := time.Now()
+
+	if now.Hour() == 23 || now.Hour() == 0 {
+		t.Skip("skipping near midnight to avoid time-of-day wrapping")
+	}
+
+	past := ToDatetime(now.Add(-1 * time.Hour).Format(time.RFC3339))
+	future := ToDatetime(now.Add(1 * time.Hour).Format(time.RFC3339))
+
+	if past.IsPast() == false || past.IsFuture() == true {
+		t.Errorf("past datetime %s should only be in the past", past.String())
+	}
+
+	if future.IsFuture() == false || future.IsPast() == true {
+		t.Errorf("future datetime %s should only be in the future", future.String())
+	}
+
+}
+
+func TestDatetimeZulu(t *testing.T) {
+
+	offset := strings.Split(time.Now().String(), " ")[2]
+	value := ToDatetime("2024-02-29T12:34:56Z")
+	expected := ToDatetime("2024-02-29 12:34:56")
+
+	if len(offset) == 5 {
+		expected.Offset(offset)
+	}
+
+	value.ToZulu()
+
+	if value.String() != expected.String() {
+		t.Errorf("ToZulu() = %s, expected %s", value.String(), expected.String())
+	}
+
+	var zero Datetime
+
+	zero.ToZulu()
+
+	if zero != (Datetime{}) {
+		t.Fatal("ToZulu() on the zero value should be a no-op")
+	}
+
+}
+
+func TestDatetimeJSON(t *testing.T) {
+
+	original := ToDatetime("2026-10-19T11:59:59Z")
+
+	data, err := json.Marshal(original)
+
+	if err != nil {
+		t.Fatalf("Marshal() returned error: %v", err)
+	}
+
+	if string(data) != `"2026-10-19 11:59:59"` {
+		t.Errorf("Marshal() = %s, expected \"2026-10-19 11:59:59\"", string(data))
+	}
+
+	var decoded Datetime
+
+	if err := json.Unmarshal(data, &decoded); err != nil {
+		t.Fatalf("Unmarshal() returned error: %v", err)
+	}
+
+	if decoded.Equal(original) == false {
+		t.Errorf("Unmarshal() = %+v, expected %+v", decoded, original)
+	}
+
+	var malformed Datetime
+
+	if err := json.Unmarshal([]byte("123"), &malformed); err == nil {
+		t.Fatal("Unmarshal() should fail for malformed JSON")
+	}
+
+	unchanged := original
+
+	if err := json.Unmarshal([]byte(`"not a datetime"`), &unchanged); err != nil {
+		t.Fatalf("Unmarshal() of an invalid string returned error: %v", err)
+	}
+
+	if unchanged.Equal(original) == false {
+		t.Fatal("Unmarshal() of an invalid string should leave the datetime unchanged")
+	}
 
 }
