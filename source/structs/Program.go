@@ -558,10 +558,10 @@ func (program *Program) RemovePackage(value Package) {
 			break
 		}
 
-		if index != -1 {
-			program.Packages = append(program.Packages[:index], program.Packages[index+1:]...)
-		}
+	}
 
+	if index != -1 {
+		program.Packages = append(program.Packages[:index], program.Packages[index+1:]...)
 	}
 
 }
@@ -569,11 +569,7 @@ func (program *Program) RemovePackage(value Package) {
 func (program *Program) AddPackages(packages []Package) {
 
 	for p := 0; p < len(packages); p++ {
-
-		if packages[p].IsValid() {
-			program.Packages = append(program.Packages, packages[p])
-		}
-
+		program.AddPackage(packages[p])
 	}
 
 }

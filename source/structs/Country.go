@@ -183,7 +183,36 @@ func (country *Country) RemoveAllegiance(value string) {
 }
 
 func (country *Country) SetAllegiances(value []string) {
-	country.Allegiances = value
+
+	filtered := make([]string, 0)
+
+	for _, allegiance := range value {
+
+		allegiance = strings.TrimSpace(allegiance)
+
+		if allegiance == "" {
+			continue
+		}
+
+		found := false
+
+		for a := 0; a < len(filtered); a++ {
+
+			if filtered[a] == allegiance {
+				found = true
+				break
+			}
+
+		}
+
+		if found == false {
+			filtered = append(filtered, allegiance)
+		}
+
+	}
+
+	country.Allegiances = filtered
+
 }
 
 func (country *Country) SetRegistry(value string) {
@@ -249,7 +278,34 @@ func (country *Country) SetSubnets(values []Subnet) {
 }
 
 func (country *Country) SetTimezones(values []Timezone) {
-	country.Timezones = values
+
+	filtered := make([]Timezone, 0)
+
+	for _, timezone := range values {
+
+		if timezone.Name == "" {
+			continue
+		}
+
+		found := false
+
+		for t := 0; t < len(filtered); t++ {
+
+			if filtered[t].Equal(timezone) {
+				found = true
+				break
+			}
+
+		}
+
+		if found == false {
+			filtered = append(filtered, timezone)
+		}
+
+	}
+
+	country.Timezones = filtered
+
 }
 
 func (country *Country) HasTimezone(value string) bool {

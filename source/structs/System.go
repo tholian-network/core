@@ -1,7 +1,6 @@
 package structs
 
 import "tholian-core/types"
-import "bytes"
 import "encoding/json"
 import "os"
 import "strings"
@@ -324,17 +323,11 @@ func (system *System) IsValid() bool {
 
 }
 
-func (system *System) MarshalJSON() string {
+func (system *System) MarshalJSON() ([]byte, error) {
 
-	var buffer bytes.Buffer
+	type aliased_system System
 
-	result, err := json.MarshalIndent(system, "", "\t")
-
-	if err == nil {
-		buffer.WriteString(string(result))
-	}
-
-	return buffer.String()
+	return json.MarshalIndent((*aliased_system)(system), "", "\t")
 
 }
 

@@ -108,3 +108,261 @@ func TestInternetSearchNetwork(t *testing.T) {
 	}
 
 }
+
+func TestInternetNewInternet(t *testing.T) {
+
+	internet := NewInternet()
+
+	if internet.Mapv4 == nil || internet.Mapv6 == nil || internet.Networks == nil {
+		t.Fatal("NewInternet did not initialize all maps")
+	}
+
+	if internet.Hash() != "" {
+		t.Fatal("a new internet should have an empty hash")
+	}
+
+}
+
+func TestInternetEqual(t *testing.T) {
+
+	first := NewInternet()
+	second := NewInternet()
+
+	if first.Equal(second) == false {
+		t.Fatal("two empty internets should be equal")
+	}
+
+	first.AddSubnet(ToSubnet("10.0.0.0/8"))
+	second.AddSubnet(ToSubnet("10.0.0.0/8"))
+
+	if first.Equal(second) == false {
+		t.Fatal("internets with the same IPv4 subnet should be equal")
+	}
+
+	second.AddSubnet(ToSubnet("10.1.0.0/16"))
+
+	if first.Equal(second) == true {
+		t.Fatal("internets with different subnet counts should not be equal")
+	}
+
+	first.AddSubnet(ToSubnet("10.1.0.0/16"))
+
+	if first.Equal(second) == false {
+		t.Fatal("internets with the same IPv4 subnets should be equal")
+	}
+
+	first.AddSubnet(ToSubnet("[2001:db8::]/32"))
+	second.AddSubnet(ToSubnet("[2001:db8::]/32"))
+
+	if first.Equal(second) == false {
+		t.Fatal("internets with the same IPv6 subnet should be equal")
+	}
+
+	third := NewInternet()
+	fourth := NewInternet()
+	network := NewNetwork("AS64500")
+	network.AddSubnet(ToSubnet("192.0.2.0/24"))
+
+	third.AddNetwork(network)
+	fourth.AddNetwork(network)
+
+	if third.Equal(fourth) == false {
+		t.Fatal("internets with the same network should be equal")
+	}
+
+	fourth.Networks["AS64500"].SetName("AS64501")
+
+	if third.Equal(fourth) == true {
+		t.Fatal("internets with different networks should not be equal")
+	}
+
+}
+
+func TestInternetAddSubnetIPv6(t *testing.T) {
+
+	internet := NewInternet()
+	subnet := ToSubnet("[2001:db8::]/32")
+
+	if internet.AddSubnet(subnet) == false {
+		t.Fatal("AddSubnet failed for an IPv6 subnet")
+	}
+
+	if internet.AddSubnet(subnet) == true {
+		t.Fatal("AddSubnet accepted a duplicate IPv6 subnet")
+	}
+
+	if len(internet.Mapv6[32]) != 1 {
+		t.Fatalf("unexpected IPv6 map: %v", internet.Mapv6)
+	}
+
+	if internet.AddSubnet(Subnet{}) == true {
+		t.Fatal("AddSubnet accepted an invalid subnet")
+	}
+
+}
+
+func TestInternetSearchASNInvalid(t *testing.T) {
+
+	internet := NewInternet()
+	internet.AddNetwork(NewNetwork("AS64500"))
+
+	found := internet.SearchASN("AS64500")
+
+	if found.Name != "AS64500" {
+		t.Fatal("SearchASN did not find the network")
+	}
+
+	missingPrefix := internet.SearchASN("64500")
+
+	if missingPrefix.HasName() == true {
+		t.Fatal("SearchASN accepted a value without the AS prefix")
+	}
+
+	absent := internet.SearchASN("AS64501")
+
+	if absent.HasName() == true {
+		t.Fatal("SearchASN found an absent network")
+	}
+
+}
+
+func TestInternetSearchIPv6(t *testing.T) {
+
+	internet := NewInternet()
+	internet.AddSubnet(ToSubnet("[2001:db8::]/32"))
+	internet.AddSubnet(ToSubnet("[2001:db8:1::]/48"))
+
+	subnet := internet.Search("[2001:db8:1::1]")
+
+	if subnet.Prefix != 48 {
+		t.Fatalf("IPv6 longest prefix match failed: %s", subnet.String())
+	}
+
+	subnet = internet.Search("[2001:db8:2::1]/128")
+
+	if subnet.Prefix != 32 {
+		t.Fatalf("IPv6 fallback prefix match failed: %s", subnet.String())
+	}
+
+	invalid := internet.Search("not-an-address")
+
+	if invalid.IsValid() == true {
+		t.Fatal("Search returned a subnet for an invalid address")
+	}
+
+	invalidSubnet := internet.SearchSubnet(Subnet{Address: "not-an-address", Type: "ipv4", Prefix: 24})
+
+	if invalidSubnet.IsValid() == true {
+		t.Fatal("SearchSubnet returned a subnet for an invalid IPv4 address")
+	}
+
+}
+
+func TestInternetSearchNetworkSubnets(t *testing.T) {
+
+	internet := NewInternet()
+	internet.AddSubnet(ToSubnet("10.0.0.0/8"))
+	internet.AddSubnet(ToSubnet("192.168.1.0/24"))
+
+	query := NewNetwork("")
+	query.AddSubnet(ToSubnet("10.1.2.3/32"))
+	query.AddSubnet(ToSubnet("172.16.0.0/16"))
+
+	results := internet.SearchNetwork(query)
+
+	if len(results) != 1 {
+		t.Fatalf("unexpected subnet search results: %v", results)
+	}
+
+	if results[0].Address != "10.0.0.0" || results[0].Prefix != 8 {
+		t.Fatalf("unexpected subnet result: %+v", results[0])
+	}
+
+	absent := NewNetwork("AS64500")
+
+	if len(internet.SearchNetwork(absent)) != 0 {
+		t.Fatal("SearchNetwork found an absent named network")
+	}
+
+}
+
+func TestInternetSetSubnets(t *testing.T) {
+
+	internet := NewInternet()
+	valid := ToSubnet("10.0.0.0/8")
+
+	if internet.SetSubnets([]Subnet{valid, valid, Subnet{}}) == true {
+		t.Fatal("SetSubnets should report duplicates and invalid entries")
+	}
+
+	if len(internet.Mapv4[8]) != 1 {
+		t.Fatalf("SetSubnets did not add the valid subnet: %v", internet.Mapv4)
+	}
+
+}
+
+func TestInternetSetNetworks(t *testing.T) {
+
+	internet := NewInternet()
+
+	valid := NewNetwork("AS64500")
+	valid.AddSubnet(ToSubnet("10.0.0.0/8"))
+
+	invalid := NewNetwork("not-an-asn")
+
+	if internet.SetNetworks([]Network{valid, invalid}) == true {
+		t.Fatal("SetNetworks should report an invalid network")
+	}
+
+	if len(internet.Networks) != 1 {
+		t.Fatalf("unexpected networks: %v", internet.Networks)
+	}
+
+	if _, ok := internet.Networks["not-an-asn"]; ok == true {
+		t.Fatal("SetNetworks accepted a network without an AS prefix")
+	}
+
+	if internet.SetNetworks([]Network{valid}) == true {
+		t.Fatal("SetNetworks should report a duplicate subnet")
+	}
+
+}
+
+func TestInternetHash(t *testing.T) {
+
+	first := NewInternet()
+	first.AddSubnet(ToSubnet("10.0.0.0/8"))
+	first.AddSubnet(ToSubnet("[2001:db8::]/32"))
+
+	firstNetwork := NewNetwork("AS64500")
+	firstNetwork.AddSubnet(ToSubnet("192.0.2.0/24"))
+	first.AddNetwork(firstNetwork)
+
+	second := NewInternet()
+
+	secondNetwork := NewNetwork("AS64500")
+	secondNetwork.AddSubnet(ToSubnet("192.0.2.0/24"))
+	second.AddNetwork(secondNetwork)
+	second.AddSubnet(ToSubnet("[2001:db8::]/32"))
+	second.AddSubnet(ToSubnet("10.0.0.0/8"))
+
+	if first.Hash() == "" {
+		t.Fatal("a populated internet should have a non-empty hash")
+	}
+
+	if first.Hash() != first.Hash() {
+		t.Fatal("Hash should be deterministic")
+	}
+
+	if first.Hash() != second.Hash() {
+		t.Fatal("Hash should not depend on insertion order")
+	}
+
+	different := NewInternet()
+	different.AddSubnet(ToSubnet("10.0.0.0/8"))
+
+	if first.Hash() == different.Hash() {
+		t.Fatal("changing the subnets should change the hash")
+	}
+
+}
