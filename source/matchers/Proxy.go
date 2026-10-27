@@ -1,9 +1,6 @@
 package matchers
 
 import "tholian-core/types"
-import "encoding/binary"
-import "encoding/hex"
-import "hash/crc32"
 import "strconv"
 import "strings"
 
@@ -176,16 +173,12 @@ func (proxy *Proxy) Hash() string {
 
 	if proxy.Name != "" && proxy.Port != 0 {
 
-		checksum := crc32.ChecksumIEEE([]byte(strings.Join([]string{
+		hash = toHash(
 			proxy.Name,
 			proxy.Host,
 			strconv.FormatUint(uint64(proxy.Port), 10),
 			proxy.Protocol,
-		}, "-")))
-
-		tmp := make([]byte, 4)
-		binary.LittleEndian.PutUint32(tmp, checksum)
-		hash = hex.EncodeToString(tmp)
+		)
 
 	}
 

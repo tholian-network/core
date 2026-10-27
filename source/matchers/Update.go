@@ -1,9 +1,6 @@
 package matchers
 
 import "tholian-core/types"
-import "encoding/binary"
-import "encoding/hex"
-import "hash/crc32"
 import "strings"
 
 type Update struct {
@@ -258,16 +255,12 @@ func (update *Update) Hash() string {
 
 	if update.Name != "" {
 
-		checksum := crc32.ChecksumIEEE([]byte(strings.Join([]string{
+		hash = toHash(
 			update.Name,
 			update.Version,
 			update.Architecture,
 			update.Manager,
-		}, "-")))
-
-		tmp := make([]byte, 4)
-		binary.LittleEndian.PutUint32(tmp, checksum)
-		hash = hex.EncodeToString(tmp)
+		)
 
 	}
 

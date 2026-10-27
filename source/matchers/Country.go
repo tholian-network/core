@@ -1,8 +1,5 @@
 package matchers
 
-import "encoding/binary"
-import "encoding/hex"
-import "hash/crc32"
 import "strings"
 
 type Country struct {
@@ -187,17 +184,13 @@ func (country *Country) Hash() string {
 
 	if country.Name != "" {
 
-		checksum := crc32.ChecksumIEEE([]byte(strings.Join([]string{
+		hash = toHash(
 			country.Name,
 			country.Continent,
 			country.Allegiance,
 			country.Subnet,
 			country.Timezone,
-		}, "-")))
-
-		tmp := make([]byte, 4)
-		binary.LittleEndian.PutUint32(tmp, checksum)
-		hash = hex.EncodeToString(tmp)
+		)
 
 	}
 

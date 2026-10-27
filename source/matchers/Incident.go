@@ -1,9 +1,6 @@
 package matchers
 
 import "tholian-core/types"
-import "encoding/binary"
-import "encoding/hex"
-import "hash/crc32"
 import "strings"
 
 type Incident struct {
@@ -316,15 +313,11 @@ func (incident *Incident) Hash() string {
 
 	if incident.Type != "" {
 
-		checksum := crc32.ChecksumIEEE([]byte(strings.Join([]string{
+		hash = toHash(
 			incident.System,
 			incident.Type,
 			incident.Datetime,
-		}, "-")))
-
-		tmp := make([]byte, 4)
-		binary.LittleEndian.PutUint32(tmp, checksum)
-		hash = hex.EncodeToString(tmp)
+		)
 
 	}
 

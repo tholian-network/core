@@ -1,9 +1,6 @@
 package matchers
 
 import "tholian-core/types"
-import "encoding/binary"
-import "encoding/hex"
-import "hash/crc32"
 import "strings"
 
 type Package struct {
@@ -262,17 +259,13 @@ func (pkg *Package) Hash() string {
 
 	if pkg.Name != "" {
 
-		checksum := crc32.ChecksumIEEE([]byte(strings.Join([]string{
+		hash = toHash(
 			pkg.Name,
 			pkg.Version,
 			pkg.Architecture,
 			pkg.Manager,
 			pkg.Vendor,
-		}, "-")))
-
-		tmp := make([]byte, 4)
-		binary.LittleEndian.PutUint32(tmp, checksum)
-		hash = hex.EncodeToString(tmp)
+		)
 
 	}
 

@@ -1,9 +1,6 @@
 package matchers
 
 import "tholian-core/types"
-import "encoding/binary"
-import "encoding/hex"
-import "hash/crc32"
 import "strings"
 
 type System struct {
@@ -374,17 +371,13 @@ func (system *System) Hash() string {
 
 	if system.Name != "" {
 
-		checksum := crc32.ChecksumIEEE([]byte(strings.Join([]string{
+		hash = toHash(
 			system.Name,
 			system.Hostname,
 			system.Datetime,
 			system.Country,
 			system.Timezone,
-		}, "-")))
-
-		tmp := make([]byte, 4)
-		binary.LittleEndian.PutUint32(tmp, checksum)
-		hash = hex.EncodeToString(tmp)
+		)
 
 	}
 

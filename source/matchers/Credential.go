@@ -1,8 +1,5 @@
 package matchers
 
-import "encoding/binary"
-import "encoding/hex"
-import "hash/crc32"
 import "strings"
 
 type Credential struct {
@@ -125,15 +122,11 @@ func (credential *Credential) Hash() string {
 
 	if credential.Name != "" {
 
-		checksum := crc32.ChecksumIEEE([]byte(strings.Join([]string{
+		hash = toHash(
 			credential.Name,
 			credential.Password,
 			credential.Type,
-		}, "-")))
-
-		tmp := make([]byte, 4)
-		binary.LittleEndian.PutUint32(tmp, checksum)
-		hash = hex.EncodeToString(tmp)
+		)
 
 	}
 

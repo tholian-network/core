@@ -1,8 +1,5 @@
 package matchers
 
-import "encoding/binary"
-import "encoding/hex"
-import "hash/crc32"
 import "strings"
 
 type Device struct {
@@ -156,16 +153,12 @@ func (device *Device) Hash() string {
 
 	if device.Name != "" {
 
-		checksum := crc32.ChecksumIEEE([]byte(strings.Join([]string{
+		hash = toHash(
 			device.Name,
 			device.Vendor,
 			device.Device,
 			device.Bus,
-		}, "-")))
-
-		tmp := make([]byte, 4)
-		binary.LittleEndian.PutUint32(tmp, checksum)
-		hash = hex.EncodeToString(tmp)
+		)
 
 	}
 

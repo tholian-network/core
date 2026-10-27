@@ -1,9 +1,6 @@
 package matchers
 
 import "tholian-core/types"
-import "encoding/binary"
-import "encoding/hex"
-import "hash/crc32"
 import "strings"
 
 type Mitigation struct {
@@ -167,16 +164,12 @@ func (mitigation *Mitigation) Hash() string {
 
 	if mitigation.IncidentType != "" && mitigation.ResponseType != "" {
 
-		checksum := crc32.ChecksumIEEE([]byte(strings.Join([]string{
+		hash = toHash(
 			mitigation.System,
 			mitigation.IncidentType,
 			mitigation.ResponseType,
 			mitigation.Datetime,
-		}, "-")))
-
-		tmp := make([]byte, 4)
-		binary.LittleEndian.PutUint32(tmp, checksum)
-		hash = hex.EncodeToString(tmp)
+		)
 
 	}
 

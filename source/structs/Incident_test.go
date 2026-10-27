@@ -7,8 +7,8 @@ import "tholian-core/types"
 func IncidentTestConnection() matchers.Connection {
 
 	connection := matchers.NewConnection()
-	connection.Socket.Host = "1.2.3.4"
-	connection.Socket.Port = 1234
+	connection.Host = "1.2.3.4"
+	connection.Port = 1234
 	connection.Protocol = "tcp"
 	connection.Type = "client"
 
@@ -276,7 +276,7 @@ func TestIncidentEqual(t *testing.T) {
 		{"type", func(value *Incident) { value.Type = "Destroy" }},
 		{"datetime", func(value *Incident) { value.SetDatetime("2020-01-01T00:00:00Z") }},
 		{"connections-length", func(value *Incident) { value.Connections = append(value.Connections, value.Connections[0]) }},
-		{"connections-value", func(value *Incident) { value.Connections[0].Socket.Host = "9.9.9.9" }},
+		{"connections-value", func(value *Incident) { value.Connections[0].Host = "9.9.9.9" }},
 		{"distributions-length", func(value *Incident) { value.Distributions = append(value.Distributions, value.Distributions[0]) }},
 		{"distributions-value", func(value *Incident) { value.Distributions[0].Name = "ubuntu" }},
 		{"networks-length", func(value *Incident) { value.Networks = append(value.Networks, value.Networks[0]) }},

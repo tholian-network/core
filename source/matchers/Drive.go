@@ -1,8 +1,5 @@
 package matchers
 
-import "encoding/binary"
-import "encoding/hex"
-import "hash/crc32"
 import "strings"
 
 type Drive struct {
@@ -145,15 +142,11 @@ func (drive *Drive) Hash() string {
 
 	if drive.Name != "" {
 
-		checksum := crc32.ChecksumIEEE([]byte(strings.Join([]string{
+		hash = toHash(
 			drive.Name,
 			drive.Mountpoint,
 			drive.Type,
-		}, "-")))
-
-		tmp := make([]byte, 4)
-		binary.LittleEndian.PutUint32(tmp, checksum)
-		hash = hex.EncodeToString(tmp)
+		)
 
 	}
 

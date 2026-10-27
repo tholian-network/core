@@ -7,8 +7,8 @@ import "tholian-core/types"
 func ResponseTestConnection() matchers.Connection {
 
 	connection := matchers.NewConnection()
-	connection.Socket.Host = "1.2.3.4"
-	connection.Socket.Port = 1234
+	connection.Host = "1.2.3.4"
+	connection.Port = 1234
 	connection.Protocol = "tcp"
 	connection.Type = "client"
 
@@ -293,7 +293,7 @@ func TestResponseEqual(t *testing.T) {
 		{"type", func(value *Response) { value.Type = "Destroy" }},
 		{"datetime", func(value *Response) { value.SetDatetime("2020-01-01T00:00:00Z") }},
 		{"connections-length", func(value *Response) { value.Connections = append(value.Connections, value.Connections[0]) }},
-		{"connections-value", func(value *Response) { value.Connections[0].Socket.Host = "9.9.9.9" }},
+		{"connections-value", func(value *Response) { value.Connections[0].Host = "9.9.9.9" }},
 		{"distributions-length", func(value *Response) { value.Distributions = append(value.Distributions, value.Distributions[0]) }},
 		{"distributions-value", func(value *Response) { value.Distributions[0].Name = "ubuntu" }},
 		{"networks-length", func(value *Response) { value.Networks = append(value.Networks, value.Networks[0]) }},

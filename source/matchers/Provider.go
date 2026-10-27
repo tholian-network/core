@@ -1,8 +1,5 @@
 package matchers
 
-import "encoding/binary"
-import "encoding/hex"
-import "hash/crc32"
 import "strings"
 
 type Provider struct {
@@ -139,15 +136,11 @@ func (provider *Provider) Hash() string {
 
 	if provider.Name != "" {
 
-		checksum := crc32.ChecksumIEEE([]byte(strings.Join([]string{
+		hash = toHash(
 			provider.Name,
 			provider.Country,
 			provider.Subnet,
-		}, "-")))
-
-		tmp := make([]byte, 4)
-		binary.LittleEndian.PutUint32(tmp, checksum)
-		hash = hex.EncodeToString(tmp)
+		)
 
 	}
 

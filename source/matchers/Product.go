@@ -2,9 +2,6 @@ package matchers
 
 import "tholian-core/types"
 import utils_fmt "tholian-core/utils/fmt"
-import "encoding/binary"
-import "encoding/hex"
-import "hash/crc32"
 import "strings"
 
 type Product struct {
@@ -338,16 +335,12 @@ func (product *Product) Hash() string {
 
 	if product.Vendor != "" && product.Product != "" {
 
-		checksum := crc32.ChecksumIEEE([]byte(strings.Join([]string{
+		hash = toHash(
 			product.Vendor,
 			product.Product,
 			product.Version,
 			product.Type,
-		}, "-")))
-
-		tmp := make([]byte, 4)
-		binary.LittleEndian.PutUint32(tmp, checksum)
-		hash = hex.EncodeToString(tmp)
+		)
 
 	}
 

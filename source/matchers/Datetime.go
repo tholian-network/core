@@ -1,9 +1,6 @@
 package matchers
 
 import "tholian-core/types"
-import "encoding/binary"
-import "encoding/hex"
-import "hash/crc32"
 import "strings"
 
 type Datetime struct {
@@ -165,14 +162,10 @@ func (datetime *Datetime) Hash() string {
 
 	hash := ""
 
-	checksum := crc32.ChecksumIEEE([]byte(strings.Join([]string{
+	hash = toHash(
 		datetime.From,
 		datetime.Until,
-	}, "-")))
-
-	tmp := make([]byte, 4)
-	binary.LittleEndian.PutUint32(tmp, checksum)
-	hash = hex.EncodeToString(tmp)
+	)
 
 	return hash
 
