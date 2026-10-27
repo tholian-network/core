@@ -1,5 +1,6 @@
 package types
 
+import "net/url"
 import "strconv"
 import "strings"
 
@@ -23,19 +24,38 @@ func NewUser() User {
 
 }
 
-func ToUser(name string, id uint16) User {
+func IsUser(value string) bool {
 
 	var user User
 
-	if id == 65535 {
-		user.ID = id
-	} else {
-		user.SetID(id)
+	user.Groups = make([]Group, 0)
+
+	return value != "" && user.Parse(value)
+
+}
+
+func ParseUser(value string) *User {
+
+	var result *User = nil
+	var user User
+
+	user.Groups = make([]Group, 0)
+
+	if value != "" && user.Parse(value) == true {
+		result = &user
 	}
 
-	user.SetName(name)
+	return result
+
+}
+
+func ToUser(value string) User {
+
+	var user User
+
 	user.Groups = make([]Group, 0)
-	user.SetType("user")
+
+	user.Parse(value)
 
 	return user
 
@@ -151,6 +171,165 @@ func (user *User) SetType(value string) {
 	} else if value == "program" {
 		user.Type = "program"
 	}
+
+}
+
+func (user *User) Parse(value string) bool {
+
+	parts := strings.SplitN(value, ":", 7)
+
+	if len(parts) >= 1 {
+
+		name, err := url.QueryUnescape(parts[0])
+
+		if err == nil {
+			user.SetName(name)
+		} else {
+			return false
+		}
+
+	}
+
+	if len(parts) >= 2 {
+
+		typ, err := url.QueryUnescape(parts[1])
+
+		if err == nil {
+			user.SetType(typ)
+		} else {
+			return false
+		}
+
+	}
+
+
+	if len(parts) >= 3 {
+
+		id, err := strconv.ParseUint(parts[2], 10, 16)
+
+		if err == nil {
+
+			if id == 65535 {
+				user.ID = uint16(id)
+			} else {
+				user.SetID(uint16(id))
+			}
+
+		} else {
+			return false
+		}
+
+	}
+
+	if len(parts) >= 4 {
+
+		folder, err := url.QueryUnescape(parts[3])
+
+		if err == nil {
+			user.SetFolder(folder)
+		} else {
+			return false
+		}
+
+	}
+
+	if len(parts) >= 5 {
+
+		shell, err := url.QueryUnescape(parts[4])
+
+		if err == nil {
+			user.SetShell(shell)
+		} else {
+			return false
+		}
+
+	}
+
+	if len(parts) >= 6 {
+
+		password, err := url.QueryUnescape(parts[5])
+
+		if err == nil {
+			user.SetPassword(password)
+		} else {
+			return false
+		}
+
+	}
+
+	if len(parts) >= 7 {
+
+		if parts[6] != "" {
+
+			groups := make([]Group, 0)
+
+			for _, value := range strings.Split(parts[6], ",") {
+
+				group := ParseGroup(value)
+
+				if group != nil {
+					groups = append(groups, *group)
+				}
+
+			}
+
+			user.SetGroups(groups)
+
+		}
+
+	}
+
+	return true
+
+}
+
+func (user User) String() string {
+
+	groups := make([]string, 0, len(user.Groups))
+
+	for g := 0; g < len(user.Groups); g++ {
+		groups = append(groups, user.Groups[g].String())
+	}
+
+	return strings.Join([]string{
+		url.QueryEscape(user.Name),
+		url.QueryEscape(user.Type),
+		strconv.FormatUint(uint64(user.ID), 10),
+		url.QueryEscape(user.Folder),
+		url.QueryEscape(user.Shell),
+		url.QueryEscape(user.Password),
+		strings.Join(groups, ","),
+	}, ":")
+
+}
+
+func (user User) MarshalJSON() ([]byte, error) {
+	return []byte(strconv.Quote(user.String())), nil
+}
+
+func (user *User) UnmarshalJSON(data []byte) error {
+
+	unquoted, err := strconv.Unquote(string(data))
+
+	if err != nil {
+		return err
+	}
+
+	check := ToUser(unquoted)
+
+	if check.IsValid() {
+
+		user.ID = check.ID
+		user.Name = check.Name
+		user.Password = check.Password
+		user.Folder = check.Folder
+		user.Groups = check.Groups
+		user.Shell = check.Shell
+		user.Type = check.Type
+
+	}
+
+	return nil
 
 }
 
