@@ -7,8 +7,8 @@ import "strconv"
 import "strings"
 
 type Internet struct {
-	Mapv4    map[uint8]map[string]*Subnet `json:"mapv4"`
-	Mapv6    map[uint8]map[string]*Subnet `json:"mapv6"`
+	Mapv4    map[uint8]map[string]*Subnet `json:"-"`
+	Mapv6    map[uint8]map[string]*Subnet `json:"-"`
 	Networks map[string]*Network          `json:"networks"`
 }
 
