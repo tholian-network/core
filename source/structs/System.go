@@ -331,6 +331,48 @@ func (system *System) MarshalJSON() ([]byte, error) {
 
 }
 
+func (system *System) AddAntique(value Antique) {
+
+	if value.IsValid() {
+
+		found := false
+
+		for a := 0; a < len(system.Antiques); a++ {
+
+			if system.Antiques[a].Equal(value) {
+				found = true
+				break
+			}
+
+		}
+
+		if found == false {
+			system.Antiques = append(system.Antiques, value)
+		}
+
+	}
+
+}
+
+func (system *System) RemoveAntique(value Antique) {
+
+	index := -1
+
+	for a := 0; a < len(system.Antiques); a++ {
+
+		if system.Antiques[a].Equal(value) {
+			index = a
+			break
+		}
+
+	}
+
+	if index != -1 {
+		system.Antiques = append(system.Antiques[:index], system.Antiques[index+1:]...)
+	}
+
+}
+
 func (system *System) SetAntiques(antiques []Antique) {
 
 	var filtered []Antique
@@ -365,6 +407,48 @@ func (system *System) SetDatetime(value string) {
 
 }
 
+func (system *System) AddDrive(value Drive) {
+
+	if value.IsValid() {
+
+		found := false
+
+		for d := 0; d < len(system.Drives); d++ {
+
+			if system.Drives[d].Equal(value) {
+				found = true
+				break
+			}
+
+		}
+
+		if found == false {
+			system.Drives = append(system.Drives, value)
+		}
+
+	}
+
+}
+
+func (system *System) RemoveDrive(value Drive) {
+
+	index := -1
+
+	for d := 0; d < len(system.Drives); d++ {
+
+		if system.Drives[d].Equal(value) {
+			index = d
+			break
+		}
+
+	}
+
+	if index != -1 {
+		system.Drives = append(system.Drives[:index], system.Drives[index+1:]...)
+	}
+
+}
+
 func (system *System) SetDrives(drives []Drive) {
 
 	var filtered []Drive
@@ -378,6 +462,48 @@ func (system *System) SetDrives(drives []Drive) {
 	}
 
 	system.Drives = filtered
+
+}
+
+func (system *System) AddDevice(value Device) {
+
+	if value.IsValid() {
+
+		found := false
+
+		for d := 0; d < len(system.Devices); d++ {
+
+			if system.Devices[d].Equal(value) {
+				found = true
+				break
+			}
+
+		}
+
+		if found == false {
+			system.Devices = append(system.Devices, value)
+		}
+
+	}
+
+}
+
+func (system *System) RemoveDevice(value Device) {
+
+	index := -1
+
+	for d := 0; d < len(system.Devices); d++ {
+
+		if system.Devices[d].Equal(value) {
+			index = d
+			break
+		}
+
+	}
+
+	if index != -1 {
+		system.Devices = append(system.Devices[:index], system.Devices[index+1:]...)
+	}
 
 }
 
@@ -412,7 +538,41 @@ func (system *System) SetHostname(value string) {
 func (system *System) AddIncident(value Incident) {
 
 	if value.IsValid() {
-		system.Incidents = append(system.Incidents, value)
+
+		found := false
+
+		for i := 0; i < len(system.Incidents); i++ {
+
+			if system.Incidents[i].Equal(value) {
+				found = true
+				break
+			}
+
+		}
+
+		if found == false {
+			system.Incidents = append(system.Incidents, value)
+		}
+
+	}
+
+}
+
+func (system *System) RemoveIncident(value Incident) {
+
+	index := -1
+
+	for i := 0; i < len(system.Incidents); i++ {
+
+		if system.Incidents[i].Equal(value) {
+			index = i
+			break
+		}
+
+	}
+
+	if index != -1 {
+		system.Incidents = append(system.Incidents[:index], system.Incidents[index+1:]...)
 	}
 
 }
@@ -436,7 +596,41 @@ func (system *System) SetIncidents(incidents []Incident) {
 func (system *System) AddMitigation(value Mitigation) {
 
 	if value.IsValid() {
-		system.Mitigations = append(system.Mitigations, value)
+
+		found := false
+
+		for m := 0; m < len(system.Mitigations); m++ {
+
+			if system.Mitigations[m].Equal(value) {
+				found = true
+				break
+			}
+
+		}
+
+		if found == false {
+			system.Mitigations = append(system.Mitigations, value)
+		}
+
+	}
+
+}
+
+func (system *System) RemoveMitigation(value Mitigation) {
+
+	index := -1
+
+	for m := 0; m < len(system.Mitigations); m++ {
+
+		if system.Mitigations[m].Equal(value) {
+			index = m
+			break
+		}
+
+	}
+
+	if index != -1 {
+		system.Mitigations = append(system.Mitigations[:index], system.Mitigations[index+1:]...)
 	}
 
 }
@@ -461,6 +655,48 @@ func (system *System) SetName(value string) {
 	system.Name = strings.TrimSpace(value)
 }
 
+func (system *System) AddNetwork(value Network) {
+
+	if value.IsValid() {
+
+		found := false
+
+		for n := 0; n < len(system.Networks); n++ {
+
+			if system.Networks[n].Equal(value) {
+				found = true
+				break
+			}
+
+		}
+
+		if found == false {
+			system.Networks = append(system.Networks, value)
+		}
+
+	}
+
+}
+
+func (system *System) RemoveNetwork(value Network) {
+
+	index := -1
+
+	for n := 0; n < len(system.Networks); n++ {
+
+		if system.Networks[n].Equal(value) {
+			index = n
+			break
+		}
+
+	}
+
+	if index != -1 {
+		system.Networks = append(system.Networks[:index], system.Networks[index+1:]...)
+	}
+
+}
+
 func (system *System) SetNetworks(networks []Network) {
 
 	var filtered []Network
@@ -477,6 +713,48 @@ func (system *System) SetNetworks(networks []Network) {
 
 }
 
+func (system *System) AddPackage(value Package) {
+
+	if value.IsValid() {
+
+		found := false
+
+		for p := 0; p < len(system.Packages); p++ {
+
+			if system.Packages[p].Equal(value) {
+				found = true
+				break
+			}
+
+		}
+
+		if found == false {
+			system.Packages = append(system.Packages, value)
+		}
+
+	}
+
+}
+
+func (system *System) RemovePackage(value Package) {
+
+	index := -1
+
+	for p := 0; p < len(system.Packages); p++ {
+
+		if system.Packages[p].Equal(value) {
+			index = p
+			break
+		}
+
+	}
+
+	if index != -1 {
+		system.Packages = append(system.Packages[:index], system.Packages[index+1:]...)
+	}
+
+}
+
 func (system *System) SetPackages(packages []Package) {
 
 	var filtered []Package
@@ -490,6 +768,48 @@ func (system *System) SetPackages(packages []Package) {
 	}
 
 	system.Packages = filtered
+
+}
+
+func (system *System) AddProgram(value Program) {
+
+	if value.IsProgram() {
+
+		found := false
+
+		for p := 0; p < len(system.Programs); p++ {
+
+			if system.Programs[p].Equal(value) {
+				found = true
+				break
+			}
+
+		}
+
+		if found == false {
+			system.Programs = append(system.Programs, value)
+		}
+
+	}
+
+}
+
+func (system *System) RemoveProgram(value Program) {
+
+	index := -1
+
+	for p := 0; p < len(system.Programs); p++ {
+
+		if system.Programs[p].Equal(value) {
+			index = p
+			break
+		}
+
+	}
+
+	if index != -1 {
+		system.Programs = append(system.Programs[:index], system.Programs[index+1:]...)
+	}
 
 }
 
@@ -512,7 +832,41 @@ func (system *System) SetPrograms(programs []Program) {
 func (system *System) AddResponse(value Response) {
 
 	if value.IsValid() {
-		system.Responses = append(system.Responses, value)
+
+		found := false
+
+		for r := 0; r < len(system.Responses); r++ {
+
+			if system.Responses[r].Equal(value) {
+				found = true
+				break
+			}
+
+		}
+
+		if found == false {
+			system.Responses = append(system.Responses, value)
+		}
+
+	}
+
+}
+
+func (system *System) RemoveResponse(value Response) {
+
+	index := -1
+
+	for r := 0; r < len(system.Responses); r++ {
+
+		if system.Responses[r].Equal(value) {
+			index = r
+			break
+		}
+
+	}
+
+	if index != -1 {
+		system.Responses = append(system.Responses[:index], system.Responses[index+1:]...)
 	}
 
 }
@@ -533,6 +887,48 @@ func (system *System) SetResponses(responses []Response) {
 
 }
 
+func (system *System) AddService(value Program) {
+
+	if value.IsService() {
+
+		found := false
+
+		for s := 0; s < len(system.Services); s++ {
+
+			if system.Services[s].Equal(value) {
+				found = true
+				break
+			}
+
+		}
+
+		if found == false {
+			system.Services = append(system.Services, value)
+		}
+
+	}
+
+}
+
+func (system *System) RemoveService(value Program) {
+
+	index := -1
+
+	for s := 0; s < len(system.Services); s++ {
+
+		if system.Services[s].Equal(value) {
+			index = s
+			break
+		}
+
+	}
+
+	if index != -1 {
+		system.Services = append(system.Services[:index], system.Services[index+1:]...)
+	}
+
+}
+
 func (system *System) SetServices(services []Program) {
 
 	var filtered []Program
@@ -549,6 +945,14 @@ func (system *System) SetServices(services []Program) {
 
 }
 
+func (system *System) SetFingerprint(value SystemFingerprint) {
+
+	if value.IsValid() {
+		system.Fingerprint = value
+	}
+
+}
+
 func (system *System) SetTimezone(value string) {
 	system.Fingerprint.Timezone = strings.TrimSpace(value)
 }
@@ -559,6 +963,52 @@ func (system *System) SetCountry(value string) {
 
 func (system *System) SetLocale(value string) {
 	system.Fingerprint.Locale = strings.TrimSpace(value)
+}
+
+func (system *System) SetToken(value string) {
+	system.Fingerprint.SetToken(value)
+}
+
+func (system *System) AddUpdate(value Update) {
+
+	if value.IsValid() {
+
+		found := false
+
+		for u := 0; u < len(system.Updates); u++ {
+
+			if system.Updates[u].Equal(value) {
+				found = true
+				break
+			}
+
+		}
+
+		if found == false {
+			system.Updates = append(system.Updates, value)
+		}
+
+	}
+
+}
+
+func (system *System) RemoveUpdate(value Update) {
+
+	index := -1
+
+	for u := 0; u < len(system.Updates); u++ {
+
+		if system.Updates[u].Equal(value) {
+			index = u
+			break
+		}
+
+	}
+
+	if index != -1 {
+		system.Updates = append(system.Updates[:index], system.Updates[index+1:]...)
+	}
+
 }
 
 func (system *System) SetUpdates(updates []Update) {
@@ -574,6 +1024,48 @@ func (system *System) SetUpdates(updates []Update) {
 	}
 
 	system.Updates = filtered
+
+}
+
+func (system *System) AddUser(value types.User) {
+
+	if value.IsValid() {
+
+		found := false
+
+		for u := 0; u < len(system.Users); u++ {
+
+			if system.Users[u].ID == value.ID && system.Users[u].Name == value.Name {
+				found = true
+				break
+			}
+
+		}
+
+		if found == false {
+			system.Users = append(system.Users, value)
+		}
+
+	}
+
+}
+
+func (system *System) RemoveUser(value types.User) {
+
+	index := -1
+
+	for u := 0; u < len(system.Users); u++ {
+
+		if system.Users[u].ID == value.ID && system.Users[u].Name == value.Name {
+			index = u
+			break
+		}
+
+	}
+
+	if index != -1 {
+		system.Users = append(system.Users[:index], system.Users[index+1:]...)
+	}
 
 }
 

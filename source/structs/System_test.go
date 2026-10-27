@@ -475,6 +475,55 @@ func TestSystemScalarSetters(t *testing.T) {
 
 }
 
+func TestSystemSetFingerprintAndToken(t *testing.T) {
+
+	system := System{}
+
+	invalid := NewSystemFingerprint()
+	invalid.SetCountry("DE")
+
+	system.SetFingerprint(invalid)
+
+	if system.Fingerprint.Equal(SystemFingerprint{}) == false {
+		t.Fatal("expected invalid fingerprint to be ignored")
+	}
+
+	fingerprint := NewSystemFingerprint()
+	fingerprint.SetCountry("DE")
+	fingerprint.SetLocale("de_DE")
+	fingerprint.SetTimezone("Europe/Berlin")
+
+	system.SetFingerprint(fingerprint)
+
+	if system.Fingerprint.Equal(fingerprint) == false {
+		t.Fatal("expected valid fingerprint to be assigned")
+	}
+
+	system.SetToken("  token  ")
+
+	if system.Fingerprint.Token != "token" {
+		t.Fatalf("expected trimmed token, got %q", system.Fingerprint.Token)
+	}
+
+	system.SetToken("   ")
+
+	if system.Fingerprint.Token != "token" {
+		t.Fatalf("expected empty token to be ignored, got %q", system.Fingerprint.Token)
+	}
+
+	fingerprint.SetToken("token")
+
+	replacement := NewSystemFingerprint()
+	replacement.SetCountry("FR")
+
+	system.SetFingerprint(replacement)
+
+	if system.Fingerprint.Equal(fingerprint) == false {
+		t.Fatal("expected invalid replacement fingerprint to be ignored")
+	}
+
+}
+
 func TestSystemCollectionSetters(t *testing.T) {
 
 	system := System{}
@@ -610,6 +659,127 @@ func TestSystemAddMethods(t *testing.T) {
 
 	if len(system.Responses) != 1 || system.Responses[0].Equal(response) == false {
 		t.Fatal("expected valid response to be added")
+	}
+
+}
+
+func TestSystemAddAndRemoveMethods(t *testing.T) {
+
+	device := systemTestValidDevice()
+	drive := systemTestValidDrive()
+	incident := systemTestValidIncident()
+	mitigation := systemTestValidMitigation()
+	network := systemTestValidNetwork()
+	pkg := systemTestValidPackage()
+	program := systemTestValidProgram()
+	response := systemTestValidResponse()
+	service := systemTestValidService()
+	antique := systemTestValidAntique()
+	update := systemTestValidUpdate()
+	user := systemTestValidUser()
+
+	tests := []struct {
+		name       string
+		addInvalid func(*System)
+		addValid   func(*System)
+		remove     func(*System)
+		length     func(System) int
+	}{
+		{"antiques",
+			func(system *System) { system.AddAntique(Antique{}) },
+			func(system *System) { system.AddAntique(antique) },
+			func(system *System) { system.RemoveAntique(antique) },
+			func(system System) int { return len(system.Antiques) }},
+		{"drives",
+			func(system *System) { system.AddDrive(Drive{}) },
+			func(system *System) { system.AddDrive(drive) },
+			func(system *System) { system.RemoveDrive(drive) },
+			func(system System) int { return len(system.Drives) }},
+		{"devices",
+			func(system *System) { system.AddDevice(Device{}) },
+			func(system *System) { system.AddDevice(device) },
+			func(system *System) { system.RemoveDevice(device) },
+			func(system System) int { return len(system.Devices) }},
+		{"incidents",
+			func(system *System) { system.AddIncident(Incident{}) },
+			func(system *System) { system.AddIncident(incident) },
+			func(system *System) { system.RemoveIncident(incident) },
+			func(system System) int { return len(system.Incidents) }},
+		{"mitigations",
+			func(system *System) { system.AddMitigation(Mitigation{}) },
+			func(system *System) { system.AddMitigation(mitigation) },
+			func(system *System) { system.RemoveMitigation(mitigation) },
+			func(system System) int { return len(system.Mitigations) }},
+		{"networks",
+			func(system *System) { system.AddNetwork(Network{}) },
+			func(system *System) { system.AddNetwork(network) },
+			func(system *System) { system.RemoveNetwork(network) },
+			func(system System) int { return len(system.Networks) }},
+		{"packages",
+			func(system *System) { system.AddPackage(Package{}) },
+			func(system *System) { system.AddPackage(pkg) },
+			func(system *System) { system.RemovePackage(pkg) },
+			func(system System) int { return len(system.Packages) }},
+		{"programs",
+			func(system *System) { system.AddProgram(Program{}) },
+			func(system *System) { system.AddProgram(program) },
+			func(system *System) { system.RemoveProgram(program) },
+			func(system System) int { return len(system.Programs) }},
+		{"responses",
+			func(system *System) { system.AddResponse(Response{}) },
+			func(system *System) { system.AddResponse(response) },
+			func(system *System) { system.RemoveResponse(response) },
+			func(system System) int { return len(system.Responses) }},
+		{"services",
+			func(system *System) { system.AddService(Program{}) },
+			func(system *System) { system.AddService(service) },
+			func(system *System) { system.RemoveService(service) },
+			func(system System) int { return len(system.Services) }},
+		{"updates",
+			func(system *System) { system.AddUpdate(Update{}) },
+			func(system *System) { system.AddUpdate(update) },
+			func(system *System) { system.RemoveUpdate(update) },
+			func(system System) int { return len(system.Updates) }},
+		{"users",
+			func(system *System) { system.AddUser(types.User{}) },
+			func(system *System) { system.AddUser(user) },
+			func(system *System) { system.RemoveUser(user) },
+			func(system System) int { return len(system.Users) }},
+	}
+
+	for _, test := range tests {
+
+		t.Run(test.name, func(t *testing.T) {
+
+			system := System{}
+
+			test.addInvalid(&system)
+
+			if test.length(system) != 0 {
+				t.Fatalf("expected invalid %s to be ignored", test.name)
+			}
+
+			test.addValid(&system)
+			test.addValid(&system)
+
+			if test.length(system) != 1 {
+				t.Fatalf("expected duplicate %s to be ignored", test.name)
+			}
+
+			test.remove(&system)
+
+			if test.length(system) != 0 {
+				t.Fatalf("expected valid %s to be removed", test.name)
+			}
+
+			test.remove(&system)
+
+			if test.length(system) != 0 {
+				t.Fatalf("expected removing an absent %s to be a no-op", test.name)
+			}
+
+		})
+
 	}
 
 }

@@ -1,17 +1,5 @@
 # TODO
 
-## System and fingerprint
-
-- [ ] Add `System.SetToken`.
-- [ ] Add `System.SetFingerprint`.
-- [ ] Add remaining `System.Add*` and `System.Remove*` collection helpers.
-- [ ] Add `SystemFingerprint.NewSystemFingerprint`.
-- [ ] Add `SystemFingerprint.IsValid`.
-- [ ] Add `SystemFingerprint.SetCountry`.
-- [ ] Add `SystemFingerprint.SetLocale`.
-- [ ] Add `SystemFingerprint.SetTimezone`.
-- [ ] Add `SystemFingerprint.SetToken`.
-
 ## Collection helpers
 
 - [ ] Add `Package.AddUnresolved`, `Package.RemoveUnresolved`, `Package.SetUnresolved`, and `Package.HasUnresolved`.
