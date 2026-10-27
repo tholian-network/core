@@ -187,3 +187,15 @@ func (weakness *Weakness) SetScope(value string) {
 	}
 
 }
+
+func (weakness *Weakness) Hash() string {
+
+	hash := ""
+
+	if weakness.Name != "" {
+		hash = weakness.Name
+	}
+
+	return hash
+
+}

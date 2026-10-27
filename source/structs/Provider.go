@@ -121,3 +121,15 @@ func (provider *Provider) SetSubnets(value []Subnet) {
 	provider.Subnets = filtered
 
 }
+
+func (provider *Provider) Hash() string {
+
+	hash := ""
+
+	if provider.Name != "" {
+		hash = provider.Name
+	}
+
+	return hash
+
+}

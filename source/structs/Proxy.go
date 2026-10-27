@@ -202,3 +202,15 @@ func (proxy *Proxy) RandomizeAddress() string {
 	return result
 
 }
+
+func (proxy *Proxy) Hash() string {
+
+	hash := ""
+
+	if proxy.Name != "" {
+		hash = proxy.Name
+	}
+
+	return hash
+
+}

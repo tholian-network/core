@@ -28,11 +28,12 @@ Elastic, Kibana, SIEM, SOAR, or custom dashboards.
 
 ## Repository Layout
 
-| Path                                 | Purpose                             |
-|:-------------------------------------|:------------------------------------|
-| [source/types](./source/types)       | Primitive types                     |
-| [source/structs](./source/structs)   | Nested data structures              |
-| [source/matchers](./source/matchers) | Matcher rules for types and structs |
+| Path                                       | Purpose                             |
+|:-------------------------------------------|:------------------------------------|
+| [source/types](./source/types)             | Value and composite types           |
+| [source/structs](./source/structs)         | Nested data structures              |
+| [source/matchers](./source/matchers)       | Matcher rules for types and structs |
+| [docs/COMPONENTS.md](./docs/COMPONENTS.md) | Complete component catalog          |
 
 The Go module is named `tholian-core` and targets Go `1.27.1`.
 
@@ -42,21 +43,8 @@ All core types implement `encoding/json` support. Simple values are encoded as
 JSON strings, while structured values such as `Network` and `Internet` use their
 declared JSON fields.
 
-| Type              | JSON example                                                 |
-|:------------------|:-------------------------------------------------------------|
-| `IPv4`            | `"1.3.3.7"`                                                  |
-| `IPv6`            | `"2001:0db8:0000:0000:0000:0000:0000:0001"`                  |
-| `Domain`          | `"example.com"`                                              |
-| `ASN`             | `"AS1337"`                                                   |
-| `Socket`          | `"1.3.3.7:1338"`                                             |
-| `Connection`      | `"[tcp] 1.3.3.7:1338 -> 1.3.3.7:443"`                        |
-| `Subnet`          | `"1.3.3.0/24"`                                               |
-| `Network`         | JSON object with `name` and `subnets` fields                 |
-| `Time`            | `"11:59:59"`                                                 |
-| `Datetime`        | `"2026-10-19 11:59:59"`                                      |
-| `Architecture`    | `"x86_64"`                                                   |
-| `Group`           | `"wheel:user:1000:secret"`                                   |
-| `User`            | `"alice:user:1000:%2Fhome%2Falice:%2Fbin%2Fbash:secret:wheel:user:1000:secret"` |
+See [docs/COMPONENTS.md](./docs/COMPONENTS.md) for the complete catalog of all
+types, structs, matchers, constants, and their canonical forms.
 
 A network with one subnet is encoded as:
 
