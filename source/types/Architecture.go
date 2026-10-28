@@ -6,15 +6,23 @@ import "strings"
 type Architecture string
 
 const (
-	ArchitectureX86     Architecture = "x86"
-	ArchitectureX86_64  Architecture = "x86_64"
-	ArchitectureARMv6   Architecture = "armv6"
-	ArchitectureARMv7   Architecture = "armv7"
-	ArchitectureARMv8   Architecture = "armv8"
-	ArchitectureRISCV32 Architecture = "riscv32"
-	ArchitectureRISCV64 Architecture = "riscv64"
-	ArchitectureSPARC32 Architecture = "sparc"
-	ArchitectureSPARC64 Architecture = "sparc64"
+	ArchitectureX86      Architecture = "x86"
+	ArchitectureX86_64   Architecture = "x86_64"
+	ArchitectureARMv6    Architecture = "armv6"
+	ArchitectureARMv7    Architecture = "armv7"
+	ArchitectureARMv8    Architecture = "armv8"
+	ArchitectureMIPS     Architecture = "mips"
+	ArchitectureMIPSEL   Architecture = "mipsel"
+	ArchitectureMIPS64   Architecture = "mips64"
+	ArchitectureMIPS64EL Architecture = "mips64el"
+	ArchitecturePPC      Architecture = "ppc"
+	ArchitecturePPC64    Architecture = "ppc64"
+	ArchitecturePPC64LE  Architecture = "ppc64le"
+	ArchitectureRISCV32  Architecture = "riscv32"
+	ArchitectureRISCV64  Architecture = "riscv64"
+	ArchitectureS390X    Architecture = "s390x"
+	ArchitectureSPARC32  Architecture = "sparc"
+	ArchitectureSPARC64  Architecture = "sparc64"
 )
 
 func IsArchitecture(value string) bool {
@@ -26,8 +34,16 @@ func IsArchitecture(value string) bool {
 		ArchitectureARMv6,
 		ArchitectureARMv7,
 		ArchitectureARMv8,
+		ArchitectureMIPS,
+		ArchitectureMIPSEL,
+		ArchitectureMIPS64,
+		ArchitectureMIPS64EL,
+		ArchitecturePPC,
+		ArchitecturePPC64,
+		ArchitecturePPC64LE,
 		ArchitectureRISCV32,
 		ArchitectureRISCV64,
+		ArchitectureS390X,
 		ArchitectureSPARC32,
 		ArchitectureSPARC64:
 		return true
@@ -62,71 +78,130 @@ func (architecture *Architecture) Parse(value string) bool {
 
 		return true
 
-	} else if value == "386" || value == "i386" || value == "i686" || value == "x32" || value == "x86" || value == "x86_32" || value == "x86-32" {
+	} else {
 
-		*architecture = ArchitectureX86
+		switch {
+		case strings.Contains(value, "amd64"),
+			strings.Contains(value, "ia64"),
+			strings.Contains(value, "x64"),
+			strings.Contains(value, "x86_64"),
+			strings.Contains(value, "x86-64"),
+			strings.Contains(value, "64Bit"),
+			strings.Contains(value, "64 Bit"),
+			strings.Contains(value, "64-Bit"):
 
-		return true
+			*architecture = ArchitectureX86_64
+			return true
 
-	} else if value == "amd64" || value == "ia64" || value == "x64" || value == "x86_64" || value == "x86-64" {
+		case strings.Contains(value, "386"),
+			strings.Contains(value, "i386"),
+			strings.Contains(value, "i686"),
+			strings.Contains(value, "x32"),
+			strings.Contains(value, "x86"),
+			strings.Contains(value, "x86_32"),
+			strings.Contains(value, "x86-32"),
+			strings.Contains(value, "32Bit"),
+			strings.Contains(value, "32 Bit"),
+			strings.Contains(value, "32-Bit"):
 
-		*architecture = ArchitectureX86_64
+			*architecture = ArchitectureX86
+			return true
 
-		return true
+		case strings.Contains(value, "aarch64"),
+			strings.Contains(value, "armv8"),
+			strings.Contains(value, "armv8l"),
+			strings.Contains(value, "arm64"),
+			strings.Contains(value, "cortex-a53"),
+			strings.Contains(value, "cortex-a72"),
+			strings.Contains(value, "cortex-a73"):
 
-	} else if value == "arm" || value == "armel" || value == "armv6" {
+			*architecture = ArchitectureARMv8
+			return true
 
-		*architecture = ArchitectureARMv6
+		case strings.Contains(value, "armhf"),
+			strings.Contains(value, "armv7"),
+			strings.Contains(value, "armv7h"),
+			strings.Contains(value, "armv7l"),
+			strings.Contains(value, "cortex-a7"),
+			strings.Contains(value, "cortex-a15"):
 
-		return true
+			*architecture = ArchitectureARMv7
+			return true
 
-	} else if value == "armhf" || value == "armv7" || value == "armv7h" {
+		case strings.Contains(value, "arm"),
+			strings.Contains(value, "armel"),
+			strings.Contains(value, "armv6"),
+			strings.Contains(value, "armv6l"):
 
-		*architecture = ArchitectureARMv7
+			*architecture = ArchitectureARMv6
+			return true
 
-		return true
+		case strings.Contains(value, "mips64el"):
 
-	} else if value == "aarch64" || value == "armv8" || value == "arm64" {
+			*architecture = ArchitectureMIPS64EL
+			return true
 
-		*architecture = ArchitectureARMv8
+		case strings.Contains(value, "mips64"):
 
-		return true
+			*architecture = ArchitectureMIPS64
+			return true
 
-	} else if value == "riscv" || value == "riscv32" {
+		case strings.Contains(value, "mipsel"):
 
-		*architecture = ArchitectureRISCV32
+			*architecture = ArchitectureMIPSEL
+			return true
 
-		return true
+		case strings.Contains(value, "mips"):
 
-	} else if value == "riscv64" {
+			*architecture = ArchitectureMIPS
+			return true
 
-		*architecture = ArchitectureRISCV64
+		case strings.Contains(value, "powerpc64le"),
+			strings.Contains(value, "ppc64le"):
 
-		return true
+			*architecture = ArchitecturePPC64LE
+			return true
 
-	} else if value == "sparc" || value == "sparc32" {
+		case strings.Contains(value, "powerpc64"),
+			strings.Contains(value, "ppc64"):
 
-		*architecture = ArchitectureSPARC32
+			*architecture = ArchitecturePPC64
+			return true
 
-		return true
+		case strings.Contains(value, "powerpc"),
+			strings.Contains(value, "ppc"):
 
-	} else if value == "sparc64" {
+			*architecture = ArchitecturePPC
+			return true
 
-		*architecture = ArchitectureSPARC64
+		case strings.Contains(value, "riscv64"):
 
-		return true
+			*architecture = ArchitectureRISCV64
+			return true
 
-	} else if strings.Contains(value, "64Bit") || strings.Contains(value, "64 Bit") || strings.Contains(value, "64-Bit") || strings.Contains(value, "x64") || strings.Contains(value, "x86_64") {
+		case strings.Contains(value, "riscv"),
+			strings.Contains(value, "riscv32"):
 
-		*architecture = ArchitectureX86_64
+			*architecture = ArchitectureRISCV32
+			return true
 
-		return true
+		case strings.Contains(value, "s390x"):
 
-	} else if strings.Contains(value, "32Bit") || strings.Contains(value, "32 Bit") || strings.Contains(value, "32-Bit") || strings.Contains(value, "x32") || strings.Contains(value, "x86") {
+			*architecture = ArchitectureS390X
+			return true
 
-		*architecture = ArchitectureX86
+		case strings.Contains(value, "sparc64"):
 
-		return true
+			*architecture = ArchitectureSPARC64
+			return true
+
+		case strings.Contains(value, "sparc"),
+			strings.Contains(value, "sparc32"):
+
+			*architecture = ArchitectureSPARC32
+			return true
+
+		}
 
 	}
 

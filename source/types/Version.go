@@ -282,8 +282,12 @@ func (version *Version) Parse(value string) bool {
 		}
 
 	}
-
 	parts := toVersionParts(strings.ToLower(value))
+
+	for len(parts) > 0 && len(parts[0]) > 0 && (parts[0][0] < '0' || parts[0][0] > '9') {
+		parts = parts[1:]
+	}
+
 	major_set := false
 	minor_set := false
 	patch_set := false

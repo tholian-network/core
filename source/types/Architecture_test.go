@@ -14,8 +14,16 @@ func TestIsArchitecture(t *testing.T) {
 		ArchitectureARMv6,
 		ArchitectureARMv7,
 		ArchitectureARMv8,
+		ArchitectureMIPS,
+		ArchitectureMIPSEL,
+		ArchitectureMIPS64,
+		ArchitectureMIPS64EL,
+		ArchitecturePPC,
+		ArchitecturePPC64,
+		ArchitecturePPC64LE,
 		ArchitectureRISCV32,
 		ArchitectureRISCV64,
+		ArchitectureS390X,
 		ArchitectureSPARC32,
 		ArchitectureSPARC64,
 	}
@@ -69,18 +77,50 @@ func TestArchitectureParse(t *testing.T) {
 		{"arm", ArchitectureARMv6},
 		{"armel", ArchitectureARMv6},
 		{"armv6", ArchitectureARMv6},
+		{"armv6l", ArchitectureARMv6},
 		{"armhf", ArchitectureARMv7},
 		{"armv7", ArchitectureARMv7},
 		{"armv7h", ArchitectureARMv7},
+		{"armv7l", ArchitectureARMv7},
 		{"aarch64", ArchitectureARMv8},
 		{"armv8", ArchitectureARMv8},
+		{"armv8l", ArchitectureARMv8},
 		{"arm64", ArchitectureARMv8},
+		{"mips", ArchitectureMIPS},
+		{"mipsel", ArchitectureMIPSEL},
+		{"mips64", ArchitectureMIPS64},
+		{"mips64el", ArchitectureMIPS64EL},
+		{"powerpc", ArchitecturePPC},
+		{"ppc", ArchitecturePPC},
+		{"powerpc64", ArchitecturePPC64},
+		{"ppc64", ArchitecturePPC64},
+		{"powerpc64le", ArchitecturePPC64LE},
+		{"ppc64le", ArchitecturePPC64LE},
+		{"s390x", ArchitectureS390X},
 		{"riscv", ArchitectureRISCV32},
 		{"riscv32", ArchitectureRISCV32},
 		{"riscv64", ArchitectureRISCV64},
 		{"sparc", ArchitectureSPARC32},
 		{"sparc32", ArchitectureSPARC32},
 		{"sparc64", ArchitectureSPARC64},
+		{"mipsel_24kc", ArchitectureMIPSEL},
+		{"mips_24kc", ArchitectureMIPS},
+		{"mips64_octeon", ArchitectureMIPS64},
+		{"mips64el_octeon", ArchitectureMIPS64EL},
+		{"arm_cortex-a7", ArchitectureARMv7},
+		{"arm_cortex-a15", ArchitectureARMv7},
+		{"arm_cortex-a53", ArchitectureARMv8},
+		{"aarch64_cortex-a53", ArchitectureARMv8},
+		{"i386_pentium4", ArchitectureX86},
+		{"x86_64-linux", ArchitectureX86_64},
+		{"aarch64-linux", ArchitectureARMv8},
+		{"armv7l-linux", ArchitectureARMv7},
+		{"i686-linux", ArchitectureX86},
+		{"riscv64-linux", ArchitectureRISCV64},
+		{"powerpc64le-linux", ArchitecturePPC64LE},
+		{"s390x-linux", ArchitectureS390X},
+		{"aarch64-darwin", ArchitectureARMv8},
+		{"x86_64-freebsd", ArchitectureX86_64},
 		{"some 64Bit build", ArchitectureX86_64},
 		{"some 64 Bit build", ArchitectureX86_64},
 		{"some 64-Bit build", ArchitectureX86_64},
@@ -101,7 +141,7 @@ func TestArchitectureParse(t *testing.T) {
 
 	}
 
-	invalid := []string{"", "unknown", "mips", "asdf 64"}
+	invalid := []string{"", "unknown", "asdf 64"}
 
 	for _, value := range invalid {
 
@@ -263,8 +303,16 @@ func TestArchitectureIsValid(t *testing.T) {
 		ArchitectureARMv6,
 		ArchitectureARMv7,
 		ArchitectureARMv8,
+		ArchitectureMIPS,
+		ArchitectureMIPSEL,
+		ArchitectureMIPS64,
+		ArchitectureMIPS64EL,
+		ArchitecturePPC,
+		ArchitecturePPC64,
+		ArchitecturePPC64LE,
 		ArchitectureRISCV32,
 		ArchitectureRISCV64,
+		ArchitectureS390X,
 		ArchitectureSPARC32,
 		ArchitectureSPARC64,
 	}
@@ -277,7 +325,7 @@ func TestArchitectureIsValid(t *testing.T) {
 
 	}
 
-	invalid := []Architecture{"", "unknown", "mips"}
+	invalid := []Architecture{"", "unknown"}
 
 	for _, architecture := range invalid {
 

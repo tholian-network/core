@@ -6,13 +6,16 @@ type Manager string
 
 const (
 	// Supported Distributions
-	ManagerAPK    Manager = "apk"
-	ManagerAPT    Manager = "apt"
-	ManagerDNF    Manager = "dnf"
-	ManagerPACMAN Manager = "pacman"
-	ManagerRPM    Manager = "rpm"
-	ManagerTDNF   Manager = "tdnf"
-	ManagerZYPPER Manager = "zypper"
+	ManagerAPK    Manager = "apk"    // Alpine
+	ManagerAPT    Manager = "apt"    // Debian/Ubuntu
+	ManagerDNF    Manager = "dnf"    // RedHat/Fedora
+	ManagerDPKG   Manager = "dpkg"   // Debian fallback
+	ManagerNIX    Manager = "nix"    // NixOS
+	ManagerOPKG   Manager = "opkg"   // OpenWrt
+	ManagerPACMAN Manager = "pacman" // ArchLinux
+	ManagerRPM    Manager = "rpm"    // RedHat/Fedora
+	ManagerTDNF   Manager = "tdnf"   // CBL Mariner
+	ManagerZYPPER Manager = "zypper" // OpenSUSE
 	ManagerPKG    Manager = "pkg"    // FreeBSD
 	ManagerPKGSRC Manager = "pkgsrc" // NetBSD, OpenBSD
 	ManagerMSI    Manager = "msi"    // Microsoft Installer
@@ -46,6 +49,9 @@ func IsManager(value string) bool {
 		ManagerAPK,
 		ManagerAPT,
 		ManagerDNF,
+		ManagerDPKG,
+		ManagerNIX,
+		ManagerOPKG,
 		ManagerPACMAN,
 		ManagerRPM,
 		ManagerTDNF,

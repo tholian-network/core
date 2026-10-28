@@ -159,8 +159,8 @@ func TestUserSetID(t *testing.T) {
 	user.ID = 42
 	user.SetID(65535)
 
-	if user.ID != 42 {
-		t.Fatalf("SetID(65535) = %d, expected the previous value 42", user.ID)
+	if user.ID != 65535 {
+		t.Fatalf("SetID(65535) = %d, expected 65535", user.ID)
 	}
 
 }

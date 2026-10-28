@@ -541,6 +541,52 @@ func TestVersion(t *testing.T) {
 
 	})
 
+	t.Run("ToVersion(package manager formats)", func(t *testing.T) {
+
+		freebsd := ToVersion("2.4.62_1")
+
+		if freebsd.Upstream.Major != 2 || freebsd.Upstream.Minor != 4 || freebsd.Upstream.Patch != 62 {
+			t.Errorf("Expected 2.4.62 from %q, got %s", "2.4.62_1", freebsd.String())
+		}
+
+		if freebsd.Revision != "1" {
+			t.Errorf("Expected revision 1 from %q, got %q", "2.4.62_1", freebsd.Revision)
+		}
+
+		if freebsd.IsValid() != true {
+			t.Errorf("Expected %q to be valid", "2.4.62_1")
+		}
+
+		openwrt := ToVersion("2025.07.06~7e64e8ba-r5")
+
+		if openwrt.Upstream.Major != 2025 || openwrt.Upstream.Minor != 7 || openwrt.Upstream.Patch != 6 {
+			t.Errorf("Expected 2025.7.6 from %q, got %s", "2025.07.06~7e64e8ba-r5", openwrt.String())
+		}
+
+		if openwrt.Upstream.Hash != "7e64e8ba" {
+			t.Errorf("Expected hash 7e64e8ba from %q, got %q", "2025.07.06~7e64e8ba-r5", openwrt.Upstream.Hash)
+		}
+
+		if openwrt.Upstream.Release != "r5" {
+			t.Errorf("Expected release r5 from %q, got %q", "2025.07.06~7e64e8ba-r5", openwrt.Upstream.Release)
+		}
+
+		if openwrt.IsValid() != true {
+			t.Errorf("Expected %q to be valid", "2025.07.06~7e64e8ba-r5")
+		}
+
+		nix := ToVersion("hello-2.12.1")
+
+		if nix.Upstream.Major != 2 || nix.Upstream.Minor != 12 || nix.Upstream.Patch != 1 {
+			t.Errorf("Expected 2.12.1 from %q, got %s", "hello-2.12.1", nix.String())
+		}
+
+		if nix.IsValid() != true {
+			t.Errorf("Expected %q to be valid", "hello-2.12.1")
+		}
+
+	})
+
 }
 
 func TestVersionFactories(t *testing.T) {

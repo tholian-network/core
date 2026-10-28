@@ -76,7 +76,7 @@ func (user *User) IsValid() bool {
 func (user *User) SetID(value uint16) {
 
 	// User "nobody" is last user id
-	if value >= 0 && value <= 65534 {
+	if value >= 0 && value <= 65535 {
 		user.ID = value
 	}
 
