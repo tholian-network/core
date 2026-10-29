@@ -14,6 +14,7 @@ type Incident struct {
 	Datetime        types.Datetime           `json:"datetime"`
 	Connections     []matchers.Connection    `json:"connections"`
 	Distributions   []matchers.Distribution  `json:"distributions"`
+	Evidence        []Evidence               `json:"evidence"`
 	Networks        []matchers.Network       `json:"networks"`
 	Packages        []matchers.Package       `json:"packages"`
 	Products        []matchers.Product       `json:"products"`
@@ -32,6 +33,7 @@ func NewIncident(system string, typ string) Incident {
 	incident.SetDatetime(time.Now().Format(time.RFC3339))
 	incident.Connections = make([]matchers.Connection, 0)
 	incident.Distributions = make([]matchers.Distribution, 0)
+	incident.Evidence = make([]Evidence, 0)
 	incident.Networks = make([]matchers.Network, 0)
 	incident.Packages = make([]matchers.Package, 0)
 	incident.Products = make([]matchers.Product, 0)
@@ -112,6 +114,18 @@ func (incident *Incident) Equal(value Incident) bool {
 	for d := 0; d < len(incident.Distributions); d++ {
 
 		if incident.Distributions[d].Equal(value.Distributions[d]) == false {
+			return false
+		}
+
+	}
+
+	if len(incident.Evidence) != len(value.Evidence) {
+		return false
+	}
+
+	for e := 0; e < len(incident.Evidence); e++ {
+
+		if incident.Evidence[e].Equal(value.Evidence[e]) == false {
 			return false
 		}
 
@@ -213,7 +227,7 @@ func (incident *Incident) IsValid() bool {
 
 			if len(incident.Connections) > 0 || len(incident.Networks) > 0 {
 
-				if len(incident.Programs) > 0 || len(incident.Users) > 0 {
+				if len(incident.Programs) > 0 || len(incident.Users) > 0 || incident.hasEvidence() {
 					return true
 				}
 
@@ -253,7 +267,7 @@ func (incident *Incident) IsValid() bool {
 
 			if len(incident.Connections) > 0 || len(incident.Networks) > 0 {
 
-				if len(incident.Programs) > 0 || len(incident.Users) > 0 {
+				if len(incident.Programs) > 0 || len(incident.Users) > 0 || incident.hasEvidence() {
 					return true
 				}
 
@@ -261,10 +275,24 @@ func (incident *Incident) IsValid() bool {
 
 		} else if incident.Type == "Destroy" {
 
-			if len(incident.Packages) > 0 || len(incident.Programs) > 0 || len(incident.Users) > 0 {
+			if len(incident.Packages) > 0 || len(incident.Programs) > 0 || len(incident.Users) > 0 || incident.hasEvidence() {
 				return true
 			}
 
+		}
+
+	}
+
+	return false
+
+}
+
+func (incident *Incident) hasEvidence() bool {
+
+	for e := 0; e < len(incident.Evidence); e++ {
+
+		if incident.Evidence[e].IsValid() {
+			return true
 		}
 
 	}
@@ -278,6 +306,20 @@ func (incident *Incident) MatchesAntique(antique Antique) bool {
 	for p := 0; p < len(incident.Packages); p++ {
 
 		if incident.Packages[p].Matches(antique.Name, antique.Version.String(), antique.Architecture.String(), antique.Manager.String(), "any") {
+			return true
+		}
+
+	}
+
+	return false
+
+}
+
+func (incident *Incident) MatchesEvidence(evidence matchers.Evidence) bool {
+
+	for e := 0; e < len(incident.Evidence); e++ {
+
+		if evidence.Matches(incident.Evidence[e].Type, incident.Evidence[e].Datetime.String()) {
 			return true
 		}
 
@@ -612,6 +654,64 @@ func (incident *Incident) SetDistributions(values []matchers.Distribution) {
 	}
 
 	incident.Distributions = filtered
+
+}
+
+func (incident *Incident) AddEvidence(value Evidence) {
+
+	if value.IsValid() {
+
+		found := false
+
+		for e := 0; e < len(incident.Evidence); e++ {
+
+			if incident.Evidence[e].Equal(value) {
+				found = true
+				break
+			}
+
+		}
+
+		if found == false {
+			incident.Evidence = append(incident.Evidence, value)
+		}
+
+	}
+
+}
+
+func (incident *Incident) RemoveEvidence(value Evidence) {
+
+	index := -1
+
+	for e := 0; e < len(incident.Evidence); e++ {
+
+		if incident.Evidence[e].Equal(value) {
+			index = e
+			break
+		}
+
+	}
+
+	if index != -1 {
+		incident.Evidence = append(incident.Evidence[:index], incident.Evidence[index+1:]...)
+	}
+
+}
+
+func (incident *Incident) SetEvidence(values []Evidence) {
+
+	filtered := make([]Evidence, 0)
+
+	for _, value := range values {
+
+		if value.IsValid() {
+			filtered = append(filtered, value)
+		}
+
+	}
+
+	incident.Evidence = filtered
 
 }
 
@@ -1038,6 +1138,10 @@ func (incident *Incident) Hash() string {
 
 		for _, distribution := range incident.Distributions {
 			uuid = append(uuid, distribution.Hash())
+		}
+
+		for _, evidence := range incident.Evidence {
+			uuid = append(uuid, evidence.Hash())
 		}
 
 		for _, network := range incident.Networks {

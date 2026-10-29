@@ -1,5 +1,6 @@
 package structs
 
+import "encoding/json"
 import "testing"
 import "tholian-core/matchers"
 import "tholian-core/types"
@@ -107,6 +108,7 @@ func IncidentTestRich() Incident {
 	incident := IncidentTestBase("Recon")
 	incident.AddConnection(IncidentTestConnection())
 	incident.AddDistribution(IncidentTestDistribution())
+	incident.AddEvidence(evidenceFixture())
 	incident.AddNetwork(IncidentTestNetwork())
 	incident.AddPackage(IncidentTestPackage())
 	incident.AddProduct(IncidentTestProduct())
@@ -137,6 +139,7 @@ func TestIncidentNew(t *testing.T) {
 
 	if len(incident.Connections) != 0 ||
 		len(incident.Distributions) != 0 ||
+		len(incident.Evidence) != 0 ||
 		len(incident.Networks) != 0 ||
 		len(incident.Packages) != 0 ||
 		len(incident.Products) != 0 ||
@@ -279,6 +282,8 @@ func TestIncidentEqual(t *testing.T) {
 		{"connections-value", func(value *Incident) { value.Connections[0].Host = "9.9.9.9" }},
 		{"distributions-length", func(value *Incident) { value.Distributions = append(value.Distributions, value.Distributions[0]) }},
 		{"distributions-value", func(value *Incident) { value.Distributions[0].Name = "ubuntu" }},
+		{"evidence-length", func(value *Incident) { value.Evidence = append(value.Evidence, value.Evidence[0]) }},
+		{"evidence-value", func(value *Incident) { value.Evidence[0].SetData([]byte{0xff}) }},
 		{"networks-length", func(value *Incident) { value.Networks = append(value.Networks, value.Networks[0]) }},
 		{"networks-value", func(value *Incident) { value.Networks[0].Name = "other" }},
 		{"packages-length", func(value *Incident) { value.Packages = append(value.Packages, value.Packages[0]) }},
@@ -978,3 +983,216 @@ func TestIncidentHash(t *testing.T) {
 	}
 
 }
+
+func TestIncidentEvidenceCollectionHelpers(t *testing.T) {
+
+	incident := IncidentTestBase("Recon")
+	valid := evidenceFixture()
+	other := evidenceFixture()
+	other.SetDatetime("2025-01-01T00:00:00Z")
+	invalid := Evidence{}
+
+	incident.AddEvidence(valid)
+	incident.AddEvidence(valid)
+	incident.AddEvidence(invalid)
+
+	if len(incident.Evidence) != 1 {
+		t.Fatalf("AddEvidence did not filter or deduplicate: %d", len(incident.Evidence))
+	}
+
+	incident.AddEvidence(other)
+
+	if len(incident.Evidence) != 2 {
+		t.Fatalf("AddEvidence did not append a distinct value: %d", len(incident.Evidence))
+	}
+
+	incident.RemoveEvidence(valid)
+
+	if len(incident.Evidence) != 1 || incident.Evidence[0].Equal(other) == false {
+		t.Fatal("RemoveEvidence did not remove the requested value")
+	}
+
+	incident.RemoveEvidence(valid)
+
+	if len(incident.Evidence) != 1 {
+		t.Fatal("RemoveEvidence removed an unknown value")
+	}
+
+	incident.SetEvidence([]Evidence{valid, invalid, other})
+
+	if len(incident.Evidence) != 2 {
+		t.Fatalf("SetEvidence did not filter: %d", len(incident.Evidence))
+	}
+
+	incident.SetEvidence(nil)
+
+	if len(incident.Evidence) != 0 {
+		t.Fatalf("SetEvidence(nil) did not clear the collection: %d", len(incident.Evidence))
+	}
+
+}
+
+func TestIncidentEvidenceEqual(t *testing.T) {
+
+	left := IncidentTestBase("Recon")
+	left.AddNetwork(IncidentTestNetwork())
+	left.AddEvidence(evidenceFixture())
+
+	right := IncidentTestBase("Recon")
+	right.AddNetwork(IncidentTestNetwork())
+	right.AddEvidence(evidenceFixture())
+
+	if left.Equal(right) == false {
+		t.Fatal("identical incidents with evidence should be equal")
+	}
+
+	right.Evidence[0].SetData([]byte{0xff})
+
+	if left.Equal(right) == true {
+		t.Fatal("incidents with different evidence should differ")
+	}
+
+}
+
+func TestIncidentEvidenceValidity(t *testing.T) {
+
+	recon := IncidentTestBase("Recon")
+	recon.AddNetwork(IncidentTestNetwork())
+	recon.AddEvidence(evidenceFixture())
+
+	if recon.IsValid() == false {
+		t.Fatal("Recon with network and evidence should be valid")
+	}
+
+	exfil := IncidentTestBase("Exfil")
+	exfil.AddConnection(IncidentTestConnection())
+	exfil.AddEvidence(evidenceFixture())
+
+	if exfil.IsValid() == false {
+		t.Fatal("Exfil with connection and evidence should be valid")
+	}
+
+	destroy := IncidentTestBase("Destroy")
+	destroy.AddEvidence(evidenceFixture())
+
+	if destroy.IsValid() == false {
+		t.Fatal("Destroy with evidence should be valid")
+	}
+
+	invalid := IncidentTestBase("Recon")
+	invalid.AddNetwork(IncidentTestNetwork())
+	invalid.AddEvidence(Evidence{})
+
+	if invalid.IsValid() == true {
+		t.Fatal("Recon with invalid evidence should not be valid")
+	}
+
+	noNetwork := IncidentTestBase("Recon")
+	noNetwork.AddEvidence(evidenceFixture())
+
+	if noNetwork.IsValid() == true {
+		t.Fatal("Recon with evidence but no connection/network should not be valid")
+	}
+
+}
+
+func TestIncidentMatchesEvidence(t *testing.T) {
+
+	incident := IncidentTestBase("Recon")
+	incident.AddNetwork(IncidentTestNetwork())
+	incident.AddEvidence(evidenceFixture())
+
+	matcher := matchers.NewEvidence()
+	matcher.SetType(EvidenceTypePCAP)
+	matcher.SetDatetime("2026-10-29T12:00:00Z")
+
+	if incident.MatchesEvidence(matcher) == false {
+		t.Fatal("MatchesEvidence should match type and datetime")
+	}
+
+	incident.Evidence[0].SetData([]byte{0xff})
+
+	if incident.MatchesEvidence(matcher) == false {
+		t.Fatal("MatchesEvidence should not compare recording bytes")
+	}
+
+	otherType := matchers.NewEvidence()
+	otherType.SetType(EvidenceTypeJSON)
+
+	if incident.MatchesEvidence(otherType) == true {
+		t.Fatal("MatchesEvidence should not match a different type")
+	}
+
+	otherDatetime := matchers.NewEvidence()
+	otherDatetime.SetType(EvidenceTypePCAP)
+	otherDatetime.SetDatetime("2025-01-01T00:00:00Z")
+
+	if incident.MatchesEvidence(otherDatetime) == true {
+		t.Fatal("MatchesEvidence should not match a different datetime")
+	}
+
+	any := matchers.NewEvidence()
+
+	if incident.MatchesEvidence(any) == false {
+		t.Fatal("a wildcard matcher should match any evidence")
+	}
+
+	empty := IncidentTestBase("Recon")
+
+	if empty.MatchesEvidence(any) == true {
+		t.Fatal("an incident without evidence should not match")
+	}
+
+}
+
+func TestIncidentEvidenceJSONRoundTrip(t *testing.T) {
+
+	incident := IncidentTestBase("Recon")
+	incident.AddNetwork(IncidentTestNetwork())
+	incident.AddEvidence(evidenceFixture())
+
+	data, err := json.Marshal(incident)
+
+	if err != nil {
+		t.Fatalf("Marshal failed: %v", err)
+	}
+
+	var decoded Incident
+
+	if err := json.Unmarshal(data, &decoded); err != nil {
+		t.Fatalf("Unmarshal failed: %v", err)
+	}
+
+	if incident.Equal(decoded) == false {
+		t.Fatal("incident round-trip mismatch")
+	}
+
+	if len(decoded.Evidence) != 1 || decoded.Evidence[0].Equal(incident.Evidence[0]) == false {
+		t.Fatal("incident evidence did not round-trip")
+	}
+
+}
+
+func TestIncidentEvidenceHash(t *testing.T) {
+
+	base := IncidentTestBase("Destroy")
+	baseHash := base.Hash()
+
+	withEvidence := IncidentTestBase("Destroy")
+	withEvidence.AddEvidence(evidenceFixture())
+
+	if withEvidence.Hash() == baseHash {
+		t.Fatal("expected evidence to change the incident hash")
+	}
+
+	withOtherEvidence := IncidentTestBase("Destroy")
+	other := evidenceFixture()
+	other.SetData([]byte{0xff})
+	withOtherEvidence.AddEvidence(other)
+
+	if withOtherEvidence.Hash() == withEvidence.Hash() {
+		t.Fatal("expected different evidence to change the incident hash")
+	}
+
+}
+
