@@ -17,23 +17,24 @@ func IsWatchedFile(value string) bool {
 	}
 
 	watched_folders := []string{
-		"/bin/",
-		"/lib/",
-		"/lib32/",
-		"/lib64/",
+		"/bin",
+		"/lib",
+		"/lib32",
+		"/lib64",
 		"/run",
-		"/sbin/",
+		"/sbin",
 		"/tmp",
-		"/usr/bin/",
-		"/usr/lib/",
-		"/usr/lib32/",
-		"/usr/lib64/",
-		"/usr/sbin/",
-		"/usr/local/bin/",
-		"/usr/local/lib/",
-		"/usr/local/lib32/",
-		"/usr/local/lib64/",
-		"/usr/local/sbin/",
+		"/usr/bin",
+		"/usr/lib",
+		"/usr/lib32",
+		"/usr/lib64",
+		"/usr/sbin",
+		"/usr/local/bin",
+		"/usr/local/lib",
+		"/usr/local/lib32",
+		"/usr/local/lib64",
+		"/usr/local/sbin",
+		"/usr/sbin",
 	}
 
 	if folder != "" {
@@ -42,7 +43,7 @@ func IsWatchedFile(value string) bool {
 
 			prefix := watched_folders[w1]
 
-			if strings.HasPrefix(folder, prefix) {
+			if folder == prefix || strings.HasPrefix(folder, prefix+"/") {
 				result = true
 			}
 
