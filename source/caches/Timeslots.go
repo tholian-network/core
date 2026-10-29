@@ -8,7 +8,7 @@ import "sync"
 
 type Timeslots struct {
 	Timeslots    map[string]*structs.Timeslot `json:"timeslots"`
-	mapcountries map[string][]string          `json:"countries"`
+	mapcountries map[string][]string          `json:"-"`
 	mutex        *sync.RWMutex                `json:"-"`
 }
 
