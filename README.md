@@ -28,12 +28,15 @@ Elastic, Kibana, SIEM, SOAR, or custom dashboards.
 
 ## Repository Layout
 
-| Path                                       | Purpose                             |
-|:-------------------------------------------|:------------------------------------|
-| [source/types](./source/types)             | Value and composite types           |
-| [source/structs](./source/structs)         | Nested data structures              |
-| [source/matchers](./source/matchers)       | Matcher rules for types and structs |
-| [docs/COMPONENTS.md](./docs/COMPONENTS.md) | Complete component catalog          |
+| Path                                       | Purpose                              |
+|:-------------------------------------------|:-------------------------------------|
+| [source/caches](./source/caches)           | Optimized Caches for data structures |
+| [source/insights](./source/insights)       | Insights Cache and Database          |
+| [source/matchers](./source/matchers)       | Matcher rules for types and structs  |
+| [source/structs](./source/structs)         | Nested data structures               |
+| [source/types](./source/types)             | Value and composite types            |
+| [source/utils](./source/utils)             | Utils and helper methods             |
+| [docs/COMPONENTS.md](./docs/COMPONENTS.md) | Complete component catalog           |
 
 The Go module is named `tholian-core` and targets Go `1.27.1`.
 
