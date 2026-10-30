@@ -1,0 +1,28 @@
+package distributions_test
+
+import (
+	"strings"
+	"testing"
+
+	"tholian-core/distributions/archlinux"
+)
+
+func TestArchLinuxKeywords(t *testing.T) {
+
+	osRelease := []byte(strings.Join([]string{
+		`NAME="Arch Linux"`,
+		`PRETTY_NAME="Arch Linux"`,
+		`ID=arch`,
+		`BUILD_ID=rolling`,
+		`ANSI_COLOR="38;2;23;147;209"`,
+		`HOME_URL="https://archlinux.org/"`,
+		`DOCUMENTATION_URL="https://wiki.archlinux.org/"`,
+		`SUPPORT_URL="https://bbs.archlinux.org/"`,
+		`BUG_REPORT_URL="https://gitlab.archlinux.org/groups/archlinux/-/issues"`,
+		`PRIVACY_POLICY_URL="https://terms.archlinux.org/docs/privacy-policy/"`,
+		`LOGO=archlinux-logo`,
+	}, "\n"))
+
+	assertKeywords(t, archlinux.Keywords, osRelease, nil)
+
+}

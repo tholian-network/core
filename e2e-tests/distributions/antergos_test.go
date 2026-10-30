@@ -1,0 +1,27 @@
+package distributions_test
+
+import (
+	"strings"
+	"testing"
+
+	"tholian-core/distributions/antergos"
+)
+
+func TestAntergosKeywords(t *testing.T) {
+
+	osRelease := []byte(strings.Join([]string{
+		`NAME="Antergos Linux"`,
+		`VERSION="18.11-ISO-Rolling"`,
+		`ID="antergos"`,
+		`ID_LIKE="arch"`,
+		`PRETTY_NAME="Antergos Linux"`,
+		`CPE_NAME="cpe:/o:antergosproject:antergos:18.11"`,
+		`ANSI_COLOR="1;34;40"`,
+		`HOME_URL="https://antergos.com/"`,
+		`SUPPORT_URL="https://forum.antergos.com/"`,
+		`BUG_REPORT_URL="https://github.com/antergos"`,
+	}, "\n"))
+
+	assertKeywords(t, antergos.Keywords, osRelease, nil)
+
+}

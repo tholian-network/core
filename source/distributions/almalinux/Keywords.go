@@ -2,6 +2,6 @@ package almalinux
 
 var Keywords map[string]string = map[string]string{
 	"ID":          "almalinux",
-	"NAME":        "Alma Linux",
+	"NAME":        "AlmaLinux",
 	"PLATFORM_ID": "platform:el%version%",
 }

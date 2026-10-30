@@ -7,3 +7,4 @@ var Keywords map[string]string = map[string]string{
 	// Introduced in Amazon Linux 2022
 	// "PLATFORM_ID": "platform:al%version%",
 }
+
