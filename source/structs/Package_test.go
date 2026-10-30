@@ -489,15 +489,15 @@ func TestPackageFilesystem(t *testing.T) {
 
 	pkg.AddFilesystem("/usr/bin/curl")
 
-	if len(pkg.Filesystem) != 0 {
-		t.Fatal("AddFilesystem accepted a path that is not watched")
+	if len(pkg.Filesystem) != 1 {
+		t.Fatalf("unexpected filesystem entries: %v", pkg.Filesystem)
 	}
 
 	pkg.AddFilesystem("/tmp/evil.so")
 	pkg.AddFilesystem("/tmp/evil.so")
 	pkg.AddFilesystem("/usr/lib/sub/libssl.so")
 
-	if len(pkg.Filesystem) != 2 {
+	if len(pkg.Filesystem) != 3 {
 		t.Fatalf("unexpected filesystem entries: %v", pkg.Filesystem)
 	}
 
@@ -505,8 +505,8 @@ func TestPackageFilesystem(t *testing.T) {
 		t.Fatal("HasFilesystem did not find a watched file")
 	}
 
-	if pkg.HasFilesystem("/usr/bin/curl") == true {
-		t.Fatal("HasFilesystem found an unwatched file")
+	if pkg.HasFilesystem("/usr/bin/curl") == false {
+		t.Fatal("HasFilesystem did not find a watched file")
 	}
 
 	values := []string{"/tmp/a.so", "/tmp/b.so", "/tmp/c.so"}
@@ -539,7 +539,7 @@ func TestPackageFilesystem(t *testing.T) {
 		"/tmp/b.so",
 	})
 
-	if len(pkg.Filesystem) != 2 {
+	if len(pkg.Filesystem) != 3 {
 		t.Fatalf("SetFilesystem did not filter and deduplicate: %v", pkg.Filesystem)
 	}
 

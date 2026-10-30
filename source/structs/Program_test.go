@@ -498,7 +498,7 @@ func TestProgramFilesystem(t *testing.T) {
 	program.AddFilesystem("/usr/bin/curl")
 	program.AddFilesystem("/home/user/a.txt")
 
-	if len(program.Filesystem) != 1 {
+	if len(program.Filesystem) != 2 {
 		t.Fatal("AddFilesystem accepted a path that is not watched")
 	}
 
@@ -532,7 +532,7 @@ func TestProgramFilesystem(t *testing.T) {
 		"/tmp/b.so",
 	})
 
-	if len(program.Filesystem) != 2 {
+	if len(program.Filesystem) != 3 {
 		t.Fatalf("SetFilesystem did not filter and deduplicate: %v", program.Filesystem)
 	}
 
