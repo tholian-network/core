@@ -10,6 +10,8 @@ var Releases map[string]float32 = map[string]float32{
 	"bionic":    18.04,
 	"focal":     20.04,
 	"jammy":     22.04,
+	"lunar":     23.04, // Non-LTS
+	"mantic":    23.10, // Non-LTS
 	"noble":     24.04,
 	"oracular":  24.10, // Non-LTS
 	"plucky":    25.04, // Non-LTS

@@ -1,6 +1,6 @@
 package redhat
 
-import utils_strings "tholian-detective/utils/strings"
+import utils_strings "tholian-core/utils/strings"
 import "strings"
 
 func extractRelease(platform string) string {
