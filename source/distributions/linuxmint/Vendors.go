@@ -1,0 +1,28 @@
+package linuxmint
+
+var Vendors map[string]string = map[string]string{
+	"qiana":    "ubuntu-trusty",
+	"rebecca":  "ubuntu-trusty",
+	"rafaela":  "ubuntu-trusty",
+	"rosa":     "ubuntu-trusty",
+	"sarah":    "ubuntu-xenial",
+	"serena":   "ubuntu-xenial",
+	"sonya":    "ubuntu-xenial",
+	"sylvia":   "ubuntu-xenial",
+	"tara":     "ubuntu-bionic",
+	"tessa":    "ubuntu-bionic",
+	"tina":     "ubuntu-bionic",
+	"tricia":   "ubuntu-bionic",
+	"ulyana":   "ubuntu-focal",
+	"ulyssa":   "ubuntu-focal",
+	"uma":      "ubuntu-focal",
+	"una":      "ubuntu-focal",
+	"vanessa":  "ubuntu-jammy",
+	"vera":     "ubuntu-jammy",
+	"victoria": "ubuntu-jammy",
+	"virginia": "ubuntu-jammy",
+	"wilma":    "ubuntu-noble",
+	"xia":      "ubuntu-noble",
+	"zara":     "ubuntu-noble",
+	"zena":     "ubuntu-noble",
+}

@@ -1,0 +1,27 @@
+package opensuse
+
+var Feeds map[string]string = map[string]string{
+	"10.2":       "opensuse.10.2",
+	"10.3":       "opensuse.10.3",
+	"11.0":       "opensuse.11.0",
+	"11.1":       "opensuse.11.1",
+	"11.2":       "opensuse.11.2",
+	"11.3":       "opensuse.11.3",
+	"11.4":       "opensuse.11.4",
+	"12.1":       "opensuse.12.1",
+	"12.2":       "opensuse.12.2",
+	"12.3":       "opensuse.12.3",
+	"13.1":       "opensuse.13.1",
+	"13.2":       "opensuse.13.2",
+	"leap-13.2":  "opensuse.leap.13.2",
+	"leap-15.0":  "opensuse.leap.15.0",
+	"leap-15.1":  "opensuse.leap.15.1",
+	"leap-15.2":  "opensuse.leap.15.2",
+	"leap-15.3":  "opensuse.leap.15.3",
+	"leap-15.4":  "opensuse.leap.15.4",
+	"leap-15.5":  "opensuse.leap.15.5",
+	"leap-42.1":  "opensuse.leap.42.1",
+	"leap-42.2":  "opensuse.leap.42.2",
+	"leap-42.3":  "opensuse.leap.42.3",
+	"tumbleweed": "opensuse.tumbleweed",
+}
