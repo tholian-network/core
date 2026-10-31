@@ -1,6 +1,6 @@
 package insights
 
-import utils_os "tholian-core/utils/os"
+import utils_path "tholian-core/utils/path"
 import "tholian-core/insights/templates"
 import "tholian-core/structs"
 import utils_tags "tholian-core/utils/tags"
@@ -64,7 +64,7 @@ func (database *Database) ReadMitigation(hash string) *structs.Mitigation {
 
 func (database *Database) RemoveMitigation(hash string) {
 
-	if utils_os.IsSafeBasename(hash) == true {
+	if utils_path.IsSafeBasename(hash) == true {
 
 		mutex := database.BorrowMitigation(hash)
 		mutex.Lock()

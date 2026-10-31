@@ -1,6 +1,6 @@
 package insights
 
-import utils_os "tholian-core/utils/os"
+import utils_path "tholian-core/utils/path"
 import "tholian-core/insights/templates"
 import "tholian-core/structs"
 import utils_tags "tholian-core/utils/tags"
@@ -70,7 +70,7 @@ func (database *Database) ReadCredential(name string) *structs.Credential {
 
 func (database *Database) RemoveCredential(name string) {
 
-	if utils_os.IsSafeBasename(name) == true {
+	if utils_path.IsSafeBasename(name) == true {
 
 		mutex := database.BorrowCredential(name)
 		mutex.Lock()

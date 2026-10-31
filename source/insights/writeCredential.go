@@ -1,7 +1,7 @@
 package insights
 
 import "tholian-core/structs"
-import utils_os "tholian-core/utils/os"
+import utils_path "tholian-core/utils/path"
 import "bytes"
 import "encoding/json"
 import "sort"
@@ -20,7 +20,7 @@ func writeCredential(database *Database, credential *structs.Credential) bool {
 
 		credential_name := credential.Name
 
-		if utils_os.IsSafeBasename(credential_name) == true {
+		if utils_path.IsSafeBasename(credential_name) == true {
 
 			mutex := database.BorrowCredential(credential_name)
 			mutex.Lock()

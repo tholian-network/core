@@ -1,6 +1,6 @@
 package insights
 
-import utils_os "tholian-core/utils/os"
+import utils_path "tholian-core/utils/path"
 import "tholian-core/structs"
 import "encoding/json"
 
@@ -8,7 +8,7 @@ func readCredential(database *Database, name string) *structs.Credential {
 
 	var result structs.Credential
 
-	if utils_os.IsSafeBasename(name) == true {
+	if utils_path.IsSafeBasename(name) == true {
 
 		buffer := readBuffer(database, "/credentials/embedded/"+name+".json")
 

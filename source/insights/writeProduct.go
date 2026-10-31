@@ -1,7 +1,7 @@
 package insights
 
 import "tholian-core/structs"
-import utils_os "tholian-core/utils/os"
+import utils_path "tholian-core/utils/path"
 import "encoding/json"
 
 func writeProduct(database *Database, product *structs.Product) bool {
@@ -10,7 +10,7 @@ func writeProduct(database *Database, product *structs.Product) bool {
 
 		product_name := product.Name
 
-		if utils_os.IsSafeBasename(product_name) == true {
+		if utils_path.IsSafeBasename(product_name) == true {
 
 			mutex := database.BorrowProduct(product_name)
 			mutex.Lock()

@@ -1,6 +1,6 @@
 package insights
 
-import utils_os "tholian-core/utils/os"
+import utils_path "tholian-core/utils/path"
 import "tholian-core/structs"
 import "encoding/json"
 
@@ -8,7 +8,7 @@ func readMitigation(database *Database, hash string) *structs.Mitigation {
 
 	var result structs.Mitigation
 
-	if utils_os.IsSafeBasename(hash) == true {
+	if utils_path.IsSafeBasename(hash) == true {
 
 		buffer := readBuffer(database, "/mitigations/embedded/"+hash+".json")
 

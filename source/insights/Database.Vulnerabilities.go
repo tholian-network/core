@@ -1,5 +1,6 @@
 package insights
 
+import utils_path "tholian-core/utils/path"
 import "tholian-core/insights/templates"
 import "tholian-core/structs"
 import "tholian-core/types"
@@ -26,6 +27,17 @@ func (database *Database) BorrowVulnerability(name string) *sync.Mutex {
 
 }
 
+func (database *Database) unindexVulnerability(name string) {
+
+	for vendor, identifiers := range database.mapdistributionvendors {
+		identifiers.Remove(name)
+		if identifiers.Length() == 0 {
+			delete(database.mapdistributionvendors, vendor)
+		}
+	}
+
+}
+
 func (database *Database) CleanupVulnerabilities() {
 
 	files := database.Scan("/vulnerabilities/embedded", "*.json")
@@ -36,16 +48,22 @@ func (database *Database) CleanupVulnerabilities() {
 
 			if strings.HasPrefix(file, "/vulnerabilities/embedded/") && strings.HasSuffix(file, ".json") {
 
-				name := file[26 : len(file)-5]
+				name := strings.TrimSuffix(strings.TrimPrefix(file, "/vulnerabilities/embedded/"), ".json")
+				mutex := database.BorrowVulnerability(name)
+
+				mutex.Lock()
+
 				vulnerability := readVulnerability(database, name)
 
 				if vulnerability.State != "edited" {
 					database.Remove(file)
 					database.Remove(file + ".gz")
+					database.mutex.Lock()
+					database.unindexVulnerability(name)
+					database.mutex.Unlock()
 				}
 
-				// Give GC a hint
-				vulnerability = nil
+				mutex.Unlock()
 
 			}
 
@@ -58,20 +76,21 @@ func (database *Database) CleanupVulnerabilities() {
 func (database *Database) QueryVulnerabilitiesByDistributionVendor(name string) []*structs.Vulnerability {
 
 	result := make([]*structs.Vulnerability, 0)
+	keys := make([]string, 0)
 
 	database.mutex.RLock()
 
 	identifiers, ok := database.mapdistributionvendors[name]
 
 	if ok == true {
-
-		for _, identifier := range identifiers.Keys() {
-			result = append(result, database.ReadVulnerability(identifier))
-		}
-
+		keys = identifiers.Keys()
 	}
 
 	database.mutex.RUnlock()
+
+	for _, identifier := range keys {
+		result = append(result, database.ReadVulnerability(identifier))
+	}
 
 	return result
 
@@ -81,65 +100,67 @@ func (database *Database) ReadVulnerability(name string) *structs.Vulnerability 
 
 	mutex := database.BorrowVulnerability(name)
 	mutex.Lock()
+	defer mutex.Unlock()
 
-	result := readVulnerability(database, name)
-
-	return result
+	return readVulnerability(database, name)
 
 }
 
 func (database *Database) RemoveVulnerability(name string) {
 
-	database.mutex.Lock()
+	if utils_path.IsSafeBasename(name) == true {
 
-	mutex, ok3 := database.mutexes.Vulnerabilities[name]
+		mutex := database.BorrowVulnerability(name)
+		mutex.Lock()
 
-	if ok3 == true {
+		database.Remove("/vulnerabilities/embedded/" + name + ".json.gz")
+		database.Remove("/vulnerabilities/embedded/" + name + ".json")
+
 		mutex.Unlock()
-		delete(database.mutexes.Vulnerabilities, name)
+
+		database.mutex.Lock()
+		database.unindexVulnerability(name)
+		database.mutex.Unlock()
+
 	}
-
-	database.mutex.Unlock()
-
-	database.Remove("/vulnerabilities/embedded/" + name + ".json.gz")
-	database.Remove("/vulnerabilities/embedded/" + name + ".json")
 
 }
 
 func (database *Database) WriteVulnerability(vulnerability *structs.Vulnerability) bool {
 
-	var result bool
+	if writeVulnerability(database, vulnerability) == false {
+		return false
+	}
 
-	if vulnerability != nil {
+	name := vulnerability.Name
 
-		result = writeVulnerability(database, vulnerability)
+	database.mutex.Lock()
 
-		if len(vulnerability.Distributions) > 0 {
+	database.unindexVulnerability(name)
 
-			for _, distribution := range vulnerability.Distributions {
+	if len(vulnerability.Distributions) > 0 {
 
-				if distribution.Vendor != "" && distribution.Vendor != "any" {
+		for _, distribution := range vulnerability.Distributions {
 
-					_, ok := database.mapdistributionvendors[distribution.Vendor]
+			if distribution.Vendor != "" && distribution.Vendor != "any" {
 
-					if ok == false {
-						database.mapdistributionvendors[distribution.Vendor] = types.NewMap[bool]()
-					}
+				_, ok := database.mapdistributionvendors[distribution.Vendor]
 
-					database.mapdistributionvendors[distribution.Vendor].Set(vulnerability.Name, true)
-
+				if ok == false {
+					database.mapdistributionvendors[distribution.Vendor] = types.NewMap[bool]()
 				}
+
+				database.mapdistributionvendors[distribution.Vendor].Set(name, true)
 
 			}
 
 		}
 
-		mutex := database.BorrowVulnerability(vulnerability.Name)
-		mutex.Unlock()
-
 	}
 
-	return result
+	database.mutex.Unlock()
+
+	return true
 
 }
 
@@ -147,26 +168,22 @@ func (database *Database) WriteVulnerabilities() bool {
 
 	files := database.Scan("/vulnerabilities/embedded", "*.json.gz")
 	files_all := make([]string, 0)
-	files_any_distribution := make([]string, 0)
 	files_per_distribution := types.NewSliceMap[string]()
 
 	if len(files) > 0 {
 
 		for _, file := range files {
 
-			if strings.HasPrefix(file, "/vulnerabilities/embedded") && strings.HasSuffix(file, ".json.gz") {
+			if strings.HasPrefix(file, "/vulnerabilities/embedded/") && strings.HasSuffix(file, ".json.gz") {
 
-				name := file[26 : len(file)-8]
-				vulnerability := readVulnerability(database, name)
+				name := strings.TrimSuffix(strings.TrimPrefix(file, "/vulnerabilities/embedded/"), ".json.gz")
+				vulnerability := database.ReadVulnerability(name)
 
 				if vulnerability.IsValid() {
 
-					// Strip out /vulnerabilities/ prefix
 					files_all = append(files_all, "embedded/"+name+".json.gz")
 
 					if len(vulnerability.Distributions) > 0 {
-
-						files_any_distribution = append(files_any_distribution, "embedded/"+name+".json.gz")
 
 						for _, distribution := range vulnerability.Distributions {
 
@@ -184,13 +201,14 @@ func (database *Database) WriteVulnerabilities() bool {
 
 				}
 
-				// Give GC a hint
-				vulnerability = nil
-
 			}
 
 		}
 
+	}
+
+	for _, file := range database.Scan("/vulnerabilities", "Vulnerabilities_embed.*") {
+		database.Remove(file)
 	}
 
 	result_all := true
@@ -211,9 +229,7 @@ func (database *Database) WriteVulnerabilities() bool {
 			result1 := database.Write("/vulnerabilities/Vulnerabilities.go", insight_go)
 			result2 := database.Write("/vulnerabilities/Vulnerabilities_embed."+tag+".go", insight_embed_go)
 
-			if result1 && result2 {
-				// Do Nothing
-			} else {
+			if result1 == false || result2 == false {
 				result_all = false
 			}
 
@@ -241,22 +257,21 @@ func (database *Database) WriteVulnerabilities() bool {
 				BuildTag: tag + "_" + distribution,
 				Struct:   "structs.Vulnerability",
 				Folder:   "embedded",
-				Files:    files_all,
+				Files:    files,
 			})
 
 			if err == nil {
 
-				// Replace with non-conflicting variable name
 				insight_embed_go = []byte(strings.ReplaceAll(string(insight_embed_go), "embedded_Vulnerabilities", "embedded_Vulnerabilities_"+distribution))
 
 				result1 := database.Write("/vulnerabilities/Vulnerabilities_embed."+tag+"_"+distribution+".go", insight_embed_go)
 
-				if result1 {
-					// Do Nothing
-				} else {
+				if result1 == false {
 					result_distributions = false
 				}
 
+			} else {
+				result_distributions = false
 			}
 
 		}
