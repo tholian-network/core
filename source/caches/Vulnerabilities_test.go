@@ -17,9 +17,16 @@ func mockupVulnerabilities() *Vulnerabilities {
 		References: []string{
 			"https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2021-44228",
 		},
-		Datetime:    types.ToDatetime("2021-12-10 00:00:00"),
-		Connections: []matchers.Connection{},
-		Devices:     []matchers.Device{},
+		Datetime: types.ToDatetime("2021-12-10 00:00:00"),
+		Connections: []matchers.Connection{
+			matchers.Connection{
+				Host:     "any",
+				Port:     443,
+				Protocol: "tcp",
+				Type:     "server",
+			},
+		},
+		Devices: []matchers.Device{},
 		Distributions: []matchers.Distribution{
 			matchers.Distribution{
 				Name:    "archlinux",
@@ -136,9 +143,16 @@ func mockupVulnerabilities() *Vulnerabilities {
 		References: []string{
 			"https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2001-0169",
 		},
-		Datetime:    types.ToDatetime("2001-01-11 00:00:00"),
-		Connections: []matchers.Connection{},
-		Devices:     []matchers.Device{},
+		Datetime: types.ToDatetime("2001-01-11 00:00:00"),
+		Connections: []matchers.Connection{
+			matchers.Connection{
+				Host:     "any",
+				Port:     80,
+				Protocol: "tcp",
+				Type:     "server",
+			},
+		},
+		Devices: []matchers.Device{},
 		Distributions: []matchers.Distribution{
 			matchers.Distribution{
 				Name:    "archlinux",
@@ -314,42 +328,42 @@ func TestVulnerabilities(t *testing.T) {
 		vulnerabilities := mockupVulnerabilities()
 
 		found1 := vulnerabilities.Query(matchers.Vulnerability{
-			Name: "CVE-2021-44228",
-			Type: "any",
+			Name:     "CVE-2021-44228",
+			Type:     "any",
 			Severity: "any",
-			State: "any",
+			State:    "any",
 			Datetime: "any",
 		})
 
 		found2 := vulnerabilities.Query(matchers.Vulnerability{
-			Name: "any",
-			Type: "network",
+			Name:     "any",
+			Type:     "network",
 			Severity: "any",
-			State: "published",
+			State:    "published",
 			Datetime: "any",
 		})
 
 		found3 := vulnerabilities.Query(matchers.Vulnerability{
-			Name: "any",
-			Type: "any",
+			Name:     "any",
+			Type:     "any",
 			Severity: "any",
-			State: "published",
+			State:    "published",
 			Datetime: "any",
 		})
 
 		found4 := vulnerabilities.Query(matchers.Vulnerability{
-			Name: "any",
-			Type: "any",
+			Name:     "any",
+			Type:     "any",
 			Severity: ">= high",
-			State: "any",
+			State:    "any",
 			Datetime: "any",
 		})
 
 		found5 := vulnerabilities.Query(matchers.Vulnerability{
-			Name: "any",
-			Type: "any",
+			Name:     "any",
+			Type:     "any",
 			Severity: "any",
-			State: "any",
+			State:    "any",
 			Datetime: ">= 2021-12-10 00:00:00",
 		})
 
@@ -415,7 +429,58 @@ func TestVulnerabilities(t *testing.T) {
 
 	t.Run("QueryByConnection()", func(t *testing.T) {
 
-		// TODO
+		vulnerabilities := mockupVulnerabilities()
+
+		found1 := vulnerabilities.QueryByConnection(matchers.Connection{
+			Host:     "any",
+			Port:     443,
+			Protocol: "tcp",
+			Type:     "server",
+		})
+
+		found2 := vulnerabilities.QueryByConnection(matchers.Connection{
+			Host:     "any",
+			Port:     80,
+			Protocol: "tcp",
+			Type:     "server",
+		})
+
+		found3 := vulnerabilities.QueryByConnection(matchers.Connection{
+			Host:     "any",
+			Port:     443,
+			Protocol: "any",
+			Type:     "server",
+		})
+
+		if len(found1) == 1 {
+
+			if found1[0].Name != "CVE-2021-44228" {
+				t.Errorf("Expected %s to be %s", found1[0].Name, "CVE-2021-44228")
+			}
+
+		} else {
+			t.Errorf("Expected %d results to be %d for query %s", len(found1), 1, "Port=443")
+		}
+
+		if len(found2) == 1 {
+
+			if found2[0].Name != "CVE-2001-0169" {
+				t.Errorf("Expected %s to be %s", found2[0].Name, "CVE-2001-0169")
+			}
+
+		} else {
+			t.Errorf("Expected %d results to be %d for query %s", len(found2), 1, "Port=80")
+		}
+
+		if len(found3) == 1 {
+
+			if found3[0].Name != "CVE-2021-44228" {
+				t.Errorf("Expected %s to be %s", found3[0].Name, "CVE-2021-44228")
+			}
+
+		} else {
+			t.Errorf("Expected %d results to be %d for query %s", len(found3), 1, "Protocol=any")
+		}
 
 	})
 
@@ -466,17 +531,17 @@ func TestVulnerabilities(t *testing.T) {
 		})
 
 		found1 := vulnerabilities.QueryByDevice(matchers.Device{
-			Name: "any",
+			Name:   "any",
 			Vendor: "0101",
 			Device: "1337",
-			Bus: "any",
+			Bus:    "any",
 		})
 
 		found2 := vulnerabilities.QueryByDevice(matchers.Device{
-			Name: "Siemens Router 1337 US802B",
+			Name:   "Siemens Router 1337 US802B",
 			Vendor: "any",
 			Device: "any",
-			Bus: "any",
+			Bus:    "any",
 		})
 
 		if len(found1) == 1 {
@@ -506,17 +571,17 @@ func TestVulnerabilities(t *testing.T) {
 		vulnerabilities := mockupVulnerabilities()
 
 		found1 := vulnerabilities.QueryByDistribution(matchers.Distribution{
-			Name: "debian-bookworm",
+			Name:    "debian-bookworm",
 			Version: "12",
 			Manager: "any",
-			Vendor: "any",
+			Vendor:  "any",
 		})
 
 		found2 := vulnerabilities.QueryByDistribution(matchers.Distribution{
-			Name: "ubuntu-xenial",
+			Name:    "ubuntu-xenial",
 			Version: "16.04",
 			Manager: "any",
-			Vendor: "any",
+			Vendor:  "any",
 		})
 
 		if len(found1) == 2 {
@@ -550,19 +615,19 @@ func TestVulnerabilities(t *testing.T) {
 		vulnerabilities := mockupVulnerabilities()
 
 		found1 := vulnerabilities.QueryByPackage(matchers.Package{
-			Name: "any",
-			Version: "any",
+			Name:         "any",
+			Version:      "any",
 			Architecture: "any",
-			Manager: "any",
-			Vendor: "archlinux",
+			Manager:      "any",
+			Vendor:       "archlinux",
 		})
 
 		found2 := vulnerabilities.QueryByPackage(matchers.Package{
-			Name: "libc6",
-			Version: "any",
+			Name:         "libc6",
+			Version:      "any",
 			Architecture: "any",
-			Manager: "any",
-			Vendor: "debian-bookworm",
+			Manager:      "any",
+			Vendor:       "debian-bookworm",
 		})
 
 		if len(found1) == 2 {
@@ -591,19 +656,76 @@ func TestVulnerabilities(t *testing.T) {
 
 	})
 
+	t.Run("QueryByProduct()", func(t *testing.T) {
+
+		vulnerabilities := mockupVulnerabilities()
+
+		found1 := vulnerabilities.QueryByProduct(matchers.Product{
+			Vendor:  "apache",
+			Product: "any",
+			Version: "any",
+			Type:    "any",
+		})
+
+		found2 := vulnerabilities.QueryByProduct(matchers.Product{
+			Vendor:  "any",
+			Product: "glibc",
+			Version: "any",
+			Type:    "any",
+		})
+
+		found3 := vulnerabilities.QueryByProduct(matchers.Product{
+			Vendor:  "apache",
+			Product: "log4j",
+			Version: "< 2.15.0",
+			Type:    "software",
+		})
+
+		if len(found1) == 1 {
+
+			if found1[0].Name != "CVE-2021-44228" {
+				t.Errorf("Expected %s to be %s", found1[0].Name, "CVE-2021-44228")
+			}
+
+		} else {
+			t.Errorf("Expected %d results to be %d for query %s", len(found1), 1, "Vendor=apache")
+		}
+
+		if len(found2) == 1 {
+
+			if found2[0].Name != "CVE-2001-0169" {
+				t.Errorf("Expected %s to be %s", found2[0].Name, "CVE-2001-0169")
+			}
+
+		} else {
+			t.Errorf("Expected %d results to be %d for query %s", len(found2), 1, "Product=glibc")
+		}
+
+		if len(found3) == 1 {
+
+			if found3[0].Name != "CVE-2021-44228" {
+				t.Errorf("Expected %s to be %s", found3[0].Name, "CVE-2021-44228")
+			}
+
+		} else {
+			t.Errorf("Expected %d results to be %d for query %s", len(found3), 1, "Product=log4j")
+		}
+
+	})
+
 	t.Run("QueryByProgram()", func(t *testing.T) {
 
 		vulnerabilities := mockupVulnerabilities()
 
 		found1 := vulnerabilities.QueryByProgram(matchers.Program{
-			Name: "elasticsearch",
-			Command: "any",
+			Name:      "elasticsearch",
+			Command:   "any",
 			Arguments: []string{},
 		})
 
 		found2 := vulnerabilities.QueryByProgram(matchers.Program{
-			Name: "tomcat",
-			Command: "any",
+			Name:      "tomcat",
+			Command:   "any",
 			Arguments: []string{},
 		})
 
@@ -651,6 +773,39 @@ func TestVulnerabilities(t *testing.T) {
 
 		if vulnerability2 != nil {
 			t.Errorf("Expected %s to be nil", vulnerability2.Name)
+		}
+
+		found1 := vulnerabilities.QueryByConnection(matchers.Connection{
+			Host:     "any",
+			Port:     80,
+			Protocol: "tcp",
+			Type:     "server",
+		})
+
+		found2 := vulnerabilities.QueryByProduct(matchers.Product{
+			Vendor:  "gnu",
+			Product: "any",
+			Version: "any",
+			Type:    "any",
+		})
+
+		found3 := vulnerabilities.QueryByConnection(matchers.Connection{
+			Host:     "any",
+			Port:     443,
+			Protocol: "tcp",
+			Type:     "server",
+		})
+
+		if len(found1) != 0 {
+			t.Errorf("Expected %d results to be %d for query %s", len(found1), 0, "Port=80")
+		}
+
+		if len(found2) != 0 {
+			t.Errorf("Expected %d results to be %d for query %s", len(found2), 0, "Vendor=gnu")
+		}
+
+		if len(found3) != 1 || found3[0].Name != "CVE-2021-44228" {
+			t.Errorf("Expected %d results to be %d for query %s", len(found3), 1, "Port=443")
 		}
 
 	})
