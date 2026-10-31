@@ -1,27 +1,27 @@
 package insights
 
 import "tholian-core/structs"
-import compress_gzip "tholian-core/utils/compress/gzip"
+import utils_os "tholian-core/utils/os"
 import "encoding/json"
 
 func writeMitigation(database *Database, mitigation *structs.Mitigation) bool {
 
-	if mitigation != nil {
+	if mitigation != nil && mitigation.IsValid() {
 
-		// TODO: JSON property sorting has to be done here
+		sortMitigation(mitigation)
 
-		mitigation_name := mitigation.Hash()
+		mitigation_hash := mitigation.Hash()
 
-		buffer, err0 := json.MarshalIndent(mitigation, "", "\t")
-		buffer_gzip, err0_gzip := compress_gzip.Compress(buffer)
+		if utils_os.IsSafeBasename(mitigation_hash) == true {
 
-		if err0 == nil && err0_gzip == nil {
+			mutex := database.BorrowMitigation(mitigation_hash)
+			mutex.Lock()
+			defer mutex.Unlock()
 
-			result1 := database.Write("/mitigations/embedded/"+mitigation_name+".json.gz", buffer_gzip)
-			result2 := database.Write("/mitigations/embedded/"+mitigation_name+".json", buffer)
+			buffer, err := json.MarshalIndent(mitigation, "", "\t")
 
-			if result1 && result2 {
-				return true
+			if err == nil {
+				return writeBuffer(database, "/mitigations/embedded/"+mitigation_hash+".json", buffer)
 			}
 
 		}
@@ -31,4 +31,3 @@ func writeMitigation(database *Database, mitigation *structs.Mitigation) bool {
 	return false
 
 }
-

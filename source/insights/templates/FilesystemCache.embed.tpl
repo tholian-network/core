@@ -2,20 +2,20 @@
 
 {{end}}package {{.Package}}
 
-import "tholian-endpoint/structs"
+import "embed"
+{{if .Files}}import "tholian-core/structs"
 import "bytes"
 import "compress/gzip"
 import "encoding/json"
-import "embed"
 import "io"
 import "log"
 import "strings"
-
-//go:embed {{StringsJoin .Files " "}}
-var embedded_{{.Name}} embed.FS
+{{end}}
+{{if .Files}}//go:embed {{StringsJoin .Files " "}}
+{{end}}var embedded_{{.Name}} embed.FS
 
 func init() {
-
+{{if .Files}}
 	decompress := func(compressed []byte) ([]byte, error) {
 
 		buffer := bytes.NewBuffer(compressed)
@@ -160,5 +160,5 @@ func init() {
 	} else {
 		log.Printf("Cannot read embedded filesystem at {{.Folder}} for {{.Name}}: %s", err1.Error())
 	}
-
+{{end}}
 }

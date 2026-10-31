@@ -7,7 +7,7 @@ import "encoding/json"
 
 func (database *Database) WriteTimeslots() bool {
 
-	buffer_timeslots, err0_timeslots:= json.MarshalIndent(database.Timeslots, "", "\t")
+	buffer_timeslots, err0_timeslots := json.MarshalIndent(database.Timeslots, "", "\t")
 	buffer_timeslots_gzip, err0_timeslots_gzip := compress_gzip.Compress(buffer_timeslots)
 
 	if err0_timeslots == nil && err0_timeslots_gzip == nil {
@@ -26,7 +26,7 @@ func (database *Database) WriteTimeslots() bool {
 
 			if err == nil {
 				database.Write("/timeslots/Timeslots.go", insight_go)
-				database.Write("/timeslots/Timeslots_embed." + tag + ".go", insight_embed_go)
+				database.Write("/timeslots/Timeslots_embed."+tag+".go", insight_embed_go)
 			}
 
 		}

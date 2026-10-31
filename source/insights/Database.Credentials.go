@@ -1,9 +1,9 @@
 package insights
 
+import utils_os "tholian-core/utils/os"
 import "tholian-core/insights/templates"
 import "tholian-core/structs"
 import utils_tags "tholian-core/utils/tags"
-import "sort"
 import "strings"
 import "sync"
 
@@ -26,72 +26,95 @@ func (database *Database) BorrowCredential(name string) *sync.Mutex {
 
 }
 
+func (database *Database) CleanupCredentials() {
+
+	files := database.Scan("/credentials/embedded", "*.json")
+
+	if len(files) > 0 {
+
+		for _, file := range files {
+
+			if strings.HasPrefix(file, "/credentials/embedded/") && strings.HasSuffix(file, ".json") {
+
+				name := strings.TrimSuffix(strings.TrimPrefix(file, "/credentials/embedded/"), ".json")
+				mutex := database.BorrowCredential(name)
+
+				mutex.Lock()
+
+				credential := readCredential(database, name)
+
+				if credential.IsValid() == false {
+					database.Remove(file)
+					database.Remove(file + ".gz")
+				}
+
+				mutex.Unlock()
+
+			}
+
+		}
+
+	}
+
+}
+
 func (database *Database) ReadCredential(name string) *structs.Credential {
 
 	mutex := database.BorrowCredential(name)
 	mutex.Lock()
+	defer mutex.Unlock()
 
-	result := readCredential(database, name)
-
-	return result
+	return readCredential(database, name)
 
 }
 
 func (database *Database) RemoveCredential(name string) {
 
-	database.mutex.Lock()
+	if utils_os.IsSafeBasename(name) == true {
 
-	mutex, ok3 := database.mutexes.Credentials[name]
+		mutex := database.BorrowCredential(name)
+		mutex.Lock()
+		defer mutex.Unlock()
 
-	if ok3 == true {
-		mutex.Unlock()
-		delete(database.mutexes.Credentials, name)
+		database.Remove("/credentials/embedded/" + name + ".json.gz")
+		database.Remove("/credentials/embedded/" + name + ".json")
+
 	}
-
-	database.mutex.Unlock()
-
-	database.Remove("/credentials/embedded/" + name + ".json.gz")
-	database.Remove("/credentials/embedded/" + name + ".json")
 
 }
 
 func (database *Database) WriteCredential(credential *structs.Credential) bool {
-
-	var result bool
-
-	if credential != nil {
-
-		result = writeCredential(database, credential)
-
-		mutex := database.BorrowCredential(credential.Name)
-		mutex.Unlock()
-
-	}
-
-	return result
-
+	return writeCredential(database, credential)
 }
 
 func (database *Database) WriteCredentials() bool {
 
-	var result bool
+	result := true
 
 	files_all := make([]string, 0)
 	files := database.Scan("/credentials/embedded", "*.json.gz")
 
 	if len(files) > 0 {
 
-		sort.Strings(files)
-
 		for _, file := range files {
 
-			if strings.HasPrefix(file, "/credentials/embedded") {
-				// Strip out /credentials/ prefix
-				files_all = append(files_all, file[13:])
+			if strings.HasPrefix(file, "/credentials/embedded/") && strings.HasSuffix(file, ".json.gz") {
+
+				name := strings.TrimSuffix(strings.TrimPrefix(file, "/credentials/embedded/"), ".json.gz")
+				credential := database.ReadCredential(name)
+
+				if credential.IsValid() {
+					files_all = append(files_all, "embedded/"+name+".json.gz")
+				}
+
 			}
 
 		}
 
+	}
+
+	for _, file := range database.Scan("/credentials", "Credentials_embed.*") {
+		database.Remove(file)
 	}
 
 	for _, tag := range []string{"oversight"} {
@@ -108,12 +131,14 @@ func (database *Database) WriteCredentials() bool {
 		if err == nil {
 
 			result1 := database.Write("/credentials/Credentials.go", insight_go)
-			result2 := database.Write("/credentials/Credentials_embed." + tag + ".go", insight_embed_go)
+			result2 := database.Write("/credentials/Credentials_embed."+tag+".go", insight_embed_go)
 
-			if result1 && result2 {
-				result = true
+			if result1 == false || result2 == false {
+				result = false
 			}
 
+		} else {
+			result = false
 		}
 
 	}

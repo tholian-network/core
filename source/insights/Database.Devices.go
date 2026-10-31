@@ -26,7 +26,7 @@ func (database *Database) WriteDevices() bool {
 
 			if err == nil {
 				database.Write("/devices/Devices.go", insight_go)
-				database.Write("/devices/Devices_embed." + tag + ".go", insight_embed_go)
+				database.Write("/devices/Devices_embed."+tag+".go", insight_embed_go)
 			}
 
 		}

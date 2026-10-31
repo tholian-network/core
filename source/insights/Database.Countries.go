@@ -26,7 +26,7 @@ func (database *Database) WriteCountries() bool {
 
 			if err == nil {
 				database.Write("/countries/Countries.go", insight_go)
-				database.Write("/countries/Countries_embed." + tag + ".go", insight_embed_go)
+				database.Write("/countries/Countries_embed."+tag+".go", insight_embed_go)
 			}
 
 		}

@@ -26,7 +26,7 @@ func (database *Database) WriteProxies() bool {
 
 			if err == nil {
 				database.Write("/proxies/Proxies.go", insight_go)
-				database.Write("/proxies/Proxies_embed." + tag + ".go", insight_embed_go)
+				database.Write("/proxies/Proxies_embed."+tag+".go", insight_embed_go)
 			}
 
 		}

@@ -26,7 +26,7 @@ func (database *Database) WriteWeaknesses() bool {
 
 			if err == nil {
 				database.Write("/weaknesses/Weaknesses.go", insight_go)
-				database.Write("/weaknesses/Weaknesses_embed." + tag + ".go", insight_embed_go)
+				database.Write("/weaknesses/Weaknesses_embed."+tag+".go", insight_embed_go)
 			}
 
 		}

@@ -139,7 +139,7 @@ func (cache *Cache) Scan(folder string, pattern string) []string {
 				}
 
 				if matches_pattern {
-					result = append(result, folder + "/" + filename)
+					result = append(result, folder+"/"+filename)
 				}
 
 			}

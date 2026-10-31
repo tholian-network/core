@@ -47,7 +47,7 @@ func (database *Database) WriteDistributions() bool {
 
 			if err == nil {
 				database.Write("/distributions/Distributions.go", insight_go)
-				database.Write("/distributions/Distributions_embed." + tag + ".go", insight_embed_go)
+				database.Write("/distributions/Distributions_embed."+tag+".go", insight_embed_go)
 			}
 
 		}

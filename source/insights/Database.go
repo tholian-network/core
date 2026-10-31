@@ -30,7 +30,6 @@ type Database struct {
 		Responses       map[string]*sync.Mutex
 		Vulnerabilities map[string]*sync.Mutex
 	} `json:"-"`
-
 }
 
 func NewDatabase(folder string) *Database {
@@ -57,6 +56,8 @@ func NewDatabase(folder string) *Database {
 		"incidents/embedded",
 		"mitigations",
 		"mitigations/embedded",
+		"products",
+		"products/embedded",
 		"responses",
 		"responses/embedded",
 		"vulnerabilities",

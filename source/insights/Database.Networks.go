@@ -26,7 +26,7 @@ func (database *Database) WriteNetworks() bool {
 
 			if err == nil {
 				database.Write("/networks/Networks.go", insight_go)
-				database.Write("/networks/Networks_embed." + tag + ".go", insight_embed_go)
+				database.Write("/networks/Networks_embed."+tag+".go", insight_embed_go)
 			}
 
 		}

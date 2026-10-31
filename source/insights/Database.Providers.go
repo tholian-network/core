@@ -26,7 +26,7 @@ func (database *Database) WriteProviders() bool {
 
 			if err == nil {
 				database.Write("/providers/Providers.go", insight_go)
-				database.Write("/providers/Providers_embed." + tag + ".go", insight_embed_go)
+				database.Write("/providers/Providers_embed."+tag+".go", insight_embed_go)
 			}
 
 		}

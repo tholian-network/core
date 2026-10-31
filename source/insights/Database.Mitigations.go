@@ -1,22 +1,23 @@
 package insights
 
+import utils_os "tholian-core/utils/os"
 import "tholian-core/insights/templates"
 import "tholian-core/structs"
 import utils_tags "tholian-core/utils/tags"
 import "strings"
 import "sync"
 
-func (database *Database) BorrowMitigation(name string) *sync.Mutex {
+func (database *Database) BorrowMitigation(hash string) *sync.Mutex {
 
 	database.mutex.RLock()
-	mutex, ok := database.mutexes.Mitigations[name]
+	mutex, ok := database.mutexes.Mitigations[hash]
 	database.mutex.RUnlock()
 
 	if ok == false {
 
 		database.mutex.Lock()
-		database.mutexes.Mitigations[name] = &sync.Mutex{}
-		mutex = database.mutexes.Mitigations[name]
+		database.mutexes.Mitigations[hash] = &sync.Mutex{}
+		mutex = database.mutexes.Mitigations[hash]
 		database.mutex.Unlock()
 
 	}
@@ -34,8 +35,15 @@ func (database *Database) CleanupMitigations() {
 		for _, file := range files {
 
 			if strings.HasPrefix(file, "/mitigations/embedded/") && strings.HasSuffix(file, ".json") {
+
+				hash := strings.TrimSuffix(strings.TrimPrefix(file, "/mitigations/embedded/"), ".json")
+				mutex := database.BorrowMitigation(hash)
+
+				mutex.Lock()
 				database.Remove(file)
 				database.Remove(file + ".gz")
+				mutex.Unlock()
+
 			}
 
 		}
@@ -44,27 +52,38 @@ func (database *Database) CleanupMitigations() {
 
 }
 
-func (database *Database) WriteMitigation(mitigation *structs.Mitigation) bool {
+func (database *Database) ReadMitigation(hash string) *structs.Mitigation {
 
-	var result bool
-
-	mutex := database.BorrowMitigation(mitigation.Hash())
+	mutex := database.BorrowMitigation(hash)
 	mutex.Lock()
+	defer mutex.Unlock()
 
-	if mitigation != nil {
-		result = writeMitigation(database, mitigation)
+	return readMitigation(database, hash)
+
+}
+
+func (database *Database) RemoveMitigation(hash string) {
+
+	if utils_os.IsSafeBasename(hash) == true {
+
+		mutex := database.BorrowMitigation(hash)
+		mutex.Lock()
+		defer mutex.Unlock()
+
+		database.Remove("/mitigations/embedded/" + hash + ".json.gz")
+		database.Remove("/mitigations/embedded/" + hash + ".json")
+
 	}
 
-	mutex.Unlock()
+}
 
-	return result
-
-
+func (database *Database) WriteMitigation(mitigation *structs.Mitigation) bool {
+	return writeMitigation(database, mitigation)
 }
 
 func (database *Database) WriteMitigations() bool {
 
-	var result bool
+	result := true
 
 	files := database.Scan("/mitigations/embedded", "*.json.gz")
 	files_all := make([]string, 0)
@@ -73,16 +92,23 @@ func (database *Database) WriteMitigations() bool {
 
 		for _, file := range files {
 
-			if strings.HasPrefix(file, "/mitigations/embedded") && strings.HasSuffix(file, ".json.gz") {
+			if strings.HasPrefix(file, "/mitigations/embedded/") && strings.HasSuffix(file, ".json.gz") {
 
-				// Strip out /mitigations/ prefix
-				name := file[22 : len(file)-8]
-				files_all = append(files_all, "embedded/"+name+".json.gz")
+				hash := strings.TrimSuffix(strings.TrimPrefix(file, "/mitigations/embedded/"), ".json.gz")
+				mitigation := database.ReadMitigation(hash)
+
+				if mitigation.IsValid() {
+					files_all = append(files_all, "embedded/"+hash+".json.gz")
+				}
 
 			}
 
 		}
 
+	}
+
+	for _, file := range database.Scan("/mitigations", "Mitigations_embed.*") {
+		database.Remove(file)
 	}
 
 	for _, tag := range []string{"guard"} {
@@ -99,12 +125,14 @@ func (database *Database) WriteMitigations() bool {
 		if err == nil {
 
 			result1 := database.Write("/mitigations/Mitigations.go", insight_go)
-			result2 := database.Write("/mitigations/Mitigations_embed." + tag + ".go", insight_embed_go)
+			result2 := database.Write("/mitigations/Mitigations_embed."+tag+".go", insight_embed_go)
 
-			if result1 && result2 {
-				result = true
+			if result1 == false || result2 == false {
+				result = false
 			}
 
+		} else {
+			result = false
 		}
 
 	}
