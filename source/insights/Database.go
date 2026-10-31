@@ -21,14 +21,7 @@ type Database struct {
 	mapdistributionvendors map[string]*types.Map[bool] `json:"-"`
 	mutex                  *sync.RWMutex               `json:"-"`
 
-	// These data types Read/Write directly from Filesystem
-	// Credentials     *caches.Credentials     `json:"credentials"`
-	// Incidents       *caches.Incidents       `json:"incidents"`
-	// Mitigations     *caches.Mitigations     `json:"mitigations"`
-	// Products        *caches.Products        `json:"products"`
-	// Responses       *caches.Responses       `json:"responses"`
-	// Vulnerabilities *caches.Vulnerabilities `json:"vulnerabilities"`
-
+	// These data types Read/Write directly from/to the Filesystem
 	mutexes struct {
 		Credentials     map[string]*sync.Mutex
 		Incidents       map[string]*sync.Mutex
@@ -50,23 +43,24 @@ func NewDatabase(folder string) *Database {
 
 	subfolders := []string{
 		"countries",
-		"credentials",
-		"credentials/embedded",
 		"devices",
 		"distributions",
+		"networks",
+		"providers",
+		"proxies",
+		"timeslots",
+		"weaknesses",
+
+		"credentials",
+		"credentials/embedded",
 		"incidents",
 		"incidents/embedded",
 		"mitigations",
 		"mitigations/embedded",
-		"networks",
-		"providers",
-		"proxies",
 		"responses",
 		"responses/embedded",
-		"timeslots",
 		"vulnerabilities",
 		"vulnerabilities/embedded",
-		"weaknesses",
 	}
 
 	stat, err := os.Stat(folder)
@@ -301,22 +295,18 @@ func (database *Database) Write(file string, buffer []byte) bool {
 
 }
 
+// Credentials, Incidents, Mitigations, Products, Responses and Vulnerabilities
+// have a Borrow<Type>(unique_identiifer) API and don't need to be written
 func (database *Database) Flush() bool {
 
 	result := false
 	result_countries := false
-	result_credentials := false
 	result_devices := false
 	result_distributions := false
-	result_incidents := false
-	result_mitigations := false
 	result_networks := false
-	result_products := false
 	result_providers := false
 	result_proxies := false
-	result_responses := false
 	result_timeslots := false
-	result_vulnerabilities := false
 	result_weaknesses := false
 
 	stat, err := os.Stat(database.Folder)
@@ -328,9 +318,6 @@ func (database *Database) Flush() bool {
 		} else {
 			result_countries = true
 		}
-
-		// Workflow requires direct WriteCredential() calls
-		result_credentials = database.WriteCredentials()
 
 		if database.Devices.Length() > 0 {
 			result_devices = database.WriteDevices()
@@ -344,23 +331,11 @@ func (database *Database) Flush() bool {
 			result_distributions = true
 		}
 
-		// Workflow requires direct Write() calls to Filesystem
-		// TODO: result_incidents = database.WriteIncidents()
-		result_incidents = true
-
-		// Workflow requires direct Write() calls to Filesystem
-		// TODO: result_mitigations = database.WriteMitigations()
-		result_mitigations = true
-
 		if database.Networks.Length() > 0 {
 			result_networks = database.WriteNetworks()
 		} else {
 			result_networks = true
 		}
-
-		// Workflow requires direct Write() calls to Filesystem
-		// TODO: result_products = database.WriteProducts()
-		result_products = true
 
 		if database.Providers.Length() > 0 {
 			result_providers = database.WriteProviders()
@@ -374,19 +349,11 @@ func (database *Database) Flush() bool {
 			result_proxies = true
 		}
 
-		// Workflow requires direct Write() calls to Filesystem
-		// TODO: result_responses = database.WriteResponses()
-		result_responses = true
-
 		if database.Timeslots.Length() > 0 {
 			result_timeslots = database.WriteTimeslots()
 		} else {
 			result_timeslots = true
 		}
-
-		// Workflow requires direct Write() calls to Filesystem
-		// TODO: result_vulnerabilities = database.WriteVulnerabilities()
-		result_vulnerabilities = true
 
 		if database.Weaknesses.Length() > 0 {
 			result_weaknesses = database.WriteWeaknesses()
@@ -397,18 +364,12 @@ func (database *Database) Flush() bool {
 	}
 
 	if result_countries == true &&
-		result_credentials == true &&
 		result_devices == true &&
 		result_distributions == true &&
-		result_incidents == true &&
-		result_mitigations == true &&
 		result_networks == true &&
-		result_products == true &&
 		result_providers == true &&
 		result_proxies == true &&
-		result_responses == true &&
 		result_timeslots == true &&
-		result_vulnerabilities == true &&
 		result_weaknesses == true {
 		result = true
 	}

@@ -8,7 +8,7 @@ func writeMitigation(database *Database, mitigation *structs.Mitigation) bool {
 
 	if mitigation != nil {
 
-		// TODO: Sorting has to be done here
+		// TODO: JSON property sorting has to be done here
 
 		mitigation_name := mitigation.Hash()
 
