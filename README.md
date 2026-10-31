@@ -224,7 +224,7 @@ files.
 Each file-backed type provides `BorrowType`, `ReadType`, `RemoveType`,
 `WriteType`, `WriteTypes`, and `CleanupTypes` methods. `ReadType` falls back to
 the compressed `.json.gz` file when the plain `.json` file is absent. Names used
-as file keys are checked with `utils/os.IsSafeBasename` before access.
+as file keys are checked with `utils/path.IsSafeBasename` before access.
 
 Writes are deterministic: nested collections are sorted by their `Hash()` before
 serialization, so regenerating the same data produces line-by-line identical

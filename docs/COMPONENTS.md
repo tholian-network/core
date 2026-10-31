@@ -2,15 +2,25 @@
 
 This document is the complete catalog of exported components in the current
 `tholian-core` module. It covers the value types in `source/types`, the nested
-data structures in `source/structs`, and the selector objects in
-`source/matchers`.
+data structures in `source/structs`, the selector objects in
+`source/matchers`, the optimized caches in `source/caches`, the filesystem
+database in `source/insights`, the distribution parsers in
+`source/distributions`, the OVAL schema structs in `source/schemas/oval`, and the
+reusable helpers in `source/utils`.
 
 The JSON forms documented here are part of the API contract. See the
 [README](../README.md) for the canonical wire format and general design goals.
 
-- `source/types`: 16 exported types and their constants.
-- `source/structs`: 27 exported data structures.
-- `source/matchers`: 28 exported selector types.
+- `source/types`: 18 exported types (16 canonical value types plus `Map` and
+  `SliceMap`) and their constants.
+- `source/structs`: 28 exported data structures.
+- `source/matchers`: 29 exported selector types.
+- `source/caches`: 19 exported cache types.
+- `source/insights`: `Cache`, `Database`, and the cache/database templates.
+- `source/distributions`: 23 distribution parser packages.
+- `source/schemas/oval`: 27 exported OVAL schema structs.
+- `source/utils`: compression, console, formatting, network, OS, path, string,
+  and build-tag helpers.
 
 ## Types (`source/types`)
 
@@ -50,6 +60,16 @@ Canonical string notes:
 - `Connection` uses `[protocol] source <direction> target`, where the
   direction is `->` for clients, `<-` for servers, and `<->` for peers.
 - `Geolocation` renders coordinates with six decimal places.
+
+## Container Types (`source/types`)
+
+| Type | Purpose |
+|:-----|:--------|
+| `Map[Type]` | Concurrency-safe string-keyed map used by caches and indexes. |
+| `SliceMap[Type]` | Concurrency-safe map from strings to slices, used for per-distribution groupings. |
+
+These are in-memory containers and have no canonical string or JSON form of
+their own.
 
 ## Constants and Wildcards
 
@@ -108,7 +128,8 @@ Supported `types.Manager` values:
 | `DeviceSystem` | Vendor and device descriptor for a device system | `name`, `vendor`, `device` |
 | `Distribution` | Operating system and kernel metadata | `name`, `version`, `kernel`, `kernel_architecture`, `kernel_modules`, `kernel_version`, `manager`, `vendor`, `keywords` |
 | `Drive` | Drive or volume capacity and mountpoint | `name`, `size`, `free`, `used`, `mountpoint`, `type` |
-| `Incident` | Incident with affected matcher collections | `system`, `type`, `datetime`, `connections`, `distributions`, `networks`, `packages`, `products`, `programs`, `users`, `vulnerabilities`, `weaknesses` |
+| `Evidence` | Recording attached to an incident or response | `type`, `datetime`, `data` |
+| `Incident` | Incident with affected matcher collections | `system`, `type`, `datetime`, `connections`, `distributions`, `evidence`, `networks`, `packages`, `products`, `programs`, `users`, `vulnerabilities`, `weaknesses` |
 | `Internet` | Network and subnet index | `networks` (`Mapv4` and `Mapv6` are excluded from JSON) |
 | `Mitigation` | Incident and response pairing | `incident`, `response` |
 | `Network` | Named network containing subnets | `name`, `subnets` |
@@ -147,6 +168,7 @@ String selectors initialize to `Any` (`"any"`); numeric selectors such as
 | `Device` | Name, vendor, device, bus | `name`, `vendor`, `device`, `bus` |
 | `Distribution` | Name, version, manager, vendor | `name`, `version`, `manager`, `vendor` |
 | `Drive` | Name, mountpoint, drive type | `name`, `mountpoint`, `type` |
+| `Evidence` | Evidence type and datetime | `type`, `datetime` |
 | `Incident` | System, incident type, datetime | `system`, `type`, `datetime` |
 | `Manager` | Package manager name | `name` |
 | `Mitigation` | System, incident type, response type, datetime | `system`, `incident_type`, `response_type`, `datetime` |
@@ -170,16 +192,106 @@ String selectors initialize to `Any` (`"any"`); numeric selectors such as
 
 ## Hash Support
 
-All 16 types implement `Hash() string`. Most implementations delegate to the
-shared CRC32-based `toHash(...)` helper.
+All 16 canonical value types in `source/types` implement `Hash() string`. The
+`Map` and `SliceMap` containers do not have hashes. Most implementations
+delegate to the shared CRC32-based `toHash(...)` helper.
 
 Current gaps:
 
-- Structs without `Hash()`: `Console`, `ConsoleMessage`.
-- Matchers without `Hash()`: `Unresolved`.
+- Structs without `Hash()`: `Console`, `ConsoleMessage` (26 of 28 have hashes).
+- Matchers without `Hash()`: `Unresolved` (28 of 29 have hashes).
 
 Special cases:
 
 - Matchers that derive their hash directly from `Name`: `Network`, `Manager`, `Subnet`.
 - Structs that derive their hash directly from `Name`: `Network`, `Provider`, `Proxy`.
 
+## Caches (`source/caches`)
+
+All caches are concurrency-safe and implement JSON marshalling. Their common API
+includes `Add`, `Length`, `Remove`, `Query` and `QueryBy*` methods, and the
+`MarshalJSON`/`UnmarshalJSON` pair. `Incidents`, `Responses` and `Mitigations`
+provide `New<Type>()` constructors that create their own network index, plus
+`New<Type>FromNetworks(networks)` variants that share a single `*Networks`
+instance.
+
+| Cache | Purpose |
+|:------|:--------|
+| `Antiques` | Legacy and vendor-specific package metadata. |
+| `Countries` | Country metadata, subnets and timezones. |
+| `Credentials` | Credential records indexed by name and type. |
+| `Devices` | Hardware devices, systems and subsystems. |
+| `Distributions` | Operating system and kernel distributions. |
+| `Incidents` | Incident records with query indexes for distributions, IPs, packages, programs, users and vulnerabilities. |
+| `Mitigations` | Incident/response pairs built on the incident and response caches. |
+| `Networks` | Network, ASN and subnet lookup indexes. |
+| `Packages` | Installed package metadata and dependency indexes. |
+| `Products` | CPE-style vendor/product/version records. |
+| `Programs` | Process and service records. |
+| `Providers` | Hosting and network provider records. |
+| `Proxies` | Proxy configuration records. |
+| `Responses` | Response records with the same query indexes as incidents. |
+| `Timeslots` | Time-offset metadata. |
+| `Timezones` | Timezone names and offsets. |
+| `Updates` | Available update metadata. |
+| `Vulnerabilities` | Vulnerability records with package, distribution, device and program indexes. |
+| `Weaknesses` | Weakness descriptions, impacts and scopes. |
+
+## Insights (`source/insights`)
+
+The `insights` package provides the filesystem layout used by the separate
+Tholian Insights repository.
+
+- `Cache` is a folder-scoped helper with `IsValid`, `Exists`, `Read`, `Remove`,
+  `Scan` and `Write`.
+- `Database` manages cache-backed and file-backed datasets. `NewDatabase(folder)`
+  creates the canonical subfolders and `Flush()` writes the cache-backed types.
+- File-backed datasets are `Credential`, `Incident`, `Mitigation`, `Product`,
+  `Response` and `Vulnerability`. Each has `BorrowType`, `ReadType`,
+  `RemoveType`, `WriteType`, `WriteTypes` and `CleanupTypes` methods.
+- Credentials, Products and Vulnerabilities use their `Name` as the file key.
+  Incidents, Responses and Mitigations use their sorted `Hash`.
+- The internal `readBuffer` and `writeBuffer` helpers handle the paired `.json`
+  and `.json.gz` representation.
+- `templates.Config`, `templates.Cache` and `templates.FilesystemCache` generate
+  the embeddable Go cache packages. Generated packages import
+  `tholian-core/caches` and `tholian-core/structs`.
+- Cache build tags are `scout`, `guard` and `oversight`, with distribution-aware
+  variants where the database writer supports them. Products emit one all-record
+  cache per base tag and no distribution-specific copies, so every product is
+  available locally.
+
+See the [README](../README.md#usage-tholian-insights) for the folder layout,
+build-tag matrix and workflow example.
+
+## Distribution Packages (`source/distributions`)
+
+The module includes distribution-specific parsers for AlmaLinux, Alpine Linux,
+Amazon Linux, Antergos, Arch Linux, CBL-Mariner, CentOS, Debian, Fedora,
+FreeBSD, Gentoo Linux, Linux Mint, Manjaro, NetBSD, openSUSE, OpenWrt, Oracle
+Linux, Photon OS, Red Hat, Rocky Linux, SUSE, Trisquel and Ubuntu. Each package
+exposes `ToRelease`, `ToVendor` and `ToVersion` helpers, with additional feed or
+release parsing helpers where the distribution requires them.
+
+## OVAL Schemas (`source/schemas/oval`)
+
+The OVAL package provides exported schema structs for `Affected`, `ArithmeticValue`,
+`ConcatValue`, `ConstantVariable`, `Criteria`, `Criterion`, `Definition`,
+`ExtendDefinition`, the `File*` object/state/test types, `Generator`,
+`LocalVariable`, `Metadata`, `Notes`, `Reference`, `Schema`, the `Uname*`
+object/state/test types, and the `Variable*` object/state/test types.
+
+## Utilities (`source/utils`)
+
+| Package | Exported helpers |
+|:--------|:-----------------|
+| `compress/gzip` | `Compress`, `Decompress` |
+| `console` | `Highlight` |
+| `fmt` | `FormatASCII`, `FormatASCIIName` |
+| `net` | `SupportsIPv4`, `SupportsIPv6` |
+| `path` | `IsFile`, `IsWatchedFile`, `IsSafeBasename` |
+| `strings` | `ExtractNumber`, `IsAlphabet`, `IsHex`, `IsNumber`, `IsTimezoneOffset`, `Unique` |
+| `tags` | `ToBuildTags` |
+
+`utils/path.IsSafeBasename` is used by the Insights database to reject empty,
+relative or separator-containing file keys.

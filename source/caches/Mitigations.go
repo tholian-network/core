@@ -27,15 +27,24 @@ type Mitigations struct {
 	mutex        *sync.RWMutex                  `json:"-"`
 }
 
-func NewMitigations(networks *Networks) *Mitigations {
+func NewMitigations() *Mitigations {
+	return NewMitigationsFromNetworks(NewNetworks())
+}
+
+func NewMitigationsFromNetworks(networks *Networks) *Mitigations {
 
 	var cache Mitigations
 
 	cache.Mitigations = make(map[string]*structs.Mitigation)
 	cache.mapincidents = make(map[string]string)
 	cache.mapresponses = make(map[string]string)
-	cache.incidents = NewIncidents(networks)
-	cache.responses = NewResponses(networks)
+
+	if networks == nil {
+		networks = NewNetworks()
+	}
+
+	cache.incidents = NewIncidentsFromNetworks(networks)
+	cache.responses = NewResponsesFromNetworks(networks)
 	cache.mutex = &sync.RWMutex{}
 
 	return &cache

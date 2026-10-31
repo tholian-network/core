@@ -8,166 +8,204 @@ import "testing"
 func mockupIncidents() *Incidents {
 
 	networks := NewNetworks()
-	incidents := NewIncidents(networks)
+	incidents := NewIncidentsFromNetworks(networks)
 
 	incidents.Add(structs.Incident{
-		System: "database-01",
-		Type: "Intel",
+		System:   "database-01",
+		Type:     "Intel",
 		Datetime: types.ToDatetime("2025-01-02 00:01:00"),
 		Connections: []matchers.Connection{
 			matchers.Connection{
-				Host: "any",
-				Port: 22,
+				Host:     "any",
+				Port:     22,
 				Protocol: "tcp",
-				Type: "server",
+				Type:     "server",
 			},
 		},
 		Distributions: []matchers.Distribution{
 			matchers.Distribution{
-				Name: "archlinux",
+				Name:    "archlinux",
 				Version: "any",
 				Manager: "pacman",
-				Vendor: "archlinux",
+				Vendor:  "archlinux",
 			},
 		},
 		Networks: []matchers.Network{
 			matchers.Network{
-				Name: "AS210644",
+				Name:   "AS210644",
 				Subnet: "185.217.197.0/24",
 			},
 		},
 		Packages: []matchers.Package{
 			matchers.Package{
-				Name: "openssh",
-				Version: "10.0p1-3",
+				Name:         "openssh",
+				Version:      "10.0p1-3",
 				Architecture: "x86_64",
-				Manager: "pacman",
-				Vendor: "archlinux",
+				Manager:      "pacman",
+				Vendor:       "archlinux",
+			},
+		},
+		Products: []matchers.Product{
+			matchers.Product{
+				Vendor:  "apache",
+				Product: "log4j",
+				Version: "2.15.0",
+				Type:    "software",
 			},
 		},
 		Programs: []matchers.Program{
 			matchers.Program{
-				Name: "sshd",
-				Command: "/usr/bin/sshd",
+				Name:      "sshd",
+				Command:   "/usr/bin/sshd",
 				Arguments: []string{},
 			},
 		},
 		Users: []matchers.User{
 			matchers.User{
-				Name: "postgres",
+				Name:     "postgres",
 				Password: "postgres",
-				Type: "program",
+				Type:     "program",
 			},
 		},
 		Vulnerabilities: []matchers.Vulnerability{},
+		Weaknesses: []matchers.Weakness{
+			matchers.Weakness{
+				Name:   "CWE-20",
+				Impact: "Read Application Data",
+				Scope:  "Confidentiality",
+			},
+		},
 	})
 	incidents.Add(structs.Incident{
-		System: "database-01",
-		Type: "Recon",
-		Datetime: types.ToDatetime("2025-01-02 00:01:30"),
+		System:      "database-01",
+		Type:        "Recon",
+		Datetime:    types.ToDatetime("2025-01-02 00:01:30"),
 		Connections: []matchers.Connection{},
 		Distributions: []matchers.Distribution{
 			matchers.Distribution{
-				Name: "archlinux",
+				Name:    "archlinux",
 				Version: "any",
 				Manager: "pacman",
-				Vendor: "archlinux",
+				Vendor:  "archlinux",
 			},
 		},
 		Networks: []matchers.Network{
 			matchers.Network{
-				Name: "AS210644",
+				Name:   "AS210644",
 				Subnet: "185.217.197.0/24",
 			},
 			matchers.Network{
-				Name: "AS210644",
+				Name:   "AS210644",
 				Subnet: "185.229.65.0/24",
 			},
 		},
 		Packages: []matchers.Package{
 			matchers.Package{
-				Name: "postgres",
-				Version: "17.5-2",
+				Name:         "postgres",
+				Version:      "17.5-2",
 				Architecture: "x86_64",
-				Manager: "pacman",
-				Vendor: "archlinux",
+				Manager:      "pacman",
+				Vendor:       "archlinux",
 			},
 			matchers.Package{
-				Name: "postgresql-libs",
-				Version: "17.5-2",
+				Name:         "postgresql-libs",
+				Version:      "17.5-2",
 				Architecture: "x86_64",
-				Manager: "pacman",
-				Vendor: "archlinux",
+				Manager:      "pacman",
+				Vendor:       "archlinux",
+			},
+		},
+		Products: []matchers.Product{
+			matchers.Product{
+				Vendor:  "postgresql",
+				Product: "postgresql",
+				Version: "17.5",
+				Type:    "software",
 			},
 		},
 		Programs: []matchers.Program{
 			matchers.Program{
-				Name: "postgres",
-				Command: "/usr/bin/postgres",
+				Name:      "postgres",
+				Command:   "/usr/bin/postgres",
 				Arguments: []string{"-D", "any"},
 			},
 		},
 		Users: []matchers.User{
 			matchers.User{
-				Name: "admin",
+				Name:     "admin",
 				Password: "admin123",
-				Type: "user",
+				Type:     "user",
 			},
 			matchers.User{
-				Name: "postgres",
+				Name:     "postgres",
 				Password: "postgres",
-				Type: "program",
+				Type:     "program",
 			},
 		},
 		Vulnerabilities: []matchers.Vulnerability{},
+		Weaknesses: []matchers.Weakness{
+			matchers.Weakness{
+				Name:   "CWE-89",
+				Impact: "Execute Unauthorized Code or Commands",
+				Scope:  "Integrity",
+			},
+		},
 	})
 	incidents.Add(structs.Incident{
-		System: "database-02",
-		Type: "Intel",
+		System:   "database-02",
+		Type:     "Intel",
 		Datetime: types.ToDatetime("2025-01-02 00:01:01"),
 		Connections: []matchers.Connection{
 			matchers.Connection{
-				Host: "any",
-				Port: 22,
+				Host:     "any",
+				Port:     22,
 				Protocol: "tcp",
-				Type: "server",
+				Type:     "server",
 			},
 		},
 		Distributions: []matchers.Distribution{
 			matchers.Distribution{
-				Name: "debian-buster",
+				Name:    "debian-buster",
 				Version: "10",
 				Manager: "apt",
-				Vendor: "debian-buster",
+				Vendor:  "debian-buster",
 			},
 		},
 		Networks: []matchers.Network{
 			matchers.Network{
-				Name: "AS210644",
+				Name:   "AS210644",
 				Subnet: "185.217.197.0/24",
 			},
 		},
 		Packages: []matchers.Package{
 			matchers.Package{
-				Name: "openssh",
-				Version: "7.6p1-3",
+				Name:         "openssh",
+				Version:      "7.6p1-3",
 				Architecture: "x86_64",
-				Manager: "apt",
-				Vendor: "debian-buster",
+				Manager:      "apt",
+				Vendor:       "debian-buster",
+			},
+		},
+		Products: []matchers.Product{
+			matchers.Product{
+				Vendor:  "gnu",
+				Product: "glibc",
+				Version: "2.31",
+				Type:    "software",
 			},
 		},
 		Programs: []matchers.Program{
 			matchers.Program{
-				Name: "sshd",
-				Command: "/usr/bin/sshd",
+				Name:      "sshd",
+				Command:   "/usr/bin/sshd",
 				Arguments: []string{},
 			},
 		},
 		Users: []matchers.User{
 			matchers.User{
-				Name: "admin",
+				Name:     "admin",
 				Password: "admin123",
-				Type: "user",
+				Type:     "user",
 			},
 		},
 		Vulnerabilities: []matchers.Vulnerability{
@@ -175,59 +213,81 @@ func mockupIncidents() *Incidents {
 				Name: "CVE-2018-15473",
 			},
 		},
+		Weaknesses: []matchers.Weakness{
+			matchers.Weakness{
+				Name:   "CWE-264",
+				Impact: "Gain Privileges or Assume Identity",
+				Scope:  "Access Control",
+			},
+		},
 	})
 	incidents.Add(structs.Incident{
-		System: "database-03",
-		Type: "Conquer",
+		System:   "database-03",
+		Type:     "Conquer",
 		Datetime: types.ToDatetime("2025-01-02 00:03:45"),
 		Connections: []matchers.Connection{
 			matchers.Connection{
-				Host: "any",
-				Port: 3306,
+				Host:     "any",
+				Port:     3306,
 				Protocol: "tcp",
-				Type: "server",
+				Type:     "server",
 			},
 		},
 		Distributions: []matchers.Distribution{
 			matchers.Distribution{
-				Name: "debian-buster",
+				Name:    "debian-buster",
 				Version: "10",
 				Manager: "apt",
-				Vendor: "debian-buster",
+				Vendor:  "debian-buster",
 			},
 		},
 		Networks: []matchers.Network{
 			matchers.Network{
-				Name: "AS12722",
+				Name:   "AS12722",
 				Subnet: "46.22.48.0/20",
 			},
 		},
 		Packages: []matchers.Package{
 			matchers.Package{
-				Name: "mysql",
-				Version: "8.0.23",
+				Name:         "mysql",
+				Version:      "8.0.23",
 				Architecture: "x86_64",
-				Manager: "apt",
-				Vendor: "debian-buster",
+				Manager:      "apt",
+				Vendor:       "debian-buster",
+			},
+		},
+		Products: []matchers.Product{
+			matchers.Product{
+				Vendor:  "oracle",
+				Product: "mysql",
+				Version: "8.0.23",
+				Type:    "software",
 			},
 		},
 		Programs: []matchers.Program{
 			matchers.Program{
-				Name: "mysqld",
-				Command: "/usr/bin/mysqld",
+				Name:      "mysqld",
+				Command:   "/usr/bin/mysqld",
 				Arguments: []string{},
 			},
 		},
 		Users: []matchers.User{
 			matchers.User{
-				Name: "mysql",
+				Name:     "mysql",
 				Password: "mysql",
-				Type: "program",
+				Type:     "program",
 			},
 		},
 		Vulnerabilities: []matchers.Vulnerability{
 			matchers.Vulnerability{
 				Name: "CVE-2023-21971",
+			},
+		},
+		Weaknesses: []matchers.Weakness{
+			matchers.Weakness{
+				Name:   "CWE-400",
+				Impact: "DoS: Resource Consumption (CPU)",
+				Scope:  "Availability",
 			},
 		},
 	})
@@ -249,23 +309,23 @@ func TestIncidents(t *testing.T) {
 		}
 
 		incidents.Add(structs.Incident{
-			System: "database-01",
-			Type: "Persist",
-			Datetime: types.ToDatetime("2025-01-02 00:13:37"),
-			Connections:   []matchers.Connection{},
+			System:      "database-01",
+			Type:        "Persist",
+			Datetime:    types.ToDatetime("2025-01-02 00:13:37"),
+			Connections: []matchers.Connection{},
 			Distributions: []matchers.Distribution{
 				matchers.Distribution{
-					Name: "archlinux",
+					Name:    "archlinux",
 					Version: "any",
 					Manager: "pacman",
-					Vendor: "archlinux",
+					Vendor:  "archlinux",
 				},
 			},
 			Networks: []matchers.Network{},
 			Packages: []matchers.Package{},
 			Programs: []matchers.Program{
 				matchers.Program{
-					Name: "7z",
+					Name:    "7z",
 					Command: "/usr/bin/7z",
 					Arguments: []string{
 						"a",
@@ -278,9 +338,9 @@ func TestIncidents(t *testing.T) {
 			},
 			Users: []matchers.User{
 				matchers.User{
-					Name: "postgres",
+					Name:     "postgres",
 					Password: "any",
-					Type: "program",
+					Type:     "program",
 				},
 			},
 			Vulnerabilities: []matchers.Vulnerability{},
@@ -322,20 +382,20 @@ func TestIncidents(t *testing.T) {
 		incidents := mockupIncidents()
 
 		found1 := incidents.Query(matchers.Incident{
-			System: "database-01",
-			Type: "any",
+			System:   "database-01",
+			Type:     "any",
 			Datetime: "any",
 		})
 
 		found2 := incidents.Query(matchers.Incident{
-			System: "any",
-			Type: "Recon",
+			System:   "any",
+			Type:     "Recon",
 			Datetime: "any",
 		})
 
 		found3 := incidents.Query(matchers.Incident{
-			System: "any",
-			Type: "any",
+			System:   "any",
+			Type:     "any",
 			Datetime: "> 2025-01-02 00:01:00",
 		})
 
@@ -383,22 +443,77 @@ func TestIncidents(t *testing.T) {
 
 	})
 
+	t.Run("QueryByConnection()", func(t *testing.T) {
+
+		incidents := mockupIncidents()
+
+		found1 := incidents.QueryByConnection(matchers.Connection{
+			Host:     "any",
+			Port:     22,
+			Protocol: "tcp",
+			Type:     "server",
+		})
+
+		found2 := incidents.QueryByConnection(matchers.Connection{
+			Host:     "any",
+			Port:     3306,
+			Protocol: "tcp",
+			Type:     "server",
+		})
+
+		found3 := incidents.QueryByConnection(matchers.Connection{
+			Host:     "any",
+			Port:     22,
+			Protocol: "any",
+			Type:     "server",
+		})
+
+		if len(found1) == 2 {
+
+			if found1[0].System != "database-02" || found1[0].Type != "Intel" {
+				t.Errorf("Expected system %s type %s to be system %s type %s", found1[0].System, found1[0].Type, "database-02", "Intel")
+			}
+
+			if found1[1].System != "database-01" || found1[1].Type != "Intel" {
+				t.Errorf("Expected system %s type %s to be system %s type %s", found1[1].System, found1[1].Type, "database-01", "Intel")
+			}
+
+		} else {
+			t.Errorf("Expected %d results to be %d for query %s", len(found1), 2, "Port=22")
+		}
+
+		if len(found2) == 1 {
+
+			if found2[0].System != "database-03" || found2[0].Type != "Conquer" {
+				t.Errorf("Expected system %s type %s to be system %s type %s", found2[0].System, found2[0].Type, "database-03", "Conquer")
+			}
+
+		} else {
+			t.Errorf("Expected %d results to be %d for query %s", len(found2), 1, "Port=3306")
+		}
+
+		if len(found3) != 2 {
+			t.Errorf("Expected %d results to be %d for query %s", len(found3), 2, "Protocol=any")
+		}
+
+	})
+
 	t.Run("QueryByDistribution()", func(t *testing.T) {
 
 		incidents := mockupIncidents()
 
 		found1 := incidents.QueryByDistribution(matchers.Distribution{
-			Name: "archlinux",
+			Name:    "archlinux",
 			Version: "any",
 			Manager: "any",
-			Vendor: "any",
+			Vendor:  "any",
 		})
 
 		found2 := incidents.QueryByDistribution(matchers.Distribution{
-			Name: "debian-buster",
+			Name:    "debian-buster",
 			Version: "any",
 			Manager: "any",
-			Vendor: "any",
+			Vendor:  "any",
 		})
 
 		if len(found1) == 2 {
@@ -414,7 +529,7 @@ func TestIncidents(t *testing.T) {
 		} else {
 			t.Errorf("Expected %d results to be %d for query %s", len(found1), 2, "Name=archlinux")
 		}
-		
+
 		if len(found2) == 2 {
 
 			if found2[0].System != "database-03" {
@@ -492,19 +607,19 @@ func TestIncidents(t *testing.T) {
 		incidents := mockupIncidents()
 
 		found1 := incidents.QueryByPackage(matchers.Package{
-			Name: "openssh",
-			Version: "any",
+			Name:         "openssh",
+			Version:      "any",
 			Architecture: "any",
-			Manager: "any",
-			Vendor: "any",
+			Manager:      "any",
+			Vendor:       "any",
 		})
 
 		found2 := incidents.QueryByPackage(matchers.Package{
-			Name: "postgres",
-			Version: "any",
+			Name:         "postgres",
+			Version:      "any",
 			Architecture: "any",
-			Manager: "any",
-			Vendor: "any",
+			Manager:      "any",
+			Vendor:       "any",
 		})
 
 		if len(found1) == 2 {
@@ -533,19 +648,76 @@ func TestIncidents(t *testing.T) {
 
 	})
 
+	t.Run("QueryByProduct()", func(t *testing.T) {
+
+		incidents := mockupIncidents()
+
+		found1 := incidents.QueryByProduct(matchers.Product{
+			Vendor:  "apache",
+			Product: "any",
+			Version: "any",
+			Type:    "any",
+		})
+
+		found2 := incidents.QueryByProduct(matchers.Product{
+			Vendor:  "any",
+			Product: "glibc",
+			Version: "any",
+			Type:    "any",
+		})
+
+		found3 := incidents.QueryByProduct(matchers.Product{
+			Vendor:  "oracle",
+			Product: "mysql",
+			Version: "8.0.23",
+			Type:    "software",
+		})
+
+		if len(found1) == 1 {
+
+			if found1[0].System != "database-01" || found1[0].Type != "Intel" {
+				t.Errorf("Expected system %s type %s to be system %s type %s", found1[0].System, found1[0].Type, "database-01", "Intel")
+			}
+
+		} else {
+			t.Errorf("Expected %d results to be %d for query %s", len(found1), 1, "Vendor=apache")
+		}
+
+		if len(found2) == 1 {
+
+			if found2[0].System != "database-02" || found2[0].Type != "Intel" {
+				t.Errorf("Expected system %s type %s to be system %s type %s", found2[0].System, found2[0].Type, "database-02", "Intel")
+			}
+
+		} else {
+			t.Errorf("Expected %d results to be %d for query %s", len(found2), 1, "Product=glibc")
+		}
+
+		if len(found3) == 1 {
+
+			if found3[0].System != "database-03" || found3[0].Type != "Conquer" {
+				t.Errorf("Expected system %s type %s to be system %s type %s", found3[0].System, found3[0].Type, "database-03", "Conquer")
+			}
+
+		} else {
+			t.Errorf("Expected %d results to be %d for query %s", len(found3), 1, "Product=mysql")
+		}
+
+	})
+
 	t.Run("QueryByProgram()", func(t *testing.T) {
 
 		incidents := mockupIncidents()
 
 		found1 := incidents.QueryByProgram(matchers.Program{
-			Name: "sshd",
-			Command: "any",
+			Name:      "sshd",
+			Command:   "any",
 			Arguments: []string{},
 		})
 
 		found2 := incidents.QueryByProgram(matchers.Program{
-			Name: "any",
-			Command: "/usr/bin/postgres",
+			Name:      "any",
+			Command:   "/usr/bin/postgres",
 			Arguments: []string{},
 		})
 
@@ -580,15 +752,15 @@ func TestIncidents(t *testing.T) {
 		incidents := mockupIncidents()
 
 		found1 := incidents.QueryByUser(matchers.User{
-			Name: "postgres",
+			Name:     "postgres",
 			Password: "any",
-			Type: "any",
+			Type:     "any",
 		})
 
 		found2 := incidents.QueryByUser(matchers.User{
-			Name: "any",
+			Name:     "any",
 			Password: "any",
-			Type: "user",
+			Type:     "user",
 		})
 
 		if len(found1) == 2 {
@@ -641,6 +813,54 @@ func TestIncidents(t *testing.T) {
 
 	})
 
+	t.Run("QueryByWeakness()", func(t *testing.T) {
+
+		incidents := mockupIncidents()
+
+		found1 := incidents.QueryByWeakness(matchers.Weakness{
+			Name:   "CWE-20",
+			Impact: "any",
+			Scope:  "any",
+		})
+
+		found2 := incidents.QueryByWeakness(matchers.Weakness{
+			Name:   "CWE-264",
+			Impact: "Gain Privileges or Assume Identity",
+			Scope:  "Access Control",
+		})
+
+		found3 := incidents.QueryByWeakness(matchers.Weakness{
+			Name:   "any",
+			Impact: "any",
+			Scope:  "any",
+		})
+
+		if len(found1) == 1 {
+
+			if found1[0].System != "database-01" || found1[0].Type != "Intel" {
+				t.Errorf("Expected system %s type %s to be system %s type %s", found1[0].System, found1[0].Type, "database-01", "Intel")
+			}
+
+		} else {
+			t.Errorf("Expected %d results to be %d for query %s", len(found1), 1, "Name=CWE-20")
+		}
+
+		if len(found2) == 1 {
+
+			if found2[0].System != "database-02" || found2[0].Type != "Intel" {
+				t.Errorf("Expected system %s type %s to be system %s type %s", found2[0].System, found2[0].Type, "database-02", "Intel")
+			}
+
+		} else {
+			t.Errorf("Expected %d results to be %d for query %s", len(found2), 1, "Name=CWE-264")
+		}
+
+		if len(found3) != 4 {
+			t.Errorf("Expected %d results to be %d for query %s", len(found3), 4, "Name=any")
+		}
+
+	})
+
 	t.Run("Remove()", func(t *testing.T) {
 
 		incidents := mockupIncidents()
@@ -659,6 +879,40 @@ func TestIncidents(t *testing.T) {
 
 		if incident2 != nil {
 			t.Errorf("Expected system %s type %s to be nil", incident2.System, incident2.Type)
+		}
+
+		incidents.Remove("database-01:Intel:2025-01-02 00:01:00")
+
+		found1 := incidents.QueryByConnection(matchers.Connection{
+			Host:     "any",
+			Port:     22,
+			Protocol: "tcp",
+			Type:     "server",
+		})
+
+		found2 := incidents.QueryByProduct(matchers.Product{
+			Vendor:  "apache",
+			Product: "any",
+			Version: "any",
+			Type:    "any",
+		})
+
+		found3 := incidents.QueryByWeakness(matchers.Weakness{
+			Name:   "CWE-20",
+			Impact: "any",
+			Scope:  "any",
+		})
+
+		if len(found1) != 1 || found1[0].System != "database-02" {
+			t.Errorf("Expected %d results to be %d for query %s", len(found1), 1, "Port=22")
+		}
+
+		if len(found2) != 0 {
+			t.Errorf("Expected %d results to be %d for query %s", len(found2), 0, "Vendor=apache")
+		}
+
+		if len(found3) != 0 {
+			t.Errorf("Expected %d results to be %d for query %s", len(found3), 0, "Name=CWE-20")
 		}
 
 	})

@@ -12,35 +12,47 @@ func toResponseIdentifier(value structs.Response) string {
 }
 
 type Responses struct {
-	Responses          map[string]*structs.Response            `json:"responses"`
-	mapasns            map[string][]string                     `json:"-"`
-	// TODO: Support Connections
-	mapdistributions   map[string][]string                     `json:"-"`
-	mapresponses       map[string]map[string]map[string]string `json:"-"`
-	mappackages        map[string]map[string][]string          `json:"-"`
-	// TODO: Support Products
-	mapprograms        map[string][]string                     `json:"-"`
-	mapusers           map[string][]string                     `json:"-"`
-	mapvulnerabilities map[string][]string                     `json:"-"`
-	// TODO: Support Weaknesses
-	networks           *Networks                               `json:"-"`
-	mutex              *sync.RWMutex                           `json:"-"`
+	Responses          map[string]*structs.Response                         `json:"responses"`
+	mapasns            map[string][]string                                  `json:"-"`
+	mapconnections     map[string]map[string]map[string]map[uint16][]string `json:"-"`
+	mapdistributions   map[string][]string                                  `json:"-"`
+	mapresponses       map[string]map[string]map[string]string              `json:"-"`
+	mappackages        map[string]map[string][]string                       `json:"-"`
+	mapproducts        map[string]map[string]map[string][]string            `json:"-"`
+	mapprograms        map[string][]string                                  `json:"-"`
+	mapusers           map[string][]string                                  `json:"-"`
+	mapvulnerabilities map[string][]string                                  `json:"-"`
+	mapweaknesses      map[string]map[string]map[string][]string            `json:"-"`
+	networks           *Networks                                            `json:"-"`
+	mutex              *sync.RWMutex                                        `json:"-"`
 }
 
-func NewResponses(networks *Networks) *Responses {
+func NewResponses() *Responses {
+	return NewResponsesFromNetworks(NewNetworks())
+}
+
+func NewResponsesFromNetworks(networks *Networks) *Responses {
 
 	var cache Responses
 
 	cache.Responses = make(map[string]*structs.Response)
 	cache.mapasns = make(map[string][]string, 0)
+	cache.mapconnections = make(map[string]map[string]map[string]map[uint16][]string, 0)
 	cache.mapdistributions = make(map[string][]string, 0)
 	cache.mapresponses = make(map[string]map[string]map[string]string)
 	cache.mappackages = make(map[string]map[string][]string, 0)
+	cache.mapproducts = make(map[string]map[string]map[string][]string, 0)
 	cache.mapprograms = make(map[string][]string, 0)
 	cache.mapusers = make(map[string][]string, 0)
 	cache.mapvulnerabilities = make(map[string][]string, 0)
+	cache.mapweaknesses = make(map[string]map[string]map[string][]string, 0)
 
-	cache.networks = networks
+	if networks != nil {
+		cache.networks = networks
+	} else {
+		cache.networks = NewNetworks()
+	}
+
 	cache.mutex = &sync.RWMutex{}
 
 	return &cache
@@ -73,6 +85,36 @@ func (cache *Responses) Add(value structs.Response) bool {
 		}
 
 		cache.mapresponses[value.System][value.Type][value.Datetime.String()] = identifier
+
+		for _, connection := range value.Connections {
+
+			_, ok1 := cache.mapconnections[connection.Type]
+
+			if ok1 == false {
+				cache.mapconnections[connection.Type] = make(map[string]map[string]map[uint16][]string)
+			}
+
+			_, ok2 := cache.mapconnections[connection.Type][connection.Protocol]
+
+			if ok2 == false {
+				cache.mapconnections[connection.Type][connection.Protocol] = make(map[string]map[uint16][]string)
+			}
+
+			_, ok3 := cache.mapconnections[connection.Type][connection.Protocol][connection.Host]
+
+			if ok3 == false {
+				cache.mapconnections[connection.Type][connection.Protocol][connection.Host] = make(map[uint16][]string)
+			}
+
+			_, ok4 := cache.mapconnections[connection.Type][connection.Protocol][connection.Host][connection.Port]
+
+			if ok4 == false {
+				cache.mapconnections[connection.Type][connection.Protocol][connection.Host][connection.Port] = make([]string, 0)
+			}
+
+			cache.mapconnections[connection.Type][connection.Protocol][connection.Host][connection.Port] = append(cache.mapconnections[connection.Type][connection.Protocol][connection.Host][connection.Port], identifier)
+
+		}
 
 		for _, distribution := range value.Distributions {
 
@@ -145,6 +187,30 @@ func (cache *Responses) Add(value structs.Response) bool {
 
 		}
 
+		for _, product := range value.Products {
+
+			_, ok1 := cache.mapproducts[product.Vendor]
+
+			if ok1 == false {
+				cache.mapproducts[product.Vendor] = make(map[string]map[string][]string)
+			}
+
+			_, ok2 := cache.mapproducts[product.Vendor][product.Product]
+
+			if ok2 == false {
+				cache.mapproducts[product.Vendor][product.Product] = make(map[string][]string)
+			}
+
+			_, ok3 := cache.mapproducts[product.Vendor][product.Product][product.Version]
+
+			if ok3 == false {
+				cache.mapproducts[product.Vendor][product.Product][product.Version] = make([]string, 0)
+			}
+
+			cache.mapproducts[product.Vendor][product.Product][product.Version] = append(cache.mapproducts[product.Vendor][product.Product][product.Version], identifier)
+
+		}
+
 		for _, program := range value.Programs {
 
 			_, ok1 := cache.mapprograms[program.Name]
@@ -178,6 +244,30 @@ func (cache *Responses) Add(value structs.Response) bool {
 			}
 
 			cache.mapvulnerabilities[vulnerability.Name] = append(cache.mapvulnerabilities[vulnerability.Name], identifier)
+
+		}
+
+		for _, weakness := range value.Weaknesses {
+
+			_, ok1 := cache.mapweaknesses[weakness.Name]
+
+			if ok1 == false {
+				cache.mapweaknesses[weakness.Name] = make(map[string]map[string][]string)
+			}
+
+			_, ok2 := cache.mapweaknesses[weakness.Name][weakness.Impact]
+
+			if ok2 == false {
+				cache.mapweaknesses[weakness.Name][weakness.Impact] = make(map[string][]string)
+			}
+
+			_, ok3 := cache.mapweaknesses[weakness.Name][weakness.Impact][weakness.Scope]
+
+			if ok3 == false {
+				cache.mapweaknesses[weakness.Name][weakness.Impact][weakness.Scope] = make([]string, 0)
+			}
+
+			cache.mapweaknesses[weakness.Name][weakness.Impact][weakness.Scope] = append(cache.mapweaknesses[weakness.Name][weakness.Impact][weakness.Scope], identifier)
 
 		}
 
@@ -300,6 +390,258 @@ func (cache *Responses) Query(query matchers.Response) []*structs.Response {
 			matches_datetime := query.MatchesDatetime(response.Datetime.String())
 
 			if matches_system && matches_type && matches_datetime {
+				found[identifier] = response
+			}
+
+		}
+
+	}
+
+	if len(found) > 0 {
+
+		for _, response := range found {
+			result = append(result, response)
+		}
+
+	}
+
+	if len(result) > 1 {
+
+		sort.Slice(result, func(a int, b int) bool {
+			return result[a].IsAfter(*result[b])
+		})
+
+	}
+
+	cache.mutex.RUnlock()
+
+	return result
+
+}
+
+func (cache *Responses) QueryByConnection(query matchers.Connection) []*structs.Response {
+
+	cache.mutex.RLock()
+
+	result := make([]*structs.Response, 0)
+	found := make(map[string]*structs.Response)
+
+	if query.Type != "any" && query.Protocol != "any" && query.Host != "any" && query.Port != 0 {
+
+		// Cache Optimizations for specified query.Type, query.Protocol, query.Host, query.Port
+
+		_, ok1 := cache.mapconnections[query.Type]
+
+		if ok1 == true {
+
+			_, ok2 := cache.mapconnections[query.Type][query.Protocol]
+
+			if ok2 == true {
+
+				_, ok3 := cache.mapconnections[query.Type][query.Protocol][query.Host]
+
+				if ok3 == true {
+
+					identifiers, ok4 := cache.mapconnections[query.Type][query.Protocol][query.Host][query.Port]
+
+					if ok4 == true {
+
+						for _, identifier := range identifiers {
+
+							response, ok := cache.Responses[identifier]
+
+							if ok == true {
+
+								matches_connection := false
+
+								for _, connection := range response.Connections {
+
+									if query.Matches(connection.Host, connection.Port, connection.Protocol, connection.Type) {
+										matches_connection = true
+										break
+									}
+
+								}
+
+								if matches_connection {
+									found[identifier] = response
+								}
+
+							}
+
+						}
+
+					}
+
+				}
+
+			}
+
+		}
+
+	} else if query.Type != "any" && query.Protocol != "any" && query.Host != "any" && query.Port == 0 {
+
+		// Cache Optimizations for specified query.Type, query.Protocol, query.Host
+
+		_, ok1 := cache.mapconnections[query.Type]
+
+		if ok1 == true {
+
+			_, ok2 := cache.mapconnections[query.Type][query.Protocol]
+
+			if ok2 == true {
+
+				_, ok3 := cache.mapconnections[query.Type][query.Protocol][query.Host]
+
+				if ok3 == true {
+
+					for _, identifiers := range cache.mapconnections[query.Type][query.Protocol][query.Host] {
+
+						for _, identifier := range identifiers {
+
+							response, ok := cache.Responses[identifier]
+
+							if ok == true {
+
+								matches_connection := false
+
+								for _, connection := range response.Connections {
+
+									if query.Matches(connection.Host, connection.Port, connection.Protocol, connection.Type) {
+										matches_connection = true
+										break
+									}
+
+								}
+
+								if matches_connection {
+									found[identifier] = response
+								}
+
+							}
+
+						}
+
+					}
+
+				}
+
+			}
+
+		}
+
+	} else if query.Type != "any" && query.Protocol != "any" && query.Host == "any" {
+
+		// Cache Optimizations for specified query.Type, query.Protocol
+
+		_, ok1 := cache.mapconnections[query.Type]
+
+		if ok1 == true {
+
+			_, ok2 := cache.mapconnections[query.Type][query.Protocol]
+
+			if ok2 == true {
+
+				for _, hosts := range cache.mapconnections[query.Type][query.Protocol] {
+
+					for _, identifiers := range hosts {
+
+						for _, identifier := range identifiers {
+
+							response, ok := cache.Responses[identifier]
+
+							if ok == true {
+
+								matches_connection := false
+
+								for _, connection := range response.Connections {
+
+									if query.Matches(connection.Host, connection.Port, connection.Protocol, connection.Type) {
+										matches_connection = true
+										break
+									}
+
+								}
+
+								if matches_connection {
+									found[identifier] = response
+								}
+
+							}
+
+						}
+
+					}
+
+				}
+
+			}
+
+		}
+
+	} else if query.Type != "any" && query.Protocol == "any" {
+
+		// Cache Optimizations for specified query.Type
+
+		_, ok1 := cache.mapconnections[query.Type]
+
+		if ok1 == true {
+
+			for _, protocols := range cache.mapconnections[query.Type] {
+
+				for _, hosts := range protocols {
+
+					for _, identifiers := range hosts {
+
+						for _, identifier := range identifiers {
+
+							response, ok := cache.Responses[identifier]
+
+							if ok == true {
+
+								matches_connection := false
+
+								for _, connection := range response.Connections {
+
+									if query.Matches(connection.Host, connection.Port, connection.Protocol, connection.Type) {
+										matches_connection = true
+										break
+									}
+
+								}
+
+								if matches_connection {
+									found[identifier] = response
+								}
+
+							}
+
+						}
+
+					}
+
+				}
+
+			}
+
+		}
+
+	} else {
+
+		for identifier, response := range cache.Responses {
+
+			matches_connection := false
+
+			for _, connection := range response.Connections {
+
+				if query.Matches(connection.Host, connection.Port, connection.Protocol, connection.Type) {
+					matches_connection = true
+					break
+				}
+
+			}
+
+			if matches_connection {
 				found[identifier] = response
 			}
 
@@ -617,6 +959,198 @@ func (cache *Responses) QueryByPackage(query matchers.Package) []*structs.Respon
 
 }
 
+func (cache *Responses) QueryByProduct(query matchers.Product) []*structs.Response {
+
+	cache.mutex.RLock()
+
+	result := make([]*structs.Response, 0)
+	found := make(map[string]*structs.Response)
+
+	if query.Vendor != "any" && query.Product != "any" && query.Version != "any" {
+
+		// Cache Optimizations for specified query.Vendor, query.Product, query.Version
+
+		_, ok1 := cache.mapproducts[query.Vendor]
+
+		if ok1 == true {
+
+			_, ok2 := cache.mapproducts[query.Vendor][query.Product]
+
+			if ok2 == true {
+
+				identifiers, ok3 := cache.mapproducts[query.Vendor][query.Product][query.Version]
+
+				if ok3 == true {
+
+					for _, identifier := range identifiers {
+
+						response, ok := cache.Responses[identifier]
+
+						if ok == true {
+
+							matches_product := false
+
+							for _, product := range response.Products {
+
+								if query.MatchesType(product.Type) {
+									matches_product = true
+									break
+								}
+
+							}
+
+							if matches_product {
+								found[identifier] = response
+							}
+
+						}
+
+					}
+
+				}
+
+			}
+
+		}
+
+	} else if query.Vendor != "any" && query.Product != "any" && query.Version == "any" {
+
+		// Cache Optimizations for specified query.Vendor, query.Product
+
+		_, ok1 := cache.mapproducts[query.Vendor]
+
+		if ok1 == true {
+
+			_, ok2 := cache.mapproducts[query.Vendor][query.Product]
+
+			if ok2 == true {
+
+				for _, identifiers := range cache.mapproducts[query.Vendor][query.Product] {
+
+					for _, identifier := range identifiers {
+
+						response, ok := cache.Responses[identifier]
+
+						if ok == true {
+
+							matches_product := false
+
+							for _, product := range response.Products {
+
+								if query.MatchesType(product.Type) {
+									matches_product = true
+									break
+								}
+
+							}
+
+							if matches_product {
+								found[identifier] = response
+							}
+
+						}
+
+					}
+
+				}
+
+			}
+
+		}
+
+	} else if query.Vendor != "any" && query.Product == "any" && query.Version == "any" {
+
+		// Cache Optimizations for specified query.Vendor
+
+		_, ok1 := cache.mapproducts[query.Vendor]
+
+		if ok1 == true {
+
+			for _, products := range cache.mapproducts[query.Vendor] {
+
+				for _, identifiers := range products {
+
+					for _, identifier := range identifiers {
+
+						response, ok := cache.Responses[identifier]
+
+						if ok == true {
+
+							matches_product := false
+
+							for _, product := range response.Products {
+
+								if query.MatchesType(product.Type) {
+									matches_product = true
+									break
+								}
+
+							}
+
+							if matches_product {
+								found[identifier] = response
+							}
+
+						}
+
+					}
+
+				}
+
+			}
+
+		}
+
+	} else {
+
+		for identifier, response := range cache.Responses {
+
+			matches_product := false
+
+			for _, product := range response.Products {
+
+				matches_vendor := query.MatchesVendor(product.Vendor)
+				matches_product_name := query.MatchesProduct(product.Product)
+				matches_version := query.MatchesVersion(product.Version)
+				matches_type := query.MatchesType(product.Type)
+
+				if matches_vendor && matches_product_name && matches_version && matches_type {
+					matches_product = true
+					break
+				}
+
+			}
+
+			if matches_product {
+				found[identifier] = response
+			}
+
+		}
+
+	}
+
+	if len(found) > 0 {
+
+		for _, response := range found {
+			result = append(result, response)
+		}
+
+	}
+
+	if len(result) > 1 {
+
+		sort.Slice(result, func(a int, b int) bool {
+			return result[a].IsAfter(*result[b])
+		})
+
+	}
+
+	cache.mutex.RUnlock()
+
+	return result
+
+}
+
 func (cache *Responses) QueryByProgram(query matchers.Program) []*structs.Response {
 
 	cache.mutex.RLock()
@@ -842,6 +1376,152 @@ func (cache *Responses) QueryByVulnerability(query matchers.Vulnerability) []*st
 
 }
 
+func (cache *Responses) QueryByWeakness(query matchers.Weakness) []*structs.Response {
+
+	cache.mutex.RLock()
+
+	result := make([]*structs.Response, 0)
+	found := make(map[string]*structs.Response)
+
+	if query.Name != "any" && query.Impact != "any" && query.Scope != "any" {
+
+		// Cache Optimizations for specified query.Name, query.Impact, query.Scope
+
+		_, ok1 := cache.mapweaknesses[query.Name]
+
+		if ok1 == true {
+
+			_, ok2 := cache.mapweaknesses[query.Name][query.Impact]
+
+			if ok2 == true {
+
+				identifiers, ok3 := cache.mapweaknesses[query.Name][query.Impact][query.Scope]
+
+				if ok3 == true {
+
+					for _, identifier := range identifiers {
+
+						response, ok := cache.Responses[identifier]
+
+						if ok == true {
+							found[identifier] = response
+						}
+
+					}
+
+				}
+
+			}
+
+		}
+
+	} else if query.Name != "any" && query.Impact != "any" && query.Scope == "any" {
+
+		// Cache Optimizations for specified query.Name, query.Impact
+
+		_, ok1 := cache.mapweaknesses[query.Name]
+
+		if ok1 == true {
+
+			_, ok2 := cache.mapweaknesses[query.Name][query.Impact]
+
+			if ok2 == true {
+
+				for _, identifiers := range cache.mapweaknesses[query.Name][query.Impact] {
+
+					for _, identifier := range identifiers {
+
+						response, ok := cache.Responses[identifier]
+
+						if ok == true {
+							found[identifier] = response
+						}
+
+					}
+
+				}
+
+			}
+
+		}
+
+	} else if query.Name != "any" && query.Impact == "any" && query.Scope == "any" {
+
+		// Cache Optimizations for specified query.Name
+
+		_, ok1 := cache.mapweaknesses[query.Name]
+
+		if ok1 == true {
+
+			for _, impacts := range cache.mapweaknesses[query.Name] {
+
+				for _, identifiers := range impacts {
+
+					for _, identifier := range identifiers {
+
+						response, ok := cache.Responses[identifier]
+
+						if ok == true {
+							found[identifier] = response
+						}
+
+					}
+
+				}
+
+			}
+
+		}
+
+	} else {
+
+		for identifier, response := range cache.Responses {
+
+			matches_weakness := false
+
+			for _, weakness := range response.Weaknesses {
+
+				matches_name := query.MatchesName(weakness.Name)
+				matches_impact := query.MatchesImpact(weakness.Impact)
+				matches_scope := query.MatchesScope(weakness.Scope)
+
+				if matches_name && matches_impact && matches_scope {
+					matches_weakness = true
+					break
+				}
+
+			}
+
+			if matches_weakness {
+				found[identifier] = response
+			}
+
+		}
+
+	}
+
+	if len(found) > 0 {
+
+		for _, response := range found {
+			result = append(result, response)
+		}
+
+	}
+
+	if len(result) > 1 {
+
+		sort.Slice(result, func(a int, b int) bool {
+			return result[a].IsAfter(*result[b])
+		})
+
+	}
+
+	cache.mutex.RUnlock()
+
+	return result
+
+}
+
 func (cache *Responses) Remove(identifier string) bool {
 
 	cache.mutex.Lock()
@@ -869,6 +1549,68 @@ func (cache *Responses) Remove(identifier string) bool {
 
 					if len(cache.mapresponses[response.System]) == 0 {
 						delete(cache.mapresponses, response.System)
+					}
+
+				}
+
+			}
+
+			for _, connection := range response.Connections {
+
+				types, ok1 := cache.mapconnections[connection.Type]
+
+				if ok1 == true {
+
+					protocols, ok2 := types[connection.Protocol]
+
+					if ok2 == true {
+
+						hosts, ok3 := protocols[connection.Host]
+
+						if ok3 == true {
+
+							others, ok4 := hosts[connection.Port]
+
+							if ok4 == true {
+
+								filtered := make([]string, 0)
+
+								for _, other := range others {
+
+									if other != identifier {
+										filtered = append(filtered, other)
+									}
+
+								}
+
+								if len(filtered) > 0 {
+									hosts[connection.Port] = filtered
+								} else {
+
+									delete(hosts, connection.Port)
+
+									if len(hosts) == 0 {
+
+										delete(protocols, connection.Host)
+
+										if len(protocols) == 0 {
+
+											delete(types, connection.Protocol)
+
+											if len(types) == 0 {
+												delete(cache.mapconnections, connection.Type)
+											}
+
+										}
+
+									}
+
+								}
+
+							}
+
+						}
+
 					}
 
 				}
@@ -963,6 +1705,56 @@ func (cache *Responses) Remove(identifier string) bool {
 
 			}
 
+			for _, product := range response.Products {
+
+				versions, ok1 := cache.mapproducts[product.Vendor]
+
+				if ok1 == true {
+
+					products, ok2 := versions[product.Product]
+
+					if ok2 == true {
+
+						others, ok3 := products[product.Version]
+
+						if ok3 == true {
+
+							filtered := make([]string, 0)
+
+							for _, other := range others {
+
+								if other != identifier {
+									filtered = append(filtered, other)
+								}
+
+							}
+
+							if len(filtered) > 0 {
+								products[product.Version] = filtered
+							} else {
+
+								delete(products, product.Version)
+
+								if len(products) == 0 {
+
+									delete(versions, product.Product)
+
+									if len(versions) == 0 {
+										delete(cache.mapproducts, product.Vendor)
+									}
+
+								}
+
+							}
+
+						}
+
+					}
+
+				}
+
+			}
+
 			for _, program := range response.Programs {
 
 				others, ok1 := cache.mapprograms[program.Name]
@@ -1035,6 +1827,56 @@ func (cache *Responses) Remove(identifier string) bool {
 						cache.mapvulnerabilities[vulnerability.Name] = filtered
 					} else {
 						delete(cache.mapvulnerabilities, vulnerability.Name)
+					}
+
+				}
+
+			}
+
+			for _, weakness := range response.Weaknesses {
+
+				impacts, ok1 := cache.mapweaknesses[weakness.Name]
+
+				if ok1 == true {
+
+					scopes, ok2 := impacts[weakness.Impact]
+
+					if ok2 == true {
+
+						others, ok3 := scopes[weakness.Scope]
+
+						if ok3 == true {
+
+							filtered := make([]string, 0)
+
+							for _, other := range others {
+
+								if other != identifier {
+									filtered = append(filtered, other)
+								}
+
+							}
+
+							if len(filtered) > 0 {
+								scopes[weakness.Scope] = filtered
+							} else {
+
+								delete(scopes, weakness.Scope)
+
+								if len(scopes) == 0 {
+
+									delete(impacts, weakness.Impact)
+
+									if len(impacts) == 0 {
+										delete(cache.mapweaknesses, weakness.Name)
+									}
+
+								}
+
+							}
+
+						}
+
 					}
 
 				}
