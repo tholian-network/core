@@ -1,32 +1,11 @@
 package protocol
 
-import "crypto/rand"
-import "encoding/hex"
+import "tholian-core/protocol/id"
 
 func NewID() string {
-
-	buffer := make([]byte, 16)
-
-	_, err := rand.Read(buffer)
-
-	if err == nil {
-		return hex.EncodeToString(buffer)
-	}
-
-	return ""
-
+	return id.NewID()
 }
 
 func NewNonce() string {
-
-	buffer := make([]byte, 32)
-
-	_, err := rand.Read(buffer)
-
-	if err == nil {
-		return hex.EncodeToString(buffer)
-	}
-
-	return ""
-
+	return id.NewNonce()
 }

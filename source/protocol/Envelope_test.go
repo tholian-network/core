@@ -1,10 +1,11 @@
 package protocol
 
+import "tholian-core/protocol/permissions"
 import "testing"
 
 func TestEnvelopeRequestRoundTrip(t *testing.T) {
 
-	envelope, err0 := NewRequest("id-1", MethodPackagesSearch, PackageSearchFixture())
+	envelope, err0 := NewRequest("id-1", permissions.MethodScoutSearchPackages, PackageSearchFixture())
 
 	if err0 != nil {
 		t.Fatalf("NewRequest failed: %s", err0)
@@ -30,7 +31,7 @@ func TestEnvelopeRequestRoundTrip(t *testing.T) {
 		t.Fatalf("unexpected kind: %q", decoded.Kind)
 	}
 
-	if decoded.ID != "id-1" || decoded.Method != MethodPackagesSearch {
+	if decoded.ID != "id-1" || decoded.Method != permissions.MethodScoutSearchPackages {
 		t.Fatal("request correlation fields were not preserved")
 	}
 
@@ -51,10 +52,10 @@ func TestEnvelopeRejectsUnsupportedVersion(t *testing.T) {
 	envelope := Envelope{
 		Version: "999",
 		Kind:    KindRequest,
-		Method:  MethodPing,
+		Method:  permissions.MethodRPCPing,
 	}
 
-	_, err := Decode([]byte(`{"version":"999","kind":"request","method":"rpc.ping"}`), 0)
+	_, err := Decode([]byte(`{"version":"999","kind":"request","method":"tholian-rpc.Ping"}`), 0)
 
 	if err == nil {
 		t.Fatal("unsupported version was accepted")
@@ -66,7 +67,7 @@ func TestEnvelopeRejectsUnsupportedVersion(t *testing.T) {
 
 func TestEnvelopeRejectsInvalidKind(t *testing.T) {
 
-	_, err := Decode([]byte(`{"version":"1","kind":"nonsense","method":"rpc.ping"}`), 0)
+	_, err := Decode([]byte(`{"version":"2","kind":"nonsense","method":"tholian-rpc.Ping"}`), 0)
 
 	if err == nil {
 		t.Fatal("invalid kind was accepted")
@@ -76,7 +77,7 @@ func TestEnvelopeRejectsInvalidKind(t *testing.T) {
 
 func TestEnvelopeRejectsOversizedMessage(t *testing.T) {
 
-	blob := []byte(`{"version":"1","kind":"request","method":"rpc.ping","params":{"value":"`)
+	blob := []byte(`{"version":"2","kind":"request","method":"tholian-rpc.Ping","params":{"value":"`)
 
 	for len(blob) < 64 {
 		blob = append(blob, 'a')
@@ -95,7 +96,7 @@ func TestEnvelopeRejectsOversizedMessage(t *testing.T) {
 func TestEnvelopeErrorResponse(t *testing.T) {
 
 	failure := NewError(ErrorForbidden, "not allowed")
-	envelope := NewErrorResponse("id-1", MethodCall, failure)
+	envelope := NewErrorResponse("id-1", permissions.MethodWatchtowerCall, failure)
 
 	if envelope.IsError() == false {
 		t.Fatal("error response was not marked as error")

@@ -1,4 +1,4 @@
-package protocol
+package permissions
 
 import "testing"
 import "tholian-core/matchers"

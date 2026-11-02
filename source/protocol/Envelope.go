@@ -1,6 +1,7 @@
 package protocol
 
 import "encoding/json"
+import "tholian-core/protocol/permissions"
 
 const (
 	KindRequest  = "request"
@@ -10,17 +11,17 @@ const (
 )
 
 type Envelope struct {
-	Version  string            `json:"version"`
-	ID       string            `json:"id,omitempty"`
-	Kind     string            `json:"kind"`
-	Method   string            `json:"method,omitempty"`
-	Params   json.RawMessage   `json:"params,omitempty"`
-	Result   json.RawMessage   `json:"result,omitempty"`
-	Error    *Error            `json:"error,omitempty"`
-	Metadata map[string]string `json:"metadata,omitempty"`
+	Version  string             `json:"version"`
+	ID       string             `json:"id,omitempty"`
+	Kind     string             `json:"kind"`
+	Method   permissions.Method `json:"method,omitempty"`
+	Params   json.RawMessage    `json:"params,omitempty"`
+	Result   json.RawMessage    `json:"result,omitempty"`
+	Error    *Error             `json:"error,omitempty"`
+	Metadata map[string]string  `json:"metadata,omitempty"`
 }
 
-func NewRequest(id string, method string, params any) (Envelope, error) {
+func NewRequest(id string, method permissions.Method, params any) (Envelope, error) {
 
 	var envelope Envelope
 
@@ -46,7 +47,7 @@ func NewRequest(id string, method string, params any) (Envelope, error) {
 
 }
 
-func NewResponse(id string, method string, result any) (Envelope, error) {
+func NewResponse(id string, method permissions.Method, result any) (Envelope, error) {
 
 	var envelope Envelope
 
@@ -72,7 +73,7 @@ func NewResponse(id string, method string, result any) (Envelope, error) {
 
 }
 
-func NewEvent(method string, data any) (Envelope, error) {
+func NewEvent(method permissions.Method, data any) (Envelope, error) {
 
 	var envelope Envelope
 
@@ -97,7 +98,7 @@ func NewEvent(method string, data any) (Envelope, error) {
 
 }
 
-func NewErrorResponse(id string, method string, err *Error) Envelope {
+func NewErrorResponse(id string, method permissions.Method, err *Error) Envelope {
 
 	var envelope Envelope
 

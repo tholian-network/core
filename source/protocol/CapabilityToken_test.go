@@ -4,6 +4,7 @@ import "crypto/ed25519"
 import "crypto/rand"
 import "testing"
 import "tholian-core/types"
+import "tholian-core/protocol/permissions"
 import "time"
 
 func tokenFixture(t *testing.T, expires_in time.Duration) (CapabilityToken, ed25519.PublicKey) {
@@ -16,8 +17,8 @@ func tokenFixture(t *testing.T, expires_in time.Duration) (CapabilityToken, ed25
 		t.Fatalf("GenerateKey failed: %s", err0)
 	}
 
-	purpose := NewPurpose(PurposeInvestigation, "Investigate log4j")
-	scope := NewUnrestrictedScope()
+	purpose := permissions.NewPurpose(permissions.PurposeInvestigation, "Investigate log4j")
+	scope := permissions.NewUnrestrictedScope()
 
 	token, err1 := NewCapabilityToken(
 		"watchtower-1",
@@ -25,9 +26,9 @@ func tokenFixture(t *testing.T, expires_in time.Duration) (CapabilityToken, ed25
 		"system-1",
 		purpose,
 		"grant-1",
-		[]Capability{CapabilityPackagesUpdate},
+		[]permissions.Capability{permissions.CapabilityPackagesUpdate},
 		scope,
-		MethodPackagesUpdate,
+		permissions.MethodScoutUpdatePackages,
 		PackageSearchFixture(),
 		expires_in,
 	)
@@ -56,19 +57,19 @@ func TestCapabilityTokenSignAndVerify(t *testing.T) {
 		t.Fatalf("Verify failed: %s", err)
 	}
 
-	if token.HasCapability(CapabilityPackagesUpdate) == false {
+	if token.HasCapability(permissions.CapabilityPackagesUpdate) == false {
 		t.Fatal("capability was not preserved")
 	}
 
-	if token.Allows("system-1", MethodPackagesUpdate, PackageSearchFixture()) == false {
+	if token.Allows("system-1", permissions.MethodScoutUpdatePackages, PackageSearchFixture()) == false {
 		t.Fatal("token did not allow the signed system and method")
 	}
 
-	if token.Allows("system-2", MethodPackagesUpdate, PackageSearchFixture()) == true {
+	if token.Allows("system-2", permissions.MethodScoutUpdatePackages, PackageSearchFixture()) == true {
 		t.Fatal("token allowed a different system")
 	}
 
-	if token.Allows("system-1", MethodFirewallForbid, PackageSearchFixture()) == true {
+	if token.Allows("system-1", permissions.MethodFirewallForbidNetworks, PackageSearchFixture()) == true {
 		t.Fatal("token allowed a different method")
 	}
 

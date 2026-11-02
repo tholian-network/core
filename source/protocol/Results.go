@@ -1,6 +1,7 @@
 package protocol
 
 import "encoding/json"
+import "tholian-core/protocol/permissions"
 import "tholian-core/structs"
 import "tholian-core/types"
 
@@ -89,25 +90,25 @@ type CallResult struct {
 }
 
 type SessionResult struct {
-	SessionID string  `json:"session"`
-	Purpose   Purpose `json:"purpose"`
+	SessionID string              `json:"session"`
+	Purpose   permissions.Purpose `json:"purpose"`
 }
 
 type GrantsResult struct {
-	Grants []Grant `json:"grants"`
+	Rsults []permissions.GrantResponse `json:"results"`
 }
 
 type AuditEntry struct {
-	Datetime  types.Datetime `json:"datetime"`
-	Actor     string         `json:"actor"`
-	SessionID string         `json:"session,omitempty"`
-	SystemID  string         `json:"system,omitempty"`
-	Purpose   string         `json:"purpose,omitempty"`
-	Method    string         `json:"method,omitempty"`
-	GrantID   string         `json:"grant,omitempty"`
-	Decision  string         `json:"decision"`
-	Params    string         `json:"params,omitempty"`
-	Outcome   string         `json:"outcome,omitempty"`
+	Datetime  types.Datetime     `json:"datetime"`
+	Actor     string             `json:"actor"`
+	SessionID string             `json:"session,omitempty"`
+	SystemID  string             `json:"system,omitempty"`
+	Purpose   string             `json:"purpose,omitempty"`
+	Method    permissions.Method `json:"method,omitempty"`
+	GrantID   string             `json:"grant,omitempty"`
+	Decision  string             `json:"decision"`
+	Params    string             `json:"params,omitempty"`
+	Outcome   string             `json:"outcome,omitempty"`
 }
 
 type AuditResult struct {
@@ -132,7 +133,7 @@ type GuardEvent struct {
 }
 
 type GrantEvent struct {
-	SystemID string `json:"system"`
-	Grant    Grant  `json:"grant"`
-	Action   string `json:"action"`
+	SystemID string                    `json:"system"`
+	Grant    permissions.GrantResponse `json:"grant"`
+	Action   string                    `json:"action"`
 }

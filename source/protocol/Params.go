@@ -2,6 +2,7 @@ package protocol
 
 import "encoding/json"
 import "tholian-core/matchers"
+import "tholian-core/protocol/permissions"
 import "tholian-core/structs"
 
 type HelloParams struct {
@@ -107,11 +108,11 @@ type FirewallScopeParams struct {
 }
 
 type CallParams struct {
-	Systems []string        `json:"systems"`
-	Method  string          `json:"method"`
-	Params  json.RawMessage `json:"params"`
-	GrantID string          `json:"grant"`
-	Purpose string          `json:"purpose"`
+	Systems []string           `json:"systems"`
+	Method  permissions.Method `json:"method"`
+	Params  json.RawMessage    `json:"params"`
+	GrantID string             `json:"grant"`
+	Purpose string             `json:"purpose"`
 }
 
 type SystemsReportParams struct {
@@ -124,8 +125,8 @@ type SystemsIncidentsParams struct {
 }
 
 type SessionCreateParams struct {
-	Systems []string `json:"systems"`
-	Purpose Purpose  `json:"purpose"`
+	Systems []string            `json:"systems"`
+	Purpose permissions.Purpose `json:"purpose"`
 }
 
 type SessionCloseParams struct {
@@ -133,7 +134,7 @@ type SessionCloseParams struct {
 }
 
 type GrantsRequestParams struct {
-	Request GrantRequest `json:"request"`
+	Request permissions.GrantRequest `json:"request"`
 }
 
 type GrantsListParams struct {
@@ -152,4 +153,48 @@ type EventsSubscribeParams struct {
 type AuditListParams struct {
 	SystemID string `json:"system,omitempty"`
 	Limit    int    `json:"limit,omitempty"`
+}
+
+type SystemActionParams struct {
+	SystemID string `json:"system"`
+}
+
+type SystemTargetParams struct {
+	SystemID string `json:"system"`
+	Target   string `json:"target"`
+}
+
+type FirewallLoadParams struct {
+	SystemID string `json:"system"`
+	Path     string `json:"path"`
+}
+
+type FirewallConnectionParams struct {
+	SystemID   string              `json:"system"`
+	Connection matchers.Connection `json:"connection"`
+}
+
+type FirewallConnectionsParams struct {
+	SystemID    string                `json:"system"`
+	Connections []matchers.Connection `json:"connections"`
+}
+
+type FirewallNetworkParams struct {
+	SystemID string           `json:"system"`
+	Network  matchers.Network `json:"network"`
+}
+
+type FirewallNetworksParams struct {
+	SystemID string             `json:"system"`
+	Networks []matchers.Network `json:"networks"`
+}
+
+type IncidentsSearchParams struct {
+	SystemID string            `json:"system"`
+	Search   matchers.Incident `json:"search"`
+}
+
+type ScoutUpdatePackageParams struct {
+	SystemID string           `json:"system"`
+	Package  matchers.Package `json:"package"`
 }

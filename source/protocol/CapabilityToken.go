@@ -7,45 +7,47 @@ import "encoding/base64"
 import "encoding/hex"
 import "encoding/json"
 import "fmt"
+import "tholian-core/protocol/id"
+import "tholian-core/protocol/permissions"
 import "tholian-core/types"
 import "time"
 
 type CapabilityToken struct {
-	Version      string         `json:"version"`
-	ID           string         `json:"id"`
-	Issuer       string         `json:"issuer"`
-	Subject      string         `json:"subject"`
-	SystemID     string         `json:"system"`
-	Purpose      Purpose        `json:"purpose"`
-	GrantID      string         `json:"grant"`
-	Capabilities []Capability   `json:"capabilities"`
-	Scope        Scope          `json:"scope"`
-	Method       string         `json:"method"`
-	ParamsHash   string         `json:"params-hash"`
-	IssuedAt     types.Datetime `json:"issued-at"`
-	ExpiresAt    types.Datetime `json:"expires-at"`
-	Nonce        string         `json:"nonce"`
-	Signature    string         `json:"signature"`
+	Version      string                   `json:"version"`
+	ID           string                   `json:"id"`
+	Issuer       string                   `json:"issuer"`
+	Subject      string                   `json:"subject"`
+	SystemID     string                   `json:"system"`
+	Purpose      permissions.Purpose      `json:"purpose"`
+	GrantID      string                   `json:"grant"`
+	Capabilities []permissions.Capability `json:"capabilities"`
+	Scope        permissions.Scope        `json:"scope"`
+	Method       permissions.Method       `json:"method"`
+	ParamsHash   string                   `json:"params-hash"`
+	IssuedAt     types.Datetime           `json:"issued-at"`
+	ExpiresAt    types.Datetime           `json:"expires-at"`
+	Nonce        string                   `json:"nonce"`
+	Signature    string                   `json:"signature"`
 }
 
 type tokenPayload struct {
-	Version      string         `json:"version"`
-	ID           string         `json:"id"`
-	Issuer       string         `json:"issuer"`
-	Subject      string         `json:"subject"`
-	SystemID     string         `json:"system"`
-	Purpose      Purpose        `json:"purpose"`
-	GrantID      string         `json:"grant"`
-	Capabilities []Capability   `json:"capabilities"`
-	Scope        Scope          `json:"scope"`
-	Method       string         `json:"method"`
-	ParamsHash   string         `json:"params-hash"`
-	IssuedAt     types.Datetime `json:"issued-at"`
-	ExpiresAt    types.Datetime `json:"expires-at"`
-	Nonce        string         `json:"nonce"`
+	Version      string                   `json:"version"`
+	ID           string                   `json:"id"`
+	Issuer       string                   `json:"issuer"`
+	Subject      string                   `json:"subject"`
+	SystemID     string                   `json:"system"`
+	Purpose      permissions.Purpose      `json:"purpose"`
+	GrantID      string                   `json:"grant"`
+	Capabilities []permissions.Capability `json:"capabilities"`
+	Scope        permissions.Scope        `json:"scope"`
+	Method       permissions.Method       `json:"method"`
+	ParamsHash   string                   `json:"params-hash"`
+	IssuedAt     types.Datetime           `json:"issued-at"`
+	ExpiresAt    types.Datetime           `json:"expires-at"`
+	Nonce        string                   `json:"nonce"`
 }
 
-func NewCapabilityToken(issuer string, subject string, system string, purpose Purpose, grant string, capabilities []Capability, scope Scope, method string, params any, expires_in time.Duration) (CapabilityToken, error) {
+func NewCapabilityToken(issuer string, subject string, system string, purpose permissions.Purpose, grant string, capabilities []permissions.Capability, scope permissions.Scope, method permissions.Method, params any, expires_in time.Duration) (CapabilityToken, error) {
 
 	var token CapabilityToken
 
@@ -57,19 +59,19 @@ func NewCapabilityToken(issuer string, subject string, system string, purpose Pu
 	}
 
 	token.Version = Version
-	token.ID = NewID()
+	token.ID = id.NewID()
 	token.Issuer = issuer
 	token.Subject = subject
 	token.SystemID = system
 	token.Purpose = purpose
 	token.GrantID = grant
-	token.Capabilities = append([]Capability(nil), capabilities...)
+	token.Capabilities = append([]permissions.Capability(nil), capabilities...)
 	token.Scope = scope
 	token.Method = method
 	token.ParamsHash = params_hash
 	token.IssuedAt = types.ToDatetime(now.Format(time.RFC3339))
 	token.ExpiresAt = types.ToDatetime(now.Add(expires_in).Format(time.RFC3339))
-	token.Nonce = NewNonce()
+	token.Nonce = id.NewNonce()
 
 	return token, nil
 
@@ -159,7 +161,7 @@ func (token *CapabilityToken) IsExpired(now types.Datetime) bool {
 
 }
 
-func (token *CapabilityToken) Allows(system string, method string, params any) bool {
+func (token *CapabilityToken) Allows(system string, method permissions.Method, params any) bool {
 
 	if token == nil {
 		return false
@@ -179,7 +181,7 @@ func (token *CapabilityToken) Allows(system string, method string, params any) b
 
 }
 
-func (token *CapabilityToken) HasCapability(capability Capability) bool {
+func (token *CapabilityToken) HasCapability(capability permissions.Capability) bool {
 
 	if token != nil {
 
