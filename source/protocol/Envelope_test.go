@@ -2,6 +2,7 @@ package protocol
 
 import "testing"
 import "tholian-core/protocol/methods"
+import "tholian-core/protocol/parameters"
 
 func TestNewRequest(t *testing.T) {
 
@@ -23,7 +24,7 @@ func TestNewRequest(t *testing.T) {
 		t.Fatal("request metadata was not initialized")
 	}
 
-	if len(envelope.Params) == 0 {
+	if len(envelope.Parameters) == 0 {
 		t.Fatal("request params were not encoded")
 	}
 
@@ -72,7 +73,7 @@ func TestNewEvent(t *testing.T) {
 		t.Fatal("event fields were not preserved")
 	}
 
-	if len(envelope.Params) == 0 {
+	if len(envelope.Parameters) == 0 {
 		t.Fatal("event data was not encoded")
 	}
 
@@ -150,11 +151,11 @@ func TestEnvelopeMetadata(t *testing.T) {
 
 }
 
-func PackageSearchFixture() PackagesSearchParams {
+func PackageSearchFixture() parameters.ScoutSearchPackages {
 
-	var params PackagesSearchParams
+	var params parameters.ScoutSearchPackages
 
-	params.SystemID = "system-1"
+	params.System = "system-1"
 	params.Search.Name = "log4j"
 
 	return params

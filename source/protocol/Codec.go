@@ -49,11 +49,11 @@ func DecodeParams[T any](envelope Envelope) (T, error) {
 
 	var value T
 
-	if len(envelope.Params) == 0 {
+	if len(envelope.Parameters) == 0 {
 		return value, fmt.Errorf("protocol: missing params")
 	}
 
-	err := json.Unmarshal(envelope.Params, &value)
+	err := json.Unmarshal(envelope.Parameters, &value)
 
 	if err != nil {
 		return value, fmt.Errorf("protocol: invalid params: %s", err)

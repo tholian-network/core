@@ -2,6 +2,7 @@ package protocol
 
 import "testing"
 import "tholian-core/protocol/methods"
+import "tholian-core/protocol/parameters"
 
 func TestCodecRequestRoundTrip(t *testing.T) {
 
@@ -35,13 +36,13 @@ func TestCodecRequestRoundTrip(t *testing.T) {
 		t.Fatal("request correlation fields were not preserved")
 	}
 
-	params, err3 := DecodeParams[PackagesSearchParams](decoded)
+	params, err3 := DecodeParams[parameters.ScoutSearchPackages](decoded)
 
 	if err3 != nil {
 		t.Fatalf("DecodeParams failed: %s", err3)
 	}
 
-	if params.SystemID != "system-1" || params.Search.Name != "log4j" {
+	if params.System != "system-1" || params.Search.Name != "log4j" {
 		t.Fatal("request params were not preserved")
 	}
 
@@ -145,14 +146,14 @@ func TestDecodeRejectsOversizedMessage(t *testing.T) {
 
 func TestDecodeParamsRejectsMissingOrInvalidData(t *testing.T) {
 
-	_, err0 := DecodeParams[PackagesSearchParams](Envelope{})
+	_, err0 := DecodeParams[parameters.ScoutSearchPackages](Envelope{})
 
 	if err0 == nil {
 		t.Fatal("missing params were accepted")
 	}
 
-	envelope := Envelope{Params: []byte(`not-json`)}
-	_, err1 := DecodeParams[PackagesSearchParams](envelope)
+	envelope := Envelope{Parameters: []byte(`not-json`)}
+	_, err1 := DecodeParams[parameters.ScoutSearchPackages](envelope)
 
 	if err1 == nil {
 		t.Fatal("invalid params were accepted")
