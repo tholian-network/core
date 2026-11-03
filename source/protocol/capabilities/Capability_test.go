@@ -1,4 +1,4 @@
-package permissions
+package capabilities
 
 import "strings"
 import "testing"

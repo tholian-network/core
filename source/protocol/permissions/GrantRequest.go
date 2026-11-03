@@ -1,11 +1,14 @@
 package permissions
 
+import "tholian-core/protocol/capabilities"
+import "tholian-core/protocol/methods"
+
 type GrantRequest struct {
-	SystemID     string       `json:"system"`
-	Purpose      Purpose      `json:"purpose"`
-	Capabilities []Capability `json:"capabilities"`
-	Scope        Scope        `json:"scope"`
-	ExpiresIn    int          `json:"expires-in"`
+	SystemID     string                    `json:"system"`
+	Purpose      Purpose                   `json:"purpose"`
+	Capabilities []capabilities.Capability `json:"capabilities"`
+	Scope        Scope                     `json:"scope"`
+	ExpiresIn    int                       `json:"expires-in"`
 }
 
 func (request *GrantRequest) IsValid() bool {
@@ -22,19 +25,18 @@ func (request *GrantRequest) IsValid() bool {
 
 }
 
-func IsSupportedCapability(value Capability) bool {
+func IsSupportedCapability(value capabilities.Capability) bool {
 
 	switch value {
-	case CapabilitySystemRead,
-		CapabilityPackagesRead,
-		CapabilityPackagesUpdate,
-		CapabilityProgramsRead,
-		CapabilityServicesRead,
-		CapabilityUsersRead,
-		CapabilityUpdatesRead,
-		CapabilityIncidentsRead,
-		CapabilityFirewallRead,
-		CapabilityFirewallWrite:
+	case capabilities.FirewallInstall,
+		capabilities.FirewallRead,
+		capabilities.FirewallWrite,
+		capabilities.GuardInstall,
+		capabilities.GuardRead,
+		capabilities.GuardWrite,
+		capabilities.ScoutInstall,
+		capabilities.ScoutRead,
+		capabilities.ScoutWrite:
 		return true
 	}
 
@@ -42,15 +44,11 @@ func IsSupportedCapability(value Capability) bool {
 
 }
 
-func IsReservedCapability(value Capability) bool {
+func IsReservedCapability(value capabilities.Capability) bool {
 
 	switch value {
-	case CapabilityProgramsUpdate,
-		CapabilityServicesUpdate,
-		CapabilityUsersUpdate,
-		CapabilityEvidenceRead,
-		CapabilityEvidenceWrite,
-		CapabilityShellExecute:
+	case capabilities.GuardWrite,
+		capabilities.ScoutWrite:
 		return true
 	}
 
@@ -58,39 +56,98 @@ func IsReservedCapability(value Capability) bool {
 
 }
 
-func MethodCapability(method Method) (Capability, bool) {
+func MethodCapability(method methods.Method) (capabilities.Capability, bool) {
 
 	switch method {
-	case MethodScoutInit, MethodScoutCollect, MethodGuardReport:
-		return CapabilitySystemRead, true
-	case MethodScoutCollectAntiques, MethodScoutCollectPackages, MethodScoutSearchAntiques, MethodScoutSearchPackages:
-		return CapabilityPackagesRead, true
-	case MethodScoutCollectDevices, MethodScoutCollectDrives, MethodScoutCollectNetworks:
-		return CapabilitySystemRead, true
-	case MethodScoutCollectIncidents, MethodScoutCollectIncidentsSince, MethodScoutSearchIncidents:
-		return CapabilityIncidentsRead, true
-	case MethodScoutCollectPrograms, MethodScoutSearchPrograms:
-		return CapabilityProgramsRead, true
-	case MethodScoutCollectServices, MethodScoutSearchServices:
-		return CapabilityServicesRead, true
-	case MethodScoutCollectUpdates, MethodScoutSearchUpdates:
-		return CapabilityUpdatesRead, true
-	case MethodScoutCollectUsers, MethodScoutSearchUsers:
-		return CapabilityUsersRead, true
-	case MethodScoutInstall, MethodScoutUninstall, MethodScoutUpdate, MethodScoutUpdatePackage, MethodScoutUpdatePackages:
-		return CapabilityPackagesUpdate, true
-	case MethodScoutSearchDevices, MethodScoutSearchDrives, MethodScoutSearchNetworks:
-		return CapabilitySystemRead, true
-	case MethodFirewallStatus, MethodFirewallCheck, MethodFirewallSearch, MethodFirewallSelfTest:
-		return CapabilityFirewallRead, true
-	case MethodFirewallInit, MethodFirewallLoad,
-		MethodFirewallPermit, MethodFirewallPermitConnection, MethodFirewallPermitConnections,
-		MethodFirewallPermitNetwork, MethodFirewallPermitNetworks,
-		MethodFirewallForbid, MethodFirewallForbidConnection, MethodFirewallForbidConnections,
-		MethodFirewallForbidNetwork, MethodFirewallForbidNetworks:
-		return CapabilityFirewallWrite, true
+
+	case methods.GuardInit,
+		methods.GuardInstall,
+		methods.GuardUninstall,
+		methods.GuardOnline,
+		methods.GuardOffline:
+
+		return capabilities.GuardInstall, true
+
+	case methods.GuardCollectSystem,
+		methods.GuardCollectVulnerabilities,
+		methods.GuardReadEvidence,
+		methods.GuardReadFile:
+
+		return capabilities.GuardRead, true
+
+	case methods.GuardExecuteShell,
+		methods.GuardWriteEvidence,
+		methods.GuardWriteFile,
+		methods.GuardUpdatePrograms,
+		methods.GuardUpdateServices:
+
+		return capabilities.GuardWrite, true
+
+	case methods.ScoutInit,
+		methods.ScoutInstall,
+		methods.ScoutUninstall:
+
+		return capabilities.ScoutInstall, true
+
+	case methods.ScoutCollect,
+		methods.ScoutCollectAntiques,
+		methods.ScoutCollectDevices,
+		methods.ScoutCollectDrives,
+		methods.ScoutCollectIncidents,
+		methods.ScoutCollectIncidentsSince,
+		methods.ScoutCollectNetworks,
+		methods.ScoutCollectPackages,
+		methods.ScoutCollectPrograms,
+		methods.ScoutCollectServices,
+		methods.ScoutCollectUpdates,
+		methods.ScoutCollectUsers,
+		methods.ScoutSearchAntiques,
+		methods.ScoutSearchDevices,
+		methods.ScoutSearchDrives,
+		methods.ScoutSearchIncidents,
+		methods.ScoutSearchNetworks,
+		methods.ScoutSearchPackages,
+		methods.ScoutSearchPrograms,
+		methods.ScoutSearchServices,
+		methods.ScoutSearchUpdates,
+		methods.ScoutSearchUsers:
+
+		return capabilities.ScoutRead, true
+
+	case methods.ScoutUpdate,
+		methods.ScoutUpdatePackage,
+		methods.ScoutUpdatePackages:
+
+		return capabilities.ScoutWrite, true
+
+	case methods.FirewallInit,
+		methods.FirewallInstall,
+		methods.FirewallLoad:
+
+		return capabilities.FirewallInstall, true
+
+	case methods.FirewallStatus,
+		methods.FirewallCheck,
+		methods.FirewallSearch,
+		methods.FirewallSelfTest:
+
+		return capabilities.FirewallRead, true
+
+	case methods.FirewallPermit,
+		methods.FirewallPermitConnection,
+		methods.FirewallPermitConnections,
+		methods.FirewallPermitNetwork,
+		methods.FirewallPermitNetworks,
+		methods.FirewallForbid,
+		methods.FirewallForbidConnection,
+		methods.FirewallForbidConnections,
+		methods.FirewallForbidNetwork,
+		methods.FirewallForbidNetworks:
+
+		return capabilities.FirewallWrite, true
+
 	}
 
-	return Capability(""), false
+	return capabilities.Capability(""), false
 
 }

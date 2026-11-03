@@ -1,24 +1,25 @@
 package permissions
 
+import "tholian-core/protocol/capabilities"
 import "tholian-core/protocol/id"
 import "tholian-core/types"
 import "time"
 
 type GrantResponse struct {
-	ID           string         `json:"id"`
-	SystemID     string         `json:"system"`
-	Subject      string         `json:"subject"`
-	Purpose      Purpose        `json:"purpose"`
-	Capabilities []Capability   `json:"capabilities"`
-	Scope        Scope          `json:"scope"`
-	IssuedAt     types.Datetime `json:"issued-at"`
-	ExpiresAt    types.Datetime `json:"expires-at"`
-	MaxUses      int            `json:"max-uses"`
-	Uses         int            `json:"uses"`
-	Revoked      bool           `json:"revoked"`
+	ID           string                    `json:"id"`
+	SystemID     string                    `json:"system"`
+	Subject      string                    `json:"subject"`
+	Purpose      Purpose                   `json:"purpose"`
+	Capabilities []capabilities.Capability `json:"capabilities"`
+	Scope        Scope                     `json:"scope"`
+	IssuedAt     types.Datetime            `json:"issued-at"`
+	ExpiresAt    types.Datetime            `json:"expires-at"`
+	MaxUses      int                       `json:"max-uses"`
+	Uses         int                       `json:"uses"`
+	Revoked      bool                      `json:"revoked"`
 }
 
-func NewGrantResponse(system string, subject string, purpose Purpose, capabilities []Capability, scope Scope, expires_in time.Duration) GrantResponse {
+func NewGrantResponse(system string, subject string, purpose Purpose, caps []capabilities.Capability, scope Scope, expires_in time.Duration) GrantResponse {
 
 	var grant GrantResponse
 
@@ -28,7 +29,7 @@ func NewGrantResponse(system string, subject string, purpose Purpose, capabiliti
 	grant.SystemID = system
 	grant.Subject = subject
 	grant.Purpose = purpose
-	grant.Capabilities = append([]Capability(nil), capabilities...)
+	grant.Capabilities = append([]capabilities.Capability(nil), caps...)
 	grant.Scope = scope
 	grant.IssuedAt = types.ToDatetime(now.Format(time.RFC3339))
 	grant.ExpiresAt = types.ToDatetime(now.Add(expires_in).Format(time.RFC3339))
@@ -78,7 +79,7 @@ func (grant *GrantResponse) IsExhausted() bool {
 
 }
 
-func (grant *GrantResponse) HasCapability(capability Capability) bool {
+func (grant *GrantResponse) HasCapability(capability capabilities.Capability) bool {
 
 	if grant != nil {
 
@@ -104,7 +105,7 @@ func (grant *GrantResponse) HasSystem(system string) bool {
 
 }
 
-func (grant *GrantResponse) Allows(system string, capability Capability, now types.Datetime) bool {
+func (grant *GrantResponse) Allows(system string, capability capabilities.Capability, now types.Datetime) bool {
 
 	if grant == nil {
 		return false

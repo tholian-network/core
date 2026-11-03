@@ -1,4 +1,4 @@
-package permissions
+package methods
 
 import "regexp"
 import "testing"
