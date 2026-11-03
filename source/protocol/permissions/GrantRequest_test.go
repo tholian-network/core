@@ -119,7 +119,7 @@ func TestGrantRequestIsValid(t *testing.T) {
 	caps := []capabilities.Capability{capabilities.ScoutRead}
 
 	valid := GrantRequest{
-		SystemID:     "system-1",
+		System:       "system-1",
 		Purpose:      purpose,
 		Capabilities: caps,
 	}
@@ -138,7 +138,7 @@ func TestGrantRequestIsValid(t *testing.T) {
 	}
 
 	without_purpose := GrantRequest{
-		SystemID:     "system-1",
+		System:       "system-1",
 		Capabilities: caps,
 	}
 
@@ -147,7 +147,7 @@ func TestGrantRequestIsValid(t *testing.T) {
 	}
 
 	without_capabilities := GrantRequest{
-		SystemID: "system-1",
+		System:   "system-1",
 		Purpose:  purpose,
 	}
 

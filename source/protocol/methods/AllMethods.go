@@ -35,7 +35,6 @@ var all_methods = []Method{
 	FirewallPermitNetworks,
 
 	// Scout Install Capability
-	ScoutInit,
 	ScoutInstall,
 	ScoutUninstall,
 
@@ -80,6 +79,7 @@ var all_methods = []Method{
 	GuardCollectVulnerabilities,
 	GuardReadEvidence,
 	GuardReadFile,
+	GuardSearchVulnerabilities,
 
 	// Guard Write Capability
 	GuardExecuteShell,

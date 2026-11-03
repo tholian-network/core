@@ -40,7 +40,6 @@ const (
 const (
 
 	// Install Capability
-	ScoutInit      Method = "tholian-scout.Init"
 	ScoutInstall   Method = "tholian-scout.Install"
 	ScoutUninstall Method = "tholian-scout.Uninstall"
 
@@ -89,6 +88,7 @@ const (
 	GuardCollectVulnerabilities Method = "tholian-guard.CollectVulnerabilities"
 	GuardReadEvidence           Method = "tholian-guard.ReadEvidence"
 	GuardReadFile               Method = "tholian-guard.ReadFile"
+	GuardSearchVulnerabilities  Method = "tholian-guard.SearchVulnerabilities"
 
 	// Write Capability
 	GuardExecuteShell   Method = "tholian-guard.ExecuteShell"

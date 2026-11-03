@@ -4,7 +4,7 @@ import "tholian-core/protocol/capabilities"
 import "tholian-core/protocol/methods"
 
 type GrantRequest struct {
-	SystemID     string                    `json:"system"`
+	System       string                    `json:"system"`
 	Purpose      Purpose                   `json:"purpose"`
 	Capabilities []capabilities.Capability `json:"capabilities"`
 	Scope        Scope                     `json:"scope"`
@@ -17,7 +17,7 @@ func (request *GrantRequest) IsValid() bool {
 		return false
 	}
 
-	if request.SystemID != "" && request.Purpose.IsValid() && len(request.Capabilities) > 0 {
+	if request.System != "" && request.Purpose.IsValid() && len(request.Capabilities) > 0 {
 		return true
 	}
 
@@ -98,7 +98,8 @@ func MethodCapability(method methods.Method) (capabilities.Capability, bool) {
 	case methods.GuardCollectSystem,
 		methods.GuardCollectVulnerabilities,
 		methods.GuardReadEvidence,
-		methods.GuardReadFile:
+		methods.GuardReadFile,
+		methods.GuardSearchVulnerabilities:
 
 		return capabilities.GuardRead, true
 
@@ -111,8 +112,7 @@ func MethodCapability(method methods.Method) (capabilities.Capability, bool) {
 
 		return capabilities.GuardWrite, true
 
-	case methods.ScoutInit,
-		methods.ScoutInstall,
+	case methods.ScoutInstall,
 		methods.ScoutUninstall:
 
 		return capabilities.ScoutInstall, true

@@ -7,7 +7,7 @@ import "time"
 
 type GrantResponse struct {
 	ID           string                    `json:"id"`
-	SystemID     string                    `json:"system"`
+	System       string                    `json:"system"`
 	Subject      string                    `json:"subject"`
 	Purpose      Purpose                   `json:"purpose"`
 	Capabilities []capabilities.Capability `json:"capabilities"`
@@ -26,7 +26,7 @@ func NewGrantResponse(system string, subject string, purpose Purpose, caps []cap
 	now := time.Now()
 
 	grant.ID = id.NewID()
-	grant.SystemID = system
+	grant.System = system
 	grant.Subject = subject
 	grant.Purpose = purpose
 	grant.Capabilities = append([]capabilities.Capability(nil), caps...)
@@ -47,7 +47,7 @@ func (grant *GrantResponse) IsValid() bool {
 		return false
 	}
 
-	if grant.ID != "" && grant.SystemID != "" && grant.Subject != "" && grant.Purpose.IsValid() && len(grant.Capabilities) > 0 {
+	if grant.ID != "" && grant.System != "" && grant.Subject != "" && grant.Purpose.IsValid() && len(grant.Capabilities) > 0 {
 		return true
 	}
 
@@ -98,7 +98,7 @@ func (grant *GrantResponse) HasCapability(capability capabilities.Capability) bo
 func (grant *GrantResponse) HasSystem(system string) bool {
 
 	if grant != nil {
-		return grant.SystemID == system
+		return grant.System == system
 	}
 
 	return false

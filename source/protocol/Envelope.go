@@ -11,14 +11,14 @@ const (
 )
 
 type Envelope struct {
-	Version  string            `json:"version"`
-	ID       string            `json:"id,omitempty"`
-	Kind     string            `json:"kind"`
-	Method   methods.Method    `json:"method,omitempty"`
-	Params   json.RawMessage   `json:"params,omitempty"`
-	Result   json.RawMessage   `json:"result,omitempty"`
-	Error    *Error            `json:"error,omitempty"`
-	Metadata map[string]string `json:"metadata,omitempty"`
+	Version    string            `json:"version"`
+	ID         string            `json:"id,omitempty"`
+	Kind       string            `json:"kind"`
+	Method     methods.Method    `json:"method,omitempty"`
+	Parameters json.RawMessage   `json:"parameters,omitempty"`
+	Result     json.RawMessage   `json:"result,omitempty"`
+	Error      *Error            `json:"error,omitempty"`
+	Metadata   map[string]string `json:"metadata,omitempty"`
 }
 
 func NewRequest(id string, method methods.Method, params any) (Envelope, error) {
@@ -36,7 +36,7 @@ func NewRequest(id string, method methods.Method, params any) (Envelope, error) 
 		blob, err := json.Marshal(params)
 
 		if err == nil {
-			envelope.Params = blob
+			envelope.Parameters = blob
 		} else {
 			return envelope, err
 		}
@@ -87,7 +87,7 @@ func NewEvent(method methods.Method, data any) (Envelope, error) {
 		blob, err := json.Marshal(data)
 
 		if err == nil {
-			envelope.Params = blob
+			envelope.Parameters = blob
 		} else {
 			return envelope, err
 		}
