@@ -2,6 +2,7 @@ package protocol
 
 import "encoding/json"
 import "tholian-core/matchers"
+import "tholian-core/protocol/methods"
 import "tholian-core/protocol/permissions"
 import "tholian-core/structs"
 
@@ -108,11 +109,11 @@ type FirewallScopeParams struct {
 }
 
 type CallParams struct {
-	Systems []string           `json:"systems"`
-	Method  permissions.Method `json:"method"`
-	Params  json.RawMessage    `json:"params"`
-	GrantID string             `json:"grant"`
-	Purpose string             `json:"purpose"`
+	Systems []string        `json:"systems"`
+	Method  methods.Method  `json:"method"`
+	Params  json.RawMessage `json:"params"`
+	Grant   string          `json:"grant"`
+	Purpose string          `json:"purpose"`
 }
 
 type SystemsReportParams struct {
@@ -143,7 +144,7 @@ type GrantsListParams struct {
 }
 
 type GrantsRevokeParams struct {
-	GrantID string `json:"grant"`
+	Grant string `json:"grant"`
 }
 
 type EventsSubscribeParams struct {

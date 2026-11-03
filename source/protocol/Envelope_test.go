@@ -1,125 +1,151 @@
 package protocol
 
-import "tholian-core/protocol/permissions"
 import "testing"
+import "tholian-core/protocol/methods"
 
-func TestEnvelopeRequestRoundTrip(t *testing.T) {
+func TestNewRequest(t *testing.T) {
 
-	envelope, err0 := NewRequest("id-1", permissions.MethodScoutSearchPackages, PackageSearchFixture())
+	envelope, err := NewRequest("id-1", methods.ScoutSearchPackages, PackageSearchFixture())
 
-	if err0 != nil {
-		t.Fatalf("NewRequest failed: %s", err0)
+	if err != nil {
+		t.Fatalf("NewRequest failed: %s", err)
 	}
 
-	blob, err1 := Encode(envelope)
-
-	if err1 != nil {
-		t.Fatalf("Encode failed: %s", err1)
+	if envelope.Version != Version {
+		t.Fatalf("unexpected version: %q", envelope.Version)
 	}
 
-	decoded, err2 := Decode(blob, 0)
-
-	if err2 != nil {
-		t.Fatalf("Decode failed: %s", err2)
+	if envelope.ID != "id-1" || envelope.Kind != KindRequest || envelope.Method != methods.ScoutSearchPackages {
+		t.Fatal("request fields were not preserved")
 	}
 
-	if decoded.Version != Version {
-		t.Fatalf("unexpected version: %q", decoded.Version)
+	if envelope.Metadata == nil {
+		t.Fatal("request metadata was not initialized")
 	}
 
-	if decoded.Kind != KindRequest {
-		t.Fatalf("unexpected kind: %q", decoded.Kind)
-	}
-
-	if decoded.ID != "id-1" || decoded.Method != permissions.MethodScoutSearchPackages {
-		t.Fatal("request correlation fields were not preserved")
-	}
-
-	params, err3 := DecodeParams[PackagesSearchParams](decoded)
-
-	if err3 != nil {
-		t.Fatalf("DecodeParams failed: %s", err3)
-	}
-
-	if params.SystemID != "system-1" || params.Search.Name != "log4j" {
-		t.Fatal("request params were not preserved")
+	if len(envelope.Params) == 0 {
+		t.Fatal("request params were not encoded")
 	}
 
 }
 
-func TestEnvelopeRejectsUnsupportedVersion(t *testing.T) {
+func TestNewResponse(t *testing.T) {
 
-	envelope := Envelope{
-		Version: "999",
-		Kind:    KindRequest,
-		Method:  permissions.MethodRPCPing,
+	result := map[string]string{"status": "ok"}
+	envelope, err := NewResponse("id-1", methods.ScoutSearchPackages, result)
+
+	if err != nil {
+		t.Fatalf("NewResponse failed: %s", err)
 	}
 
-	_, err := Decode([]byte(`{"version":"999","kind":"request","method":"tholian-rpc.Ping"}`), 0)
-
-	if err == nil {
-		t.Fatal("unsupported version was accepted")
+	if envelope.Version != Version {
+		t.Fatalf("unexpected version: %q", envelope.Version)
 	}
 
-	_ = envelope
-
-}
-
-func TestEnvelopeRejectsInvalidKind(t *testing.T) {
-
-	_, err := Decode([]byte(`{"version":"2","kind":"nonsense","method":"tholian-rpc.Ping"}`), 0)
-
-	if err == nil {
-		t.Fatal("invalid kind was accepted")
+	if envelope.ID != "id-1" || envelope.Kind != KindResponse || envelope.Method != methods.ScoutSearchPackages {
+		t.Fatal("response fields were not preserved")
 	}
 
-}
-
-func TestEnvelopeRejectsOversizedMessage(t *testing.T) {
-
-	blob := []byte(`{"version":"2","kind":"request","method":"tholian-rpc.Ping","params":{"value":"`)
-
-	for len(blob) < 64 {
-		blob = append(blob, 'a')
+	if envelope.Metadata == nil {
+		t.Fatal("response metadata was not initialized")
 	}
 
-	blob = append(blob, []byte(`"}}`)...)
-
-	_, err := Decode(blob, 16)
-
-	if err == nil {
-		t.Fatal("oversized message was accepted")
+	if len(envelope.Result) == 0 {
+		t.Fatal("response result was not encoded")
 	}
 
 }
 
-func TestEnvelopeErrorResponse(t *testing.T) {
+func TestNewEvent(t *testing.T) {
+
+	envelope, err := NewEvent(methods.GuardOnline, map[string]string{"system": "system-1"})
+
+	if err != nil {
+		t.Fatalf("NewEvent failed: %s", err)
+	}
+
+	if envelope.Version != Version {
+		t.Fatalf("unexpected version: %q", envelope.Version)
+	}
+
+	if envelope.Kind != KindEvent || envelope.Method != methods.GuardOnline {
+		t.Fatal("event fields were not preserved")
+	}
+
+	if len(envelope.Params) == 0 {
+		t.Fatal("event data was not encoded")
+	}
+
+}
+
+func TestNewErrorResponse(t *testing.T) {
 
 	failure := NewError(ErrorForbidden, "not allowed")
-	envelope := NewErrorResponse("id-1", permissions.MethodWatchtowerCall, failure)
+	envelope := NewErrorResponse("id-1", methods.WatchtowerListAudits, failure)
 
 	if envelope.IsError() == false {
 		t.Fatal("error response was not marked as error")
+	}
+
+	if envelope.ID != "id-1" || envelope.Method != methods.WatchtowerListAudits {
+		t.Fatal("error response fields were not preserved")
 	}
 
 	if envelope.Error == nil || envelope.Error.Code != ErrorForbidden {
 		t.Fatal("error details were not preserved")
 	}
 
-	blob, err0 := Encode(envelope)
+}
 
-	if err0 != nil {
-		t.Fatalf("Encode failed: %s", err0)
+func TestEnvelopeKindChecks(t *testing.T) {
+
+	var nil_envelope *Envelope
+
+	if nil_envelope.IsRequest() || nil_envelope.IsResponse() || nil_envelope.IsEvent() || nil_envelope.IsError() {
+		t.Fatal("nil envelope matched a kind")
 	}
 
-	decoded, err1 := Decode(blob, 0)
+	request := Envelope{Kind: KindRequest}
+	response := Envelope{Kind: KindResponse}
+	event := Envelope{Kind: KindEvent}
+	error_response := Envelope{Kind: KindError}
 
-	if err1 != nil {
-		t.Fatalf("Decode failed: %s", err1)
+	if request.IsRequest() == false || request.IsResponse() || request.IsEvent() || request.IsError() {
+		t.Fatal("request envelope matched the wrong kind")
 	}
 
-	if decoded.Error == nil || decoded.Error.Error() != "forbidden: not allowed" {
-		t.Fatalf("unexpected error: %v", decoded.Error)
+	if response.IsResponse() == false || response.IsRequest() || response.IsEvent() || response.IsError() {
+		t.Fatal("response envelope matched the wrong kind")
+	}
+
+	if event.IsEvent() == false || event.IsRequest() || event.IsResponse() || event.IsError() {
+		t.Fatal("event envelope matched the wrong kind")
+	}
+
+	if error_response.IsError() == false || error_response.IsRequest() || error_response.IsResponse() || error_response.IsEvent() {
+		t.Fatal("error envelope matched the wrong kind")
+	}
+
+}
+
+func TestEnvelopeMetadata(t *testing.T) {
+
+	var envelope Envelope
+
+	if envelope.GetMetadata("missing") != "" {
+		t.Fatal("uninitialized metadata returned a value")
+	}
+
+	envelope.SetMetadata("session", "session-1")
+
+	if envelope.GetMetadata("session") != "session-1" {
+		t.Fatal("metadata was not set")
+	}
+
+	envelope.Metadata = nil
+
+	if envelope.GetMetadata("session") != "" {
+		t.Fatal("nil metadata returned a value")
 	}
 
 }

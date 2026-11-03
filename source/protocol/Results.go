@@ -1,6 +1,7 @@
 package protocol
 
 import "encoding/json"
+import "tholian-core/protocol/methods"
 import "tholian-core/protocol/permissions"
 import "tholian-core/structs"
 import "tholian-core/types"
@@ -99,16 +100,16 @@ type GrantsResult struct {
 }
 
 type AuditEntry struct {
-	Datetime  types.Datetime     `json:"datetime"`
-	Actor     string             `json:"actor"`
-	SessionID string             `json:"session,omitempty"`
-	SystemID  string             `json:"system,omitempty"`
-	Purpose   string             `json:"purpose,omitempty"`
-	Method    permissions.Method `json:"method,omitempty"`
-	GrantID   string             `json:"grant,omitempty"`
-	Decision  string             `json:"decision"`
-	Params    string             `json:"params,omitempty"`
-	Outcome   string             `json:"outcome,omitempty"`
+	Datetime  types.Datetime `json:"datetime"`
+	Actor     string         `json:"actor"`
+	SessionID string         `json:"session,omitempty"`
+	SystemID  string         `json:"system,omitempty"`
+	Purpose   string         `json:"purpose,omitempty"`
+	Method    methods.Method `json:"method,omitempty"`
+	Grant     string         `json:"grant,omitempty"`
+	Decision  string         `json:"decision"`
+	Params    string         `json:"params,omitempty"`
+	Outcome   string         `json:"outcome,omitempty"`
 }
 
 type AuditResult struct {

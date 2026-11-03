@@ -3,11 +3,13 @@ package protocol
 import "crypto/ed25519"
 import "crypto/rand"
 import "testing"
-import "tholian-core/types"
+import "tholian-core/protocol/capabilities"
+import "tholian-core/protocol/methods"
 import "tholian-core/protocol/permissions"
+import "tholian-core/types"
 import "time"
 
-func tokenFixture(t *testing.T, expires_in time.Duration) (CapabilityToken, ed25519.PublicKey) {
+func tokenFixture(t *testing.T, expires_in time.Duration) (Token, ed25519.PublicKey) {
 
 	t.Helper()
 
@@ -20,21 +22,21 @@ func tokenFixture(t *testing.T, expires_in time.Duration) (CapabilityToken, ed25
 	purpose := permissions.NewPurpose(permissions.PurposeInvestigation, "Investigate log4j")
 	scope := permissions.NewUnrestrictedScope()
 
-	token, err1 := NewCapabilityToken(
+	token, err1 := NewToken(
 		"watchtower-1",
 		"operator-1",
 		"system-1",
 		purpose,
 		"grant-1",
-		[]permissions.Capability{permissions.CapabilityPackagesUpdate},
+		[]capabilities.Capability{capabilities.ScoutWrite},
 		scope,
-		permissions.MethodScoutUpdatePackages,
+		methods.ScoutUpdatePackages,
 		PackageSearchFixture(),
 		expires_in,
 	)
 
 	if err1 != nil {
-		t.Fatalf("NewCapabilityToken failed: %s", err1)
+		t.Fatalf("NewToken failed: %s", err1)
 	}
 
 	err2 := token.Sign(private_key)
@@ -47,7 +49,7 @@ func tokenFixture(t *testing.T, expires_in time.Duration) (CapabilityToken, ed25
 
 }
 
-func TestCapabilityTokenSignAndVerify(t *testing.T) {
+func TestTokenSignAndVerify(t *testing.T) {
 
 	token, public_key := tokenFixture(t, time.Minute)
 
@@ -57,29 +59,40 @@ func TestCapabilityTokenSignAndVerify(t *testing.T) {
 		t.Fatalf("Verify failed: %s", err)
 	}
 
-	if token.HasCapability(permissions.CapabilityPackagesUpdate) == false {
+	if token.HasCapability(capabilities.ScoutWrite) == false {
 		t.Fatal("capability was not preserved")
 	}
 
-	if token.Allows("system-1", permissions.MethodScoutUpdatePackages, PackageSearchFixture()) == false {
+	if token.HasCapability(capabilities.ScoutRead) == true {
+		t.Fatal("token has a capability that was not granted")
+	}
+
+	if token.AllowsMethod("system-1", methods.ScoutUpdatePackages, PackageSearchFixture()) == false {
 		t.Fatal("token did not allow the signed system and method")
 	}
 
-	if token.Allows("system-2", permissions.MethodScoutUpdatePackages, PackageSearchFixture()) == true {
+	if token.AllowsMethod("system-2", methods.ScoutUpdatePackages, PackageSearchFixture()) == true {
 		t.Fatal("token allowed a different system")
 	}
 
-	if token.Allows("system-1", permissions.MethodFirewallForbidNetworks, PackageSearchFixture()) == true {
+	if token.AllowsMethod("system-1", methods.FirewallForbidNetworks, PackageSearchFixture()) == true {
 		t.Fatal("token allowed a different method")
+	}
+
+	other_params := PackageSearchFixture()
+	other_params.Search.Name = "openssl"
+
+	if token.AllowsMethod("system-1", methods.ScoutUpdatePackages, other_params) == true {
+		t.Fatal("token allowed different parameters")
 	}
 
 }
 
-func TestCapabilityTokenDetectsTampering(t *testing.T) {
+func TestTokenDetectsTampering(t *testing.T) {
 
 	token, public_key := tokenFixture(t, time.Minute)
 
-	token.SystemID = "system-2"
+	token.System = "system-2"
 
 	err := token.Verify(public_key)
 
@@ -89,7 +102,7 @@ func TestCapabilityTokenDetectsTampering(t *testing.T) {
 
 }
 
-func TestCapabilityTokenExpiry(t *testing.T) {
+func TestTokenExpiry(t *testing.T) {
 
 	token, _ := tokenFixture(t, -1*time.Minute)
 	now := types.ToDatetime(time.Now().Format(time.RFC3339))
@@ -98,9 +111,15 @@ func TestCapabilityTokenExpiry(t *testing.T) {
 		t.Fatal("expired token was considered valid")
 	}
 
+	valid, _ := tokenFixture(t, time.Minute)
+
+	if valid.IsExpired(now) == true {
+		t.Fatal("valid token was considered expired")
+	}
+
 }
 
-func TestCapabilityTokenWrongKey(t *testing.T) {
+func TestTokenWrongKey(t *testing.T) {
 
 	token, _ := tokenFixture(t, time.Minute)
 	other_public, _, err0 := ed25519.GenerateKey(rand.Reader)

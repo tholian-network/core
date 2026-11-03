@@ -60,6 +60,33 @@ func MethodCapability(method methods.Method) (capabilities.Capability, bool) {
 
 	switch method {
 
+	case methods.FirewallInit,
+		methods.FirewallInstall,
+		methods.FirewallUninstall,
+		methods.FirewallLoad:
+
+		return capabilities.FirewallInstall, true
+
+	case methods.FirewallStatus,
+		methods.FirewallCheck,
+		methods.FirewallSearch,
+		methods.FirewallSelfTest:
+
+		return capabilities.FirewallRead, true
+
+	case methods.FirewallPermit,
+		methods.FirewallPermitConnection,
+		methods.FirewallPermitConnections,
+		methods.FirewallPermitNetwork,
+		methods.FirewallPermitNetworks,
+		methods.FirewallForbid,
+		methods.FirewallForbidConnection,
+		methods.FirewallForbidConnections,
+		methods.FirewallForbidNetwork,
+		methods.FirewallForbidNetworks:
+
+		return capabilities.FirewallWrite, true
+
 	case methods.GuardInit,
 		methods.GuardInstall,
 		methods.GuardUninstall,
@@ -78,6 +105,7 @@ func MethodCapability(method methods.Method) (capabilities.Capability, bool) {
 	case methods.GuardExecuteShell,
 		methods.GuardWriteEvidence,
 		methods.GuardWriteFile,
+		methods.GuardUpdatePackages,
 		methods.GuardUpdatePrograms,
 		methods.GuardUpdateServices:
 
@@ -119,32 +147,6 @@ func MethodCapability(method methods.Method) (capabilities.Capability, bool) {
 		methods.ScoutUpdatePackages:
 
 		return capabilities.ScoutWrite, true
-
-	case methods.FirewallInit,
-		methods.FirewallInstall,
-		methods.FirewallLoad:
-
-		return capabilities.FirewallInstall, true
-
-	case methods.FirewallStatus,
-		methods.FirewallCheck,
-		methods.FirewallSearch,
-		methods.FirewallSelfTest:
-
-		return capabilities.FirewallRead, true
-
-	case methods.FirewallPermit,
-		methods.FirewallPermitConnection,
-		methods.FirewallPermitConnections,
-		methods.FirewallPermitNetwork,
-		methods.FirewallPermitNetworks,
-		methods.FirewallForbid,
-		methods.FirewallForbidConnection,
-		methods.FirewallForbidConnections,
-		methods.FirewallForbidNetwork,
-		methods.FirewallForbidNetworks:
-
-		return capabilities.FirewallWrite, true
 
 	}
 
