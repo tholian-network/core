@@ -71,23 +71,25 @@ var all_methods = []Method{
 	GuardInit,
 	GuardInstall,
 	GuardUninstall,
+
+	// Guard Internal States
 	GuardOnline,
 	GuardOffline,
 
 	// Guard Read Capability
+	GuardCollectFiles,
 	GuardCollectSystem,
 	GuardCollectVulnerabilities,
-	GuardReadEvidence,
-	GuardReadFile,
+	GuardSearchFiles,
 	GuardSearchVulnerabilities,
 
 	// Guard Write Capability
-	GuardExecuteShell,
+	GuardExecuteProgram,
+	GuardRemoveFiles,
+	GuardUpdateFiles,
 	GuardUpdatePackages,
 	GuardUpdatePrograms,
 	GuardUpdateServices,
-	GuardWriteEvidence,
-	GuardWriteFile,
 
 	// Watchtower Methods
 	WatchtowerListAudits,

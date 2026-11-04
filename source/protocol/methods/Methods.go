@@ -80,23 +80,25 @@ const (
 	GuardInit      Method = "tholian-guard.Init"
 	GuardInstall   Method = "tholian-guard.Install"
 	GuardUninstall Method = "tholian-guard.Uninstall"
-	GuardOnline    Method = "tholian-guard.Online"
-	GuardOffline   Method = "tholian-guard.Offline"
+
+	// Internal States
+	GuardOnline  Method = "tholian-guard.Online"
+	GuardOffline Method = "tholian-guard.Offline"
 
 	// Read Capability
+	GuardCollectFiles           Method = "tholian-guard.CollectFiles"
 	GuardCollectSystem          Method = "tholian-guard.CollectSystem"
 	GuardCollectVulnerabilities Method = "tholian-guard.CollectVulnerabilities"
-	GuardReadEvidence           Method = "tholian-guard.ReadEvidence"
-	GuardReadFile               Method = "tholian-guard.ReadFile"
+	GuardSearchFiles            Method = "tholian-guard.SearchFiles"
 	GuardSearchVulnerabilities  Method = "tholian-guard.SearchVulnerabilities"
 
 	// Write Capability
-	GuardExecuteShell   Method = "tholian-guard.ExecuteShell"
+	GuardExecuteProgram Method = "tholian-guard.ExecuteProgram"
+	GuardRemoveFiles    Method = "tholian-guard.RemoveFiles"
+	GuardUpdateFiles    Method = "tholian-guard.UpdateFiles"
 	GuardUpdatePackages Method = "tholian-guard.UpdatePackages"
 	GuardUpdatePrograms Method = "tholian-guard.UpdatePrograms"
 	GuardUpdateServices Method = "tholian-guard.UpdateServices"
-	GuardWriteEvidence  Method = "tholian-guard.WriteEvidence"
-	GuardWriteFile      Method = "tholian-guard.WriteFile"
 
 )
 

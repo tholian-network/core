@@ -95,17 +95,17 @@ func MethodCapability(method methods.Method) (capabilities.Capability, bool) {
 
 		return capabilities.GuardInstall, true
 
-	case methods.GuardCollectSystem,
+	case methods.GuardCollectFiles,
+		methods.GuardCollectSystem,
 		methods.GuardCollectVulnerabilities,
-		methods.GuardReadEvidence,
-		methods.GuardReadFile,
+		methods.GuardSearchFiles,
 		methods.GuardSearchVulnerabilities:
 
 		return capabilities.GuardRead, true
 
-	case methods.GuardExecuteShell,
-		methods.GuardWriteEvidence,
-		methods.GuardWriteFile,
+	case methods.GuardExecuteProgram,
+		methods.GuardRemoveFiles,
+		methods.GuardUpdateFiles,
 		methods.GuardUpdatePackages,
 		methods.GuardUpdatePrograms,
 		methods.GuardUpdateServices:

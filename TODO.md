@@ -1,5 +1,9 @@
 # TODO
 
+## source/structs
+
+- [ ] Finish work on structs/File.go
+
 ## source/protocol
 
 - [ ] Continue porting the Params.go file to the new source/protocol/parameters package
