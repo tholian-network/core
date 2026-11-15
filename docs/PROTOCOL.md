@@ -1,26 +1,26 @@
 # Tholian RPC Protocol
 
-The `tholian-core/protocol` package is the shared wire contract for
+The `tholian-core/protocols/tholian` package is the shared wire contract for
 `tholian-operator`, `tholian-watchtower` and `tholian-guard`.
 
 - Transport: WebSocket version 13 via `github.com/cookiengineer/gows`.
 - Security: TLS 1.2+ with Ed25519 challenge-response authentication.
-- Encoding: JSON text frames with a versioned envelope.
+- Encoding: JSON text frames with a versioned packet.
 - Compression: `permessage-deflate` for large system reports.
 - Version: `1`.
-- Subprotocol name: `tholian-rpc.v2`. `gows.Client` v0.0.2 does not send
+- Subprotocol name: `tholian-rpc.v1`. `gows.Client` v0.0.2 does not send
   `Sec-WebSocket-Protocol`, so the server does not require it and the value is
   informational for now.
 
-## Envelope
+## Packet
 
 ```json
 {
     "version": "1",
     "id": "request-id",
-    "kind": "request|response|event|error",
+    "type": "request|response|event|error",
     "method": "tholian-scout.SearchPackages",
-    "params": {},
+    "parameters": {},
     "result": {},
     "error": {
         "code": "forbidden",
@@ -32,8 +32,13 @@ The `tholian-core/protocol` package is the shared wire contract for
 }
 ```
 
-Requests use `params`; responses use `result`; server errors use `error` with a
-stable code. Events use `params`.
+Requests use `parameters`; responses use `result`; server errors use `error`
+with a stable code. Events use `parameters`.
+
+In Go, the wire message is `tholian.Packet`. Use `tholian.NewPacket`,
+`tholian.NewRequest`, `tholian.NewResponse` or `tholian.NewEvent`, then
+`Packet.Bytes()` to encode and `tholian.Parse` to decode. `tholian.Decode`
+performs strict version, type and size validation.
 
 ## Handshake
 
@@ -43,8 +48,9 @@ stable code. Events use `params`.
    public key, a signature over `tholian-hello-v1:<nonce>:<id>`, an optional
    one-time enrollment token and the protocol version.
 4. Watchtower verifies the token or the registered public key and replies with
-   `tholian-rpc.Welcome`. The challenge nonce is carried in request `params`;
-   the welcome payload is carried in response `result` and contains the server
+   `tholian-rpc.Welcome`. The challenge nonce is carried in request
+   `parameters`; the welcome payload is carried in response `result` and
+   contains the server
    public key and a signature over `tholian-welcome-v1:<nonce>:<id>`.
 5. `gows.Client.Connect()` does not start the read loop; clients install
    `OnMessage`/`OnClose` and then call `go socket.Init()`.
@@ -52,7 +58,7 @@ stable code. Events use `params`.
 ## Methods
 
 Method names are project-qualified: `<module>.<ExportedActionName>`. The
-authoritative catalog lives in `source/protocol/permissions`.
+authoritative catalog lives in `source/protocols/tholian/permissions`.
 
 Handshake:
 
@@ -125,14 +131,14 @@ Reserved: `tholian-guard.VulnerabilitiesScan`,
   capabilities and caps grant lifetimes at 24 hours.
 - Watchtower issues short-lived Ed25519-signed capability tokens for each
   forwarded call.
-- Tokens bind the issuer, subject, system, method, params hash, purpose, grant,
-  expiry and a replay nonce.
-- Guards verify the signature, system binding, method, params hash, scope,
+- Tokens bind the issuer, subject, system, method, parameters hash, purpose,
+  grant, expiry and a replay nonce.
+- Guards verify the signature, system binding, method, parameters hash, scope,
   expiry and replay cache before executing an action.
 
 ## Results
 
-Guard actions return a uniform `protocol.ActionResult`:
+Guard actions return a uniform `results.Action`:
 
 ```json
 {
@@ -144,11 +150,11 @@ Guard actions return a uniform `protocol.ActionResult`:
 ```
 
 `data` contains the typed payload for the method, for example
-`protocol.PackagesSearchResult`, `protocol.SystemReportResult` or
-`protocol.FirewallStatusResult`. Audit entries record the project-qualified
-method string, so a result can be traced to the exact downstream action.
+`results.PackagesSearch`, `results.SystemReport` or
+`results.FirewallStatus`. Audit entries record the project-qualified method
+string, so a result can be traced to the exact downstream action.
 
 ## Size Limits
 
-`protocol.DefaultMaxMessageBytes` is 32 MiB. Components enforce a configurable
+`tholian.DefaultMaxMessageBytes` is 32 MiB. Components enforce a configurable
 limit and negotiate `permessage-deflate` for system reports.

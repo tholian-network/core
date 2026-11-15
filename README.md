@@ -36,6 +36,7 @@ Elastic, Kibana, SIEM, SOAR, or custom dashboards.
 | [source/distributions](./source/distributions) | Distribution detection and parsing   |
 | [source/insights](./source/insights)           | Insights Cache and Database          |
 | [source/matchers](./source/matchers)           | Matcher rules for types and structs  |
+| [source/protocols](./source/protocols)         | Network protocol implementations     |
 | [source/schemas](./source/schemas)             | External schema mappings (OVAL)      |
 | [source/structs](./source/structs)             | Nested data structures               |
 | [source/types](./source/types)                 | Value and composite types            |
