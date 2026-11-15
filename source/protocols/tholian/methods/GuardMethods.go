@@ -19,11 +19,12 @@ const (
 	GuardSearchVulnerabilities  Method = "tholian-guard.SearchVulnerabilities"
 
 	// Write Capability
-	GuardExecuteProgram Method = "tholian-guard.ExecuteProgram"
-	GuardRemoveFiles    Method = "tholian-guard.RemoveFiles"
-	GuardUpdateFiles    Method = "tholian-guard.UpdateFiles"
-	GuardUpdatePackages Method = "tholian-guard.UpdatePackages"
-	GuardUpdatePrograms Method = "tholian-guard.UpdatePrograms"
-	GuardUpdateServices Method = "tholian-guard.UpdateServices"
+	GuardExecuteProgram  Method = "tholian-guard.ExecuteProgram"
+	GuardProtectService  Method = "tholian-guard.ProtectService"
+	GuardProtectServices Method = "tholian-guard.ProtectServices"
+	GuardRemoveFiles     Method = "tholian-guard.RemoveFiles"
+	GuardUpdateFiles     Method = "tholian-guard.UpdateFiles"
+	GuardUpdatePrograms  Method = "tholian-guard.UpdatePrograms"
+	GuardUpdateServices  Method = "tholian-guard.UpdateServices"
 
 )

@@ -7,15 +7,20 @@ func (capability Capability) String() string {
 }
 
 const (
-	FirewallInstall Capability = "tholian-firewall.install"
-	FirewallRead    Capability = "tholian-firewall.read"
-	FirewallWrite   Capability = "tholian-firewall.write"
 
-	GuardInstall Capability = "tholian-guard.install"
-	GuardRead    Capability = "tholian-guard.read"
-	GuardWrite   Capability = "tholian-guard.write"
+	FirewallInstall Capability = "tholian-firewall.Install"
+	FirewallRead    Capability = "tholian-firewall.Read"
+	FirewallWrite   Capability = "tholian-firewall.Write"
 
-	ScoutInstall Capability = "tholian-scout.install"
-	ScoutRead    Capability = "tholian-scout.read"
-	ScoutWrite   Capability = "tholian-scout.write"
+	GuardInstall Capability = "tholian-guard.Install"
+	GuardRead    Capability = "tholian-guard.Read"
+	GuardWrite   Capability = "tholian-guard.Write"
+
+	ScoutInstall Capability = "tholian-scout.Install"
+	ScoutRead    Capability = "tholian-scout.Read"
+	ScoutWrite   Capability = "tholian-scout.Write"
+
+	WatchtowerRead  Capability = "tholian-watchtower.Read"
+	WatchtowerWrite Capability = "tholian-watchtower.Write"
+
 )

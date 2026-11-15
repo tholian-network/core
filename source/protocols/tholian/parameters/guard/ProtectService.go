@@ -2,7 +2,7 @@ package guard
 
 import "tholian-core/matchers"
 
-type UpdatePackages struct {
+type ProtectService struct {
 	System string           `json:"system"`
-	Search matchers.Package `json:"search"`
+	Search matchers.Program `json:"search"`
 }

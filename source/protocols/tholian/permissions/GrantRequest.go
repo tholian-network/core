@@ -47,8 +47,8 @@ func IsSupportedCapability(value capabilities.Capability) bool {
 func IsReservedCapability(value capabilities.Capability) bool {
 
 	switch value {
-	case capabilities.GuardWrite,
-		capabilities.ScoutWrite:
+	case capabilities.WatchtowerRead,
+		capabilities.WatchtowerWrite:
 		return true
 	}
 
@@ -60,30 +60,30 @@ func MethodCapability(method methods.Method) (capabilities.Capability, bool) {
 
 	switch method {
 
-	case methods.FirewallInit,
+	case methods.FirewallLoad,
+		methods.FirewallInit,
 		methods.FirewallInstall,
-		methods.FirewallUninstall,
-		methods.FirewallLoad:
+		methods.FirewallSelfTest,
+		methods.FirewallUninstall:
 
 		return capabilities.FirewallInstall, true
 
-	case methods.FirewallStatus,
-		methods.FirewallCheck,
+	case methods.FirewallCheck,
 		methods.FirewallSearch,
-		methods.FirewallSelfTest:
+		methods.FirewallStatus:
 
 		return capabilities.FirewallRead, true
 
-	case methods.FirewallPermit,
-		methods.FirewallPermitConnection,
-		methods.FirewallPermitConnections,
-		methods.FirewallPermitNetwork,
-		methods.FirewallPermitNetworks,
-		methods.FirewallForbid,
+	case methods.FirewallForbid,
 		methods.FirewallForbidConnection,
 		methods.FirewallForbidConnections,
 		methods.FirewallForbidNetwork,
-		methods.FirewallForbidNetworks:
+		methods.FirewallForbidNetworks,
+		methods.FirewallPermit,
+		methods.FirewallPermitConnection,
+		methods.FirewallPermitConnections,
+		methods.FirewallPermitNetwork,
+		methods.FirewallPermitNetworks:
 
 		return capabilities.FirewallWrite, true
 
@@ -104,9 +104,10 @@ func MethodCapability(method methods.Method) (capabilities.Capability, bool) {
 		return capabilities.GuardRead, true
 
 	case methods.GuardExecuteProgram,
+		methods.GuardProtectService,
+		methods.GuardProtectServices,
 		methods.GuardRemoveFiles,
 		methods.GuardUpdateFiles,
-		methods.GuardUpdatePackages,
 		methods.GuardUpdatePrograms,
 		methods.GuardUpdateServices:
 

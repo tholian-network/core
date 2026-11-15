@@ -41,9 +41,10 @@ var all_methods = []Method{
 	GuardSearchFiles,
 	GuardSearchVulnerabilities,
 	GuardExecuteProgram,
+	GuardProtectService,
+	GuardProtectServices,
 	GuardRemoveFiles,
 	GuardUpdateFiles,
-	GuardUpdatePackages,
 	GuardUpdatePrograms,
 	GuardUpdateServices,
 
