@@ -3,5 +3,5 @@ package linuxmint
 var Keywords map[string]string = map[string]string{
 	"ID":               "linuxmint",
 	"NAME":             "Linux Mint",
-	"VERSION_CODENAME": "%release%",
+	"VERSION_CODENAME": "{release}",
 }
