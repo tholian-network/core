@@ -419,7 +419,26 @@ func (response *Response) MatchesVulnerability(vulnerability Vulnerability) bool
 
 	for v := 0; v < len(response.Vulnerabilities); v++ {
 
-		if response.Vulnerabilities[v].Matches(vulnerability.Name, vulnerability.Type, vulnerability.Severity, vulnerability.State, vulnerability.Datetime.String()) {
+		matches_vulnerability := false
+
+		if len(vulnerability.Distributions) == 0 {
+
+			matches_vulnerability = response.Vulnerabilities[v].Matches(vulnerability.Name, vulnerability.Type, vulnerability.Severity, vulnerability.State, vulnerability.Datetime.String(), matchers.Any)
+
+		} else {
+
+			for d := 0; d < len(vulnerability.Distributions); d++ {
+
+				if response.Vulnerabilities[v].Matches(vulnerability.Name, vulnerability.Type, vulnerability.Severity, vulnerability.State, vulnerability.Datetime.String(), vulnerability.Distributions[d].Name) {
+					matches_vulnerability = true
+					break
+				}
+
+			}
+
+		}
+
+		if matches_vulnerability {
 			return true
 		}
 
