@@ -90,11 +90,14 @@ func (distribution *Distribution) MatchesName(value string) bool {
 
 		return true
 
-	} else if strings.HasSuffix(distribution.Name, "-*") {
+	} else if strings.HasSuffix(distribution.Name, "-*") || strings.HasSuffix(distribution.Name, "-any") {
 
-		prefix := distribution.Name[0 : len(distribution.Name)-2]
+		index := strings.LastIndex(distribution.Name, "-")
+		prefix := distribution.Name[0:index]
 
-		if strings.HasPrefix(value, prefix) {
+		if value == prefix {
+			return true
+		} else if strings.HasPrefix(value, prefix+"-") {
 			return true
 		}
 

@@ -328,43 +328,66 @@ func TestVulnerabilities(t *testing.T) {
 		vulnerabilities := mockupVulnerabilities()
 
 		found1 := vulnerabilities.Query(matchers.Vulnerability{
-			Name:     "CVE-2021-44228",
-			Type:     "any",
-			Severity: "any",
-			State:    "any",
-			Datetime: "any",
+			Name:         "CVE-2021-44228",
+			Type:         "any",
+			Severity:     "any",
+			State:        "any",
+			Datetime:     "any",
+			Distribution: "any",
 		})
 
 		found2 := vulnerabilities.Query(matchers.Vulnerability{
-			Name:     "any",
-			Type:     "network",
-			Severity: "any",
-			State:    "published",
-			Datetime: "any",
+			Name:         "any",
+			Type:         "network",
+			Severity:     "any",
+			State:        "published",
+			Datetime:     "any",
+			Distribution: "any",
 		})
 
 		found3 := vulnerabilities.Query(matchers.Vulnerability{
-			Name:     "any",
-			Type:     "any",
-			Severity: "any",
-			State:    "published",
-			Datetime: "any",
+			Name:         "any",
+			Type:         "any",
+			Severity:     "any",
+			State:        "published",
+			Datetime:     "any",
+			Distribution: "any",
 		})
 
 		found4 := vulnerabilities.Query(matchers.Vulnerability{
-			Name:     "any",
-			Type:     "any",
-			Severity: ">= high",
-			State:    "any",
-			Datetime: "any",
+			Name:         "any",
+			Type:         "any",
+			Severity:     ">= high",
+			State:        "any",
+			Datetime:     "any",
+			Distribution: "any",
 		})
 
 		found5 := vulnerabilities.Query(matchers.Vulnerability{
-			Name:     "any",
-			Type:     "any",
-			Severity: "any",
-			State:    "any",
-			Datetime: ">= 2021-12-10 00:00:00",
+			Name:         "any",
+			Type:         "any",
+			Severity:     "any",
+			State:        "any",
+			Datetime:     ">= 2021-12-10 00:00:00",
+			Distribution: "any",
+		})
+
+		found6 := vulnerabilities.Query(matchers.Vulnerability{
+			Name:         "any",
+			Type:         "any",
+			Severity:     "any",
+			State:        "any",
+			Datetime:     "any",
+			Distribution: "debian-bookworm",
+		})
+
+		found7 := vulnerabilities.Query(matchers.Vulnerability{
+			Name:         "any",
+			Type:         "any",
+			Severity:     "any",
+			State:        "any",
+			Datetime:     "any",
+			Distribution: "ubuntu-xenial",
 		})
 
 		if len(found1) == 1 {
@@ -423,6 +446,30 @@ func TestVulnerabilities(t *testing.T) {
 
 		} else {
 			t.Errorf("Expected %d results to be %d for query %s", len(found5), 1, "Datetime>=2021-12-10 00:00:00")
+		}
+
+		if len(found6) == 2 {
+
+			if found6[0].Name != "CVE-2001-0169" {
+				t.Errorf("Expected %s to be %s", found6[0].Name, "CVE-2001-0169")
+			}
+
+			if found6[1].Name != "CVE-2021-44228" {
+				t.Errorf("Expected %s to be %s", found6[1].Name, "CVE-2021-44228")
+			}
+
+		} else {
+			t.Errorf("Expected %d results to be %d for query %s", len(found6), 2, "Distribution=debian-bookworm")
+		}
+
+		if len(found7) == 1 {
+
+			if found7[0].Name != "CVE-2001-0169" {
+				t.Errorf("Expected %s to be %s", found7[0].Name, "CVE-2001-0169")
+			}
+
+		} else {
+			t.Errorf("Expected %d results to be %d for query %s", len(found7), 1, "Distribution=ubuntu-xenial")
 		}
 
 	})

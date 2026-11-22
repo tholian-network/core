@@ -285,8 +285,18 @@ func (cache *Vulnerabilities) Query(query matchers.Vulnerability) []*structs.Vul
 			matches_severity := query.MatchesSeverity(vulnerability.Severity)
 			matches_state := query.MatchesState(vulnerability.State)
 			matches_datetime := query.MatchesDatetime(vulnerability.Datetime.String())
+			matches_distributions := false
 
-			if matches_type && matches_severity && matches_state && matches_datetime {
+			for _, distribution := range vulnerability.Distributions {
+
+				if query.MatchesDistribution(distribution.Name) {
+					matches_distributions = true
+					break
+				}
+
+			}
+
+			if matches_type && matches_severity && matches_state && matches_datetime && matches_distributions {
 				found[vulnerability.Name] = vulnerability
 			}
 
@@ -312,8 +322,18 @@ func (cache *Vulnerabilities) Query(query matchers.Vulnerability) []*structs.Vul
 
 						matches_severity := query.MatchesSeverity(vulnerability.Severity)
 						matches_datetime := query.MatchesDatetime(vulnerability.Datetime.String())
+						matches_distributions := false
 
-						if matches_severity && matches_datetime {
+						for _, distribution := range vulnerability.Distributions {
+
+							if query.MatchesDistribution(distribution.Name) {
+								matches_distributions = true
+								break
+							}
+
+						}
+
+						if matches_severity && matches_datetime && matches_distributions {
 							found[vulnerability.Name] = vulnerability
 						}
 
@@ -344,8 +364,18 @@ func (cache *Vulnerabilities) Query(query matchers.Vulnerability) []*structs.Vul
 						matches_severity := query.MatchesSeverity(vulnerability.Severity)
 						matches_state := query.MatchesState(vulnerability.State)
 						matches_datetime := query.MatchesDatetime(vulnerability.Datetime.String())
+						matches_distributions := false
 
-						if matches_severity && matches_state && matches_datetime {
+						for _, distribution := range vulnerability.Distributions {
+
+							if query.MatchesDistribution(distribution.Name) {
+								matches_distributions = true
+								break
+							}
+
+						}
+
+						if matches_severity && matches_state && matches_datetime && matches_distributions {
 							found[vulnerability.Name] = vulnerability
 						}
 
@@ -366,8 +396,18 @@ func (cache *Vulnerabilities) Query(query matchers.Vulnerability) []*structs.Vul
 			matches_severity := query.MatchesSeverity(vulnerability.Severity)
 			matches_state := query.MatchesState(vulnerability.State)
 			matches_datetime := query.MatchesDatetime(vulnerability.Datetime.String())
+			matches_distributions := false
 
-			if matches_name && matches_type && matches_severity && matches_state && matches_datetime {
+			for _, distribution := range vulnerability.Distributions {
+
+				if query.MatchesDistribution(distribution.Name) {
+					matches_distributions = true
+					break
+				}
+
+			}
+
+			if matches_name && matches_type && matches_severity && matches_state && matches_datetime && matches_distributions {
 				found[vulnerability.Name] = vulnerability
 			}
 
