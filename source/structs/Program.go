@@ -18,6 +18,7 @@ type Program struct {
 	Filesystem   []string              `json:"filesystem"`
 	Connections  []matchers.Connection `json:"connections"`
 	Dependencies []matchers.Package    `json:"dependencies"`
+	Unresolved   []matchers.Unresolved `json:"unresolved"`
 	Packages     []Package             `json:"packages"`
 }
 
@@ -32,6 +33,7 @@ func NewProgram(pid uint, name string) Program {
 	program.Filesystem = make([]string, 0)
 	program.Connections = make([]matchers.Connection, 0)
 	program.Dependencies = make([]matchers.Package, 0)
+	program.Unresolved = make([]matchers.Unresolved, 0)
 	program.Packages = make([]Package, 0)
 
 	return program
@@ -108,6 +110,18 @@ func (program *Program) Equal(value Program) bool {
 	for d := 0; d < len(program.Dependencies); d++ {
 
 		if program.Dependencies[d].Equal(value.Dependencies[d]) == false {
+			return false
+		}
+
+	}
+
+	if len(program.Unresolved) != len(value.Unresolved) {
+		return false
+	}
+
+	for u := 0; u < len(program.Unresolved); u++ {
+
+		if equalPackageUnresolved(program.Unresolved[u], value.Unresolved[u]) == false {
 			return false
 		}
 
@@ -408,6 +422,78 @@ func (program *Program) SetDependencies(values []matchers.Package) {
 
 }
 
+func (program *Program) AddUnresolved(value matchers.Unresolved) {
+
+	if len(value.Candidates) > 0 {
+
+		found := false
+
+		for u := 0; u < len(program.Unresolved); u++ {
+
+			if equalPackageUnresolved(program.Unresolved[u], value) {
+				found = true
+				break
+			}
+
+		}
+
+		if found == false {
+			program.Unresolved = append(program.Unresolved, value)
+		}
+
+	}
+
+}
+
+func (program *Program) HasUnresolved(value matchers.Unresolved) bool {
+
+	for u := 0; u < len(program.Unresolved); u++ {
+
+		if equalPackageUnresolved(program.Unresolved[u], value) {
+			return true
+		}
+
+	}
+
+	return false
+
+}
+
+func (program *Program) RemoveUnresolved(value matchers.Unresolved) {
+
+	index := -1
+
+	for u := 0; u < len(program.Unresolved); u++ {
+
+		if equalPackageUnresolved(program.Unresolved[u], value) {
+			index = u
+			break
+		}
+
+	}
+
+	if index != -1 {
+		program.Unresolved = append(program.Unresolved[:index], program.Unresolved[index+1:]...)
+	}
+
+}
+
+func (program *Program) SetUnresolved(values []matchers.Unresolved) {
+
+	filtered := make([]matchers.Unresolved, 0)
+
+	for v := 0; v < len(values); v++ {
+
+		if len(values[v].Candidates) > 0 {
+			filtered = append(filtered, values[v])
+		}
+
+	}
+
+	program.Unresolved = filtered
+
+}
+
 func (program *Program) AddEnvironment(key string, val string) {
 
 	found := false
@@ -696,6 +782,10 @@ func (program *Program) Hash() string {
 
 		for d := 0; d < len(program.Dependencies); d++ {
 			values = append(values, program.Dependencies[d].Hash())
+		}
+
+		for u := 0; u < len(program.Unresolved); u++ {
+			values = append(values, program.Unresolved[u].Hash())
 		}
 
 		for p := 0; p < len(program.Packages); p++ {

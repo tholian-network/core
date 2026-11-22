@@ -1,7 +1,80 @@
 package structs
 
+import "encoding/json"
 import "testing"
 import "tholian-core/matchers"
+
+func TestProgramUnresolved(t *testing.T) {
+
+	program := programUnitValidProgram()
+	unresolved := matchers.ToUnresolved("curl >= 1.0.0 || wget")
+
+	if program.HasUnresolved(unresolved) == true {
+		t.Fatal("HasUnresolved found a value before it was added")
+	}
+
+	program.AddUnresolved(unresolved)
+
+	if len(program.Unresolved) != 1 {
+		t.Fatalf("Expected 1 unresolved entry, got %d", len(program.Unresolved))
+	}
+
+	if program.HasUnresolved(unresolved) == false {
+		t.Fatal("HasUnresolved did not find the added value")
+	}
+
+	program.AddUnresolved(matchers.ToUnresolved("curl >= 1.0.0 || wget"))
+
+	if len(program.Unresolved) != 1 {
+		t.Fatalf("AddUnresolved did not deduplicate: %d", len(program.Unresolved))
+	}
+
+	base := programUnitValidProgram()
+
+	if program.Equal(base) == true {
+		t.Fatal("Programs with different unresolved entries should not be equal")
+	}
+
+	clone := programUnitValidProgram()
+	clone.AddUnresolved(unresolved)
+
+	if program.Equal(clone) == false {
+		t.Fatal("Programs with identical unresolved entries should be equal")
+	}
+
+	if program.Hash() == base.Hash() {
+		t.Fatal("Unresolved entries should affect the program hash")
+	}
+
+	buffer, err := json.Marshal(program)
+
+	if err != nil {
+		t.Fatalf("Cannot marshal program: %s", err.Error())
+	}
+
+	var decoded Program
+
+	if err := json.Unmarshal(buffer, &decoded); err != nil {
+		t.Fatalf("Cannot unmarshal program: %s", err.Error())
+	}
+
+	if program.Equal(decoded) == false {
+		t.Fatal("Program unresolved entries did not survive JSON roundtrip")
+	}
+
+	program.SetUnresolved([]matchers.Unresolved{unresolved, matchers.NewUnresolved()})
+
+	if len(program.Unresolved) != 1 {
+		t.Fatalf("SetUnresolved did not filter empty entries: %d", len(program.Unresolved))
+	}
+
+	program.RemoveUnresolved(unresolved)
+
+	if len(program.Unresolved) != 0 {
+		t.Fatalf("RemoveUnresolved did not remove the entry: %d", len(program.Unresolved))
+	}
+
+}
 
 func programUnitClientConnection() matchers.Connection {
 	return matchers.ToConnection("1.2.3.4:443TC")

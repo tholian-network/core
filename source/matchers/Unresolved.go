@@ -69,6 +69,26 @@ func (unresolved *Unresolved) Parse(value string) {
 
 }
 
+func (unresolved Unresolved) Hash() string {
+
+	hash := ""
+
+	if len(unresolved.Candidates) > 0 {
+
+		values := make([]string, 0)
+
+		for c := 0; c < len(unresolved.Candidates); c++ {
+			values = append(values, unresolved.Candidates[c].Hash())
+		}
+
+		hash = toHash(values...)
+
+	}
+
+	return hash
+
+}
+
 func (unresolved *Unresolved) Matches(name string, version string, architecture string, manager string, vendor string) bool {
 
 	matches_candidate := false
