@@ -163,6 +163,7 @@ a local replacement:
 |- guard/        # Tholian Guard     (EDR Agent)
 |- recon/        # Tholian Recon     (Threat Intelligence Agent)
 |- scout/        # Tholian Scout     (Inventory Agent)
+|- stealth/      # Tholian Stealth   (Browser Agent)
 \- warps/        # Tholian Warps     (Network Router Agent)
 ```
 
