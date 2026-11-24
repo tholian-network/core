@@ -55,6 +55,22 @@ func (cache *Timeslots) Add(value structs.Timeslot) bool {
 
 }
 
+func (cache *Timeslots) All() []structs.Timeslot {
+
+	result := make([]structs.Timeslot, 0)
+
+	cache.mutex.RLock()
+
+	for _, timeslot := range cache.Timeslots {
+		result = append(result, *timeslot)
+	}
+
+	cache.mutex.RUnlock()
+
+	return result
+
+}
+
 func (cache *Timeslots) Get(offset string) *structs.Timeslot {
 
 	cache.mutex.RLock()
@@ -297,4 +313,3 @@ func (cache *Timeslots) UnmarshalJSON(data []byte) error {
 	return nil
 
 }
-

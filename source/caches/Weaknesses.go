@@ -69,6 +69,22 @@ func (cache *Weaknesses) Add(value structs.Weakness) bool {
 
 }
 
+func (cache *Weaknesses) All() []structs.Weakness {
+
+	result := make([]structs.Weakness, 0)
+
+	cache.mutex.Lock()
+
+	for _, weakness := range cache.Weaknesses {
+		result = append(result, *weakness)
+	}
+
+	cache.mutex.Unlock()
+
+	return result
+
+}
+
 func (cache *Weaknesses) Get(name string) *structs.Weakness {
 
 	cache.mutex.RLock()
@@ -430,4 +446,3 @@ func (cache *Weaknesses) UnmarshalJSON(data []byte) error {
 	return nil
 
 }
-

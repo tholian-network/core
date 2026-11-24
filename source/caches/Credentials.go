@@ -52,6 +52,22 @@ func (cache *Credentials) Add(value structs.Credential) bool {
 
 }
 
+func (cache *Credentials) All() []structs.Credential {
+
+	result := make([]structs.Credential, 0)
+
+	cache.mutex.RLock()
+
+	for _, credential := range cache.Credentials {
+		result = append(result, *credential)
+	}
+
+	cache.mutex.RUnlock()
+
+	return result
+
+}
+
 func (cache *Credentials) Get(name string) *structs.Credential {
 
 	cache.mutex.RLock()

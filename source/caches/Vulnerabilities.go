@@ -240,6 +240,22 @@ func (cache *Vulnerabilities) Add(value structs.Vulnerability) bool {
 
 }
 
+func (cache *Vulnerabilities) All() []structs.Vulnerability {
+
+	result := make([]structs.Vulnerability, 0)
+
+	cache.mutex.Lock()
+
+	for _, vulnerability := range cache.Vulnerabilities {
+		result = append(result, *vulnerability)
+	}
+
+	cache.mutex.Unlock()
+
+	return result
+
+}
+
 func (cache *Vulnerabilities) Get(name string) *structs.Vulnerability {
 
 	cache.mutex.RLock()

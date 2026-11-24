@@ -67,6 +67,22 @@ func (cache *Programs) Add(value structs.Program) bool {
 
 }
 
+func (cache *Programs) All() []structs.Program {
+
+	result := make([]structs.Program, 0)
+
+	cache.mutex.RLock()
+
+	for _, program := range cache.Programs {
+		result = append(result, *program)
+	}
+
+	cache.mutex.RUnlock()
+
+	return result
+
+}
+
 func (cache *Programs) Get(value uint) *structs.Program {
 
 	cache.mutex.RLock()

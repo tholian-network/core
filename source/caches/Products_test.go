@@ -118,30 +118,30 @@ func TestProducts(t *testing.T) {
 
 		found1 := products.Query(matchers.Product{
 			Product: "Internet Explorer",
-			Vendor: "any",
+			Vendor:  "any",
 			Version: "any",
-			Type: "software",
+			Type:    "software",
 		})
 
 		found2 := products.Query(matchers.Product{
 			Product: "any",
-			Vendor: "Microsoft",
+			Vendor:  "Microsoft",
 			Version: "any",
-			Type: "software",
+			Type:    "software",
 		})
 
 		found3 := products.Query(matchers.Product{
 			Product: "any",
-			Vendor: "any",
+			Vendor:  "any",
 			Version: "10",
-			Type: "software",
+			Type:    "software",
 		})
 
 		found4 := products.Query(matchers.Product{
 			Product: "any",
-			Vendor: "any",
+			Vendor:  "any",
 			Version: "any",
-			Type: "software",
+			Type:    "software",
 		})
 
 		if len(found1) == 2 {

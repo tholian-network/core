@@ -96,21 +96,21 @@ func TestCredentials(t *testing.T) {
 		credentials := mockupCredentials()
 
 		found1 := credentials.Query(matchers.Credential{
-			Name: "postgres",
+			Name:     "postgres",
 			Password: "any",
-			Type: "any",
+			Type:     "any",
 		})
 
 		found2 := credentials.Query(matchers.Credential{
-			Name: "any",
+			Name:     "any",
 			Password: "admin",
-			Type: "any",
+			Type:     "any",
 		})
 
 		found3 := credentials.Query(matchers.Credential{
-			Name: "any",
+			Name:     "any",
 			Password: "any",
-			Type: "program",
+			Type:     "program",
 		})
 
 		if len(found1) == 1 {

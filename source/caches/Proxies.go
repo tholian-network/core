@@ -95,6 +95,22 @@ func (cache *Proxies) Add(value structs.Proxy) bool {
 
 }
 
+func (cache *Proxies) All() []structs.Proxy {
+
+	result := make([]structs.Proxy, 0)
+
+	cache.mutex.RLock()
+
+	for _, proxy := range cache.Proxies {
+		result = append(result, *proxy)
+	}
+
+	cache.mutex.RUnlock()
+
+	return result
+
+}
+
 func (cache *Proxies) Get(name string) *structs.Proxy {
 
 	cache.mutex.RLock()

@@ -8,7 +8,7 @@ func mockupWeaknesses() *Weaknesses {
 
 	weaknesses := NewWeaknesses()
 	weaknesses.Add(structs.Weakness{
-		Name: "CWE-13",
+		Name:        "CWE-13",
 		Description: "Storing a plaintext password in a configuration file allows anyone who can read the file access to the password-protected resource making them an easy target for attackers.",
 		Impacts: []string{
 			"Gain Privileges or Assume Identity",
@@ -25,7 +25,7 @@ func mockupWeaknesses() *Weaknesses {
 		},
 	})
 	weaknesses.Add(structs.Weakness{
-		Name: "CWE-37",
+		Name:        "CWE-37",
 		Description: "The product accepts input in the form of a slash absolute path ('/absolute/pathname/here') without appropriate validation, which can allow an attacker to traverse the file system to unintended locations or access arbitrary files.",
 		Impacts: []string{
 			"Read Files or Directories",
@@ -46,7 +46,7 @@ func mockupWeaknesses() *Weaknesses {
 		},
 	})
 	weaknesses.Add(structs.Weakness{
-		Name: "CWE-370",
+		Name:        "CWE-370",
 		Description: "The product does not check the revocation status of a certificate after its initial revocation check, which can cause the product to perform privileged actions even after the certificate is revoked at a later time.",
 		Impacts: []string{
 			"Gain Privileges or Assume Identity",
@@ -80,15 +80,14 @@ func TestWeaknesses(t *testing.T) {
 		}
 
 		weaknesses.Add(structs.Weakness{
-			Name: "CWE-1337",
+			Name:        "CWE-1337",
 			Description: "This is a special 1337 h4xx0r weakness",
 			Impacts: []string{
 				"Gain Privileges or Assume Identity",
 				"Modify Application Data",
 				"Read Application Data",
 			},
-			References: []string{
-			},
+			References: []string{},
 			Scopes: []string{
 				"Access Control",
 				"Integrity",
@@ -132,21 +131,21 @@ func TestWeaknesses(t *testing.T) {
 		weaknesses := mockupWeaknesses()
 
 		found1 := weaknesses.Query(matchers.Weakness{
-			Name: "CWE-13",
+			Name:   "CWE-13",
 			Impact: "any",
-			Scope: "any",
+			Scope:  "any",
 		})
 
 		found2 := weaknesses.Query(matchers.Weakness{
-			Name: "any",
+			Name:   "any",
 			Impact: "Modify Application Data",
-			Scope: "any",
+			Scope:  "any",
 		})
 
 		found3 := weaknesses.Query(matchers.Weakness{
-			Name: "any",
+			Name:   "any",
 			Impact: "any",
-			Scope: "Access Control",
+			Scope:  "Access Control",
 		})
 
 		if len(found1) == 1 {

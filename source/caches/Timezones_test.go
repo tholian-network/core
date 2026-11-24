@@ -8,19 +8,19 @@ func mockupTimezones() *Timezones {
 
 	timezones := NewTimezones()
 	timezones.Add(structs.Timezone{
-		Name: "Gondor/Minas-Tirith",
+		Name:   "Gondor/Minas-Tirith",
 		Offset: "+00:00",
 	})
 	timezones.Add(structs.Timezone{
-		Name: "Rohan/Isengard",
+		Name:   "Rohan/Isengard",
 		Offset: "+00:00",
 	})
 	timezones.Add(structs.Timezone{
-		Name: "Rohan/Edoras",
+		Name:   "Rohan/Edoras",
 		Offset: "+01:30",
 	})
 	timezones.Add(structs.Timezone{
-		Name: "Mordor/Orodruin",
+		Name:   "Mordor/Orodruin",
 		Offset: "+05:00",
 	})
 
@@ -41,7 +41,7 @@ func TestTimezones(t *testing.T) {
 		}
 
 		timezones.Add(structs.Timezone{
-			Name: "South Gondor/Dol Amroth",
+			Name:   "South Gondor/Dol Amroth",
 			Offset: "+03:00",
 		})
 
@@ -81,17 +81,17 @@ func TestTimezones(t *testing.T) {
 		timezones := mockupTimezones()
 
 		found1 := timezones.Query(matchers.Timezone{
-			Name: "Mordor/Orodruin",
+			Name:   "Mordor/Orodruin",
 			Offset: "any",
 		})
 
 		found2 := timezones.Query(matchers.Timezone{
-			Name: "Rohan/*",
+			Name:   "Rohan/*",
 			Offset: "any",
 		})
 
 		found3 := timezones.Query(matchers.Timezone{
-			Name: "any",
+			Name:   "any",
 			Offset: "+01:30",
 		})
 

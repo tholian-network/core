@@ -7,10 +7,6 @@ import "sort"
 import "strings"
 import "sync"
 
-func toPackageIdentifier(value structs.Package) string {
-	return value.Manager.String() + ":" + value.Vendor + ":" + value.Name + ":" + value.Version.String() + ":" + value.Architecture.String()
-}
-
 type Packages struct {
 	Packages        map[string]*structs.Package    `json:"packages"`
 	mapdependencies map[string]map[string][]string `json:"-"`
@@ -79,6 +75,22 @@ func (cache *Packages) Add(value structs.Package) bool {
 	}
 
 	cache.mutex.Unlock()
+
+	return result
+
+}
+
+func (cache *Packages) All() []structs.Package {
+
+	result := make([]structs.Package, 0)
+
+	cache.mutex.RLock()
+
+	for _, pkg := range cache.Packages {
+		result = append(result, *pkg)
+	}
+
+	cache.mutex.RUnlock()
 
 	return result
 

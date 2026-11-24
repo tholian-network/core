@@ -107,57 +107,57 @@ func TestAntiques(t *testing.T) {
 		antiques := mockupAntiques()
 
 		found1 := antiques.Query(matchers.Antique{
-			Name: "glibc",
-			Version: "any",
+			Name:         "glibc",
+			Version:      "any",
 			Architecture: "any",
-			Manager: "any",
-			Vendor: "any",
-			Service: "any",
+			Manager:      "any",
+			Vendor:       "any",
+			Service:      "any",
 		})
 
 		found2 := antiques.Query(matchers.Antique{
-			Name: "any",
-			Version: "0:1.2.3~patch4",
+			Name:         "any",
+			Version:      "0:1.2.3~patch4",
 			Architecture: "any",
-			Manager: "any",
-			Vendor: "any",
-			Service: "any",
+			Manager:      "any",
+			Vendor:       "any",
+			Service:      "any",
 		})
 
 		found3 := antiques.Query(matchers.Antique{
-			Name: "any",
-			Version: "any",
+			Name:         "any",
+			Version:      "any",
 			Architecture: "x86_64",
-			Manager: "any",
-			Vendor: "any",
-			Service: "any",
+			Manager:      "any",
+			Vendor:       "any",
+			Service:      "any",
 		})
 
 		found4 := antiques.Query(matchers.Antique{
-			Name: "any",
-			Version: "any",
+			Name:         "any",
+			Version:      "any",
 			Architecture: "any",
-			Manager: "npm",
-			Vendor: "any",
-			Service: "any",
+			Manager:      "npm",
+			Vendor:       "any",
+			Service:      "any",
 		})
 
 		found5 := antiques.Query(matchers.Antique{
-			Name: "any",
-			Version: "any",
+			Name:         "any",
+			Version:      "any",
 			Architecture: "any",
-			Manager: "any",
-			Vendor: "debian-bullseye",
-			Service: "any",
+			Manager:      "any",
+			Vendor:       "debian-bullseye",
+			Service:      "any",
 		})
 
 		found6 := antiques.Query(matchers.Antique{
-			Name: "any",
-			Version: "any",
+			Name:         "any",
+			Version:      "any",
 			Architecture: "any",
-			Manager: "any",
-			Vendor: "any",
-			Service: "backend",
+			Manager:      "any",
+			Vendor:       "any",
+			Service:      "backend",
 		})
 
 		if len(found1) == 2 {
@@ -247,39 +247,39 @@ func TestAntiques(t *testing.T) {
 		antiques := mockupAntiques()
 
 		found1 := antiques.Query(matchers.Antique{
-			Name: "glibc",
-			Version: "0:1.2.3~patch4",
+			Name:         "glibc",
+			Version:      "0:1.2.3~patch4",
 			Architecture: "any",
-			Manager: "any",
-			Vendor: "any",
-			Service: "any",
+			Manager:      "any",
+			Vendor:       "any",
+			Service:      "any",
 		})
 
 		found2 := antiques.Query(matchers.Antique{
-			Name: "glibc",
-			Version: "< 0:2.41~r47",
+			Name:         "glibc",
+			Version:      "< 0:2.41~r47",
 			Architecture: "any",
-			Manager: "any",
-			Vendor: "any",
-			Service: "any",
+			Manager:      "any",
+			Vendor:       "any",
+			Service:      "any",
 		})
 
 		found3 := antiques.Query(matchers.Antique{
-			Name: "glibc",
-			Version: "> 0:1.2.3~patch4",
+			Name:         "glibc",
+			Version:      "> 0:1.2.3~patch4",
 			Architecture: "any",
-			Manager: "any",
-			Vendor: "any",
-			Service: "any",
+			Manager:      "any",
+			Vendor:       "any",
+			Service:      "any",
 		})
 
 		found4 := antiques.Query(matchers.Antique{
-			Name: "glibc",
-			Version: "<= 0:2.41~r47",
+			Name:         "glibc",
+			Version:      "<= 0:2.41~r47",
 			Architecture: "any",
-			Manager: "any",
-			Vendor: "any",
-			Service: "any",
+			Manager:      "any",
+			Vendor:       "any",
+			Service:      "any",
 		})
 
 		if len(found1) == 1 {

@@ -11,7 +11,7 @@ func mockupTimeslots() *Timeslots {
 		Offset:     "+00:00",
 		Population: 300000,
 		Weight:     0.30,
-		Countries:  []string{
+		Countries: []string{
 			"Gondor",
 			"Rohan",
 		},
@@ -24,7 +24,7 @@ func mockupTimeslots() *Timeslots {
 		Offset:     "+01:30",
 		Population: 200000,
 		Weight:     0.20,
-		Countries:  []string{
+		Countries: []string{
 			"Rohan",
 		},
 		Timezones: []string{
@@ -35,7 +35,7 @@ func mockupTimeslots() *Timeslots {
 		Offset:     "+05:00",
 		Population: 500000,
 		Weight:     0.50,
-		Countries:  []string{
+		Countries: []string{
 			"Mordor",
 		},
 		Timezones: []string{
@@ -65,7 +65,7 @@ func TestTimeslots(t *testing.T) {
 			Offset:     "+03:00",
 			Population: 1000,
 			Weight:     0.001,
-			Countries:  []string{
+			Countries: []string{
 				"South Gondor",
 			},
 			Timezones: []string{
@@ -109,20 +109,20 @@ func TestTimeslots(t *testing.T) {
 		timeslots := mockupTimeslots()
 
 		found1 := timeslots.Query(matchers.Timeslot{
-			Offset: "+00:00",
-			Country: "any",
+			Offset:   "+00:00",
+			Country:  "any",
 			Timezone: "any",
 		})
 
 		found2 := timeslots.Query(matchers.Timeslot{
-			Offset: "any",
-			Country: "Rohan",
+			Offset:   "any",
+			Country:  "Rohan",
 			Timezone: "any",
 		})
 
 		found3 := timeslots.Query(matchers.Timeslot{
-			Offset: "any",
-			Country: "any",
+			Offset:   "any",
+			Country:  "any",
 			Timezone: "Mordor/Orodruin",
 		})
 
@@ -185,4 +185,3 @@ func TestTimeslots(t *testing.T) {
 	})
 
 }
-

@@ -35,7 +35,7 @@ func mockupPackages() *Packages {
 				Vendor:       "archlinux",
 			},
 		},
-		Provides:     []matchers.Package{
+		Provides: []matchers.Package{
 			matchers.Package{
 				Name:         "libctf.so",
 				Version:      "any",
@@ -58,8 +58,8 @@ func mockupPackages() *Packages {
 				Vendor:       "any",
 			},
 		},
-		Replaces:     []matchers.Package{},
-		Unresolved:   []matchers.Unresolved{},
+		Replaces:   []matchers.Package{},
+		Unresolved: []matchers.Unresolved{},
 	})
 	packages.Add(structs.Package{
 		Name:         "glibc",
@@ -81,9 +81,9 @@ func mockupPackages() *Packages {
 				Vendor:       "archlinux",
 			},
 		},
-		Provides:     []matchers.Package{},
-		Replaces:     []matchers.Package{},
-		Unresolved:   []matchers.Unresolved{},
+		Provides:   []matchers.Package{},
+		Replaces:   []matchers.Package{},
+		Unresolved: []matchers.Unresolved{},
 	})
 	packages.Add(structs.Package{
 		Name:         "glibc",
@@ -105,9 +105,9 @@ func mockupPackages() *Packages {
 				Vendor:       "archlinux",
 			},
 		},
-		Provides:     []matchers.Package{},
-		Replaces:     []matchers.Package{},
-		Unresolved:   []matchers.Unresolved{},
+		Provides:   []matchers.Package{},
+		Replaces:   []matchers.Package{},
+		Unresolved: []matchers.Unresolved{},
 	})
 	packages.Add(structs.Package{
 		Name:         "tzdata",
@@ -145,7 +145,7 @@ func mockupPackages() *Packages {
 				Vendor:       "archlinux",
 			},
 		},
-		Provides:     []matchers.Package{
+		Provides: []matchers.Package{
 			matchers.Package{
 				Name:         "libz.so",
 				Version:      "1",
@@ -154,8 +154,8 @@ func mockupPackages() *Packages {
 				Vendor:       "any",
 			},
 		},
-		Replaces:     []matchers.Package{},
-		Unresolved:   []matchers.Unresolved{},
+		Replaces:   []matchers.Package{},
+		Unresolved: []matchers.Unresolved{},
 	})
 	packages.Add(structs.Package{
 		Name:         "zlib",
@@ -177,7 +177,7 @@ func mockupPackages() *Packages {
 				Vendor:       "archlinux",
 			},
 		},
-		Provides:     []matchers.Package{
+		Provides: []matchers.Package{
 			matchers.Package{
 				Name:         "libz.so",
 				Version:      "1",
@@ -186,8 +186,8 @@ func mockupPackages() *Packages {
 				Vendor:       "any",
 			},
 		},
-		Replaces:     []matchers.Package{},
-		Unresolved:   []matchers.Unresolved{},
+		Replaces:   []matchers.Package{},
+		Unresolved: []matchers.Unresolved{},
 	})
 
 	return packages
@@ -233,9 +233,9 @@ func TestPackages(t *testing.T) {
 					Vendor:       "archlinux",
 				},
 			},
-			Provides:     []matchers.Package{},
-			Replaces:     []matchers.Package{},
-			Unresolved:   []matchers.Unresolved{},
+			Provides:   []matchers.Package{},
+			Replaces:   []matchers.Package{},
+			Unresolved: []matchers.Unresolved{},
 		})
 
 		package2 := packages.Get("pacman:archlinux:libelf:0:0.193.2:x86_64")
@@ -275,43 +275,43 @@ func TestPackages(t *testing.T) {
 		packages := mockupPackages()
 
 		found1 := packages.Query(matchers.Package{
-			Name: "glibc",
-			Version: "any",
+			Name:         "glibc",
+			Version:      "any",
 			Architecture: "any",
-			Manager: "any",
-			Vendor: "any",
+			Manager:      "any",
+			Vendor:       "any",
 		})
 
 		found2 := packages.Query(matchers.Package{
-			Name: "any",
-			Version: "0:2.44.0r94",
+			Name:         "any",
+			Version:      "0:2.44.0r94",
 			Architecture: "any",
-			Manager: "any",
-			Vendor: "any",
+			Manager:      "any",
+			Vendor:       "any",
 		})
 
 		found3 := packages.Query(matchers.Package{
-			Name: "any",
-			Version: "any",
+			Name:         "any",
+			Version:      "any",
 			Architecture: "x86_64",
-			Manager: "any",
-			Vendor: "any",
+			Manager:      "any",
+			Vendor:       "any",
 		})
 
 		found4 := packages.Query(matchers.Package{
-			Name: "any",
-			Version: "any",
+			Name:         "any",
+			Version:      "any",
 			Architecture: "any",
-			Manager: "pacman",
-			Vendor: "any",
+			Manager:      "pacman",
+			Vendor:       "any",
 		})
 
 		found5 := packages.Query(matchers.Package{
-			Name: "any",
-			Version: "any",
+			Name:         "any",
+			Version:      "any",
 			Architecture: "any",
-			Manager: "any",
-			Vendor: "archlinux",
+			Manager:      "any",
+			Vendor:       "archlinux",
 		})
 
 		if len(found1) == 2 {
@@ -405,43 +405,43 @@ func TestPackages(t *testing.T) {
 		packages := mockupPackages()
 
 		found1 := packages.Query(matchers.Package{
-			Name: "glibc",
-			Version: "0:2.41.0r48",
+			Name:         "glibc",
+			Version:      "0:2.41.0r48",
 			Architecture: "any",
-			Manager: "any",
-			Vendor: "any",
+			Manager:      "any",
+			Vendor:       "any",
 		})
 
 		found2 := packages.Query(matchers.Package{
-			Name: "glibc",
-			Version: "> 0:1.23.0",
+			Name:         "glibc",
+			Version:      "> 0:1.23.0",
 			Architecture: "any",
-			Manager: "any",
-			Vendor: "any",
+			Manager:      "any",
+			Vendor:       "any",
 		})
 
 		found3 := packages.Query(matchers.Package{
-			Name: "glibc",
-			Version: ">= 0:1.23.0",
+			Name:         "glibc",
+			Version:      ">= 0:1.23.0",
 			Architecture: "any",
-			Manager: "any",
-			Vendor: "any",
+			Manager:      "any",
+			Vendor:       "any",
 		})
 
 		found4 := packages.Query(matchers.Package{
-			Name: "glibc",
-			Version: "< 0:2.41.0r48",
+			Name:         "glibc",
+			Version:      "< 0:2.41.0r48",
 			Architecture: "any",
-			Manager: "any",
-			Vendor: "any",
+			Manager:      "any",
+			Vendor:       "any",
 		})
 
 		found5 := packages.Query(matchers.Package{
-			Name: "glibc",
-			Version: "<= 0:2.41.0r48",
+			Name:         "glibc",
+			Version:      "<= 0:2.41.0r48",
 			Architecture: "any",
-			Manager: "any",
-			Vendor: "any",
+			Manager:      "any",
+			Vendor:       "any",
 		})
 
 		if len(found1) == 1 {
@@ -509,19 +509,19 @@ func TestPackages(t *testing.T) {
 		packages := mockupPackages()
 
 		found1 := packages.QueryByDependency(matchers.Package{
-			Name: "glibc",
-			Version: "any",
+			Name:         "glibc",
+			Version:      "any",
 			Architecture: "any",
-			Manager: "any",
-			Vendor: "any",
+			Manager:      "any",
+			Vendor:       "any",
 		})
 
 		found2 := packages.QueryByDependency(matchers.Package{
-			Name: "tzdata",
-			Version: "<= 0:2.41.0r48",
+			Name:         "tzdata",
+			Version:      "<= 0:2.41.0r48",
 			Architecture: "any",
-			Manager: "any",
-			Vendor: "any",
+			Manager:      "any",
+			Vendor:       "any",
 		})
 
 		if len(found1) == 3 {

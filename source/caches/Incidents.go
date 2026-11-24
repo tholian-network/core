@@ -7,10 +7,6 @@ import "sort"
 import "strings"
 import "sync"
 
-func toIncidentIdentifier(value structs.Incident) string {
-	return value.System + ":" + value.Type + ":" + value.Datetime.String()
-}
-
 type Incidents struct {
 	Incidents          map[string]*structs.Incident                         `json:"incidents"`
 	mapasns            map[string][]string                                  `json:"-"`
@@ -274,6 +270,22 @@ func (cache *Incidents) Add(value structs.Incident) bool {
 	}
 
 	cache.mutex.Unlock()
+
+	return result
+
+}
+
+func (cache *Incidents) All() []structs.Incident {
+
+	result := make([]structs.Incident, 0)
+
+	cache.mutex.RLock()
+
+	for _, incident := range cache.Incidents {
+		result = append(result, *incident)
+	}
+
+	cache.mutex.RUnlock()
 
 	return result
 

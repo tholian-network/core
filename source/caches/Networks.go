@@ -9,271 +9,6 @@ import "sort"
 import "strings"
 import "sync"
 
-func addNetworksSubnet(cache *Networks, value structs.Subnet) bool {
-
-	var result bool
-
-	if value.Type == "ipv6" {
-
-		prefix := value.Prefix
-		hash := value.Hash()
-
-		_, ok1 := cache.mapv6[prefix]
-
-		if ok1 == false {
-			cache.mapv6[prefix] = make(map[string]*structs.Subnet)
-		}
-
-		_, ok2 := cache.mapv6[prefix][hash]
-
-		if ok2 == true {
-			result = false
-		} else {
-			cache.mapv6[prefix][hash] = &value
-			result = true
-		}
-
-	} else if value.Type == "ipv4" {
-
-		prefix := value.Prefix
-		hash := value.Hash()
-
-		_, ok1 := cache.mapv4[prefix]
-
-		if ok1 == false {
-			cache.mapv4[prefix] = make(map[string]*structs.Subnet)
-		}
-
-		_, ok2 := cache.mapv4[prefix][hash]
-
-		if ok2 == true {
-			result = false
-		} else {
-			cache.mapv4[prefix][hash] = &value
-			result = true
-		}
-
-	}
-
-	return result
-
-}
-
-func queryNetworksByIP(cache *Networks, query string) []*structs.Subnet {
-
-	result := make([]*structs.Subnet, 0)
-
-	if query != "" && query != "any" {
-
-		if strings.Contains(query, "/") {
-
-			query_ip := query[0:strings.Index(query, "/")]
-			query_prefix := query[strings.Index(query, "/")+1:]
-
-			if types.IsIPv6(query_ip) {
-
-				ipv6 := types.ParseIPv6(query_ip)
-				prefix := parsePrefix(query_prefix)
-
-				if ipv6 != nil && prefix != nil {
-
-					prefixes := make([]uint8, 0)
-
-					for tmp, _ := range cache.mapv6 {
-
-						if tmp <= uint8(*prefix) {
-							prefixes = append(prefixes, tmp)
-						}
-
-					}
-
-					sort.Slice(prefixes, func(a int, b int) bool {
-						return prefixes[a] > prefixes[b]
-					})
-
-					for _, prefix := range prefixes {
-
-						hash := hex.EncodeToString(ipv6.Bytes(prefix))
-						subnet, ok := cache.mapv6[prefix][hash]
-
-						if ok == true {
-							result = append(result, subnet)
-						}
-
-					}
-
-				}
-
-			} else if types.IsIPv4(query_ip) {
-
-				ipv4 := types.ParseIPv4(query_ip)
-				prefix := parsePrefix(query_prefix)
-
-				if ipv4 != nil && prefix != nil {
-
-					prefixes := make([]uint8, 0)
-
-					for tmp, _ := range cache.mapv4 {
-
-						if tmp <= uint8(*prefix) {
-							prefixes = append(prefixes, tmp)
-						}
-
-					}
-
-					sort.Slice(prefixes, func(a int, b int) bool {
-						return prefixes[a] > prefixes[b]
-					})
-
-					for _, prefix := range prefixes {
-
-						hash := hex.EncodeToString(ipv4.Bytes(prefix))
-						subnet, ok := cache.mapv4[prefix][hash]
-
-						if ok == true {
-							result = append(result, subnet)
-						}
-
-					}
-
-				}
-
-			}
-
-		} else {
-
-			if types.IsIPv6(query) {
-
-				ipv6 := types.ParseIPv6(query)
-				prefix := uint8(128)
-
-				if ipv6 != nil {
-
-					prefixes := make([]uint8, 0)
-
-					for tmp, _ := range cache.mapv6 {
-
-						if tmp <= prefix {
-							prefixes = append(prefixes, tmp)
-						}
-
-					}
-
-					sort.Slice(prefixes, func(a int, b int) bool {
-						return prefixes[a] > prefixes[b]
-					})
-
-					for _, prefix := range prefixes {
-
-						hash := hex.EncodeToString(ipv6.Bytes(prefix))
-						subnet, ok := cache.mapv6[prefix][hash]
-
-						if ok == true {
-							result = append(result, subnet)
-						}
-
-					}
-
-				}
-
-			} else if types.IsIPv4(query) {
-
-				ipv4 := types.ParseIPv4(query)
-				prefix := uint8(32)
-
-				if ipv4 != nil {
-
-					prefixes := make([]uint8, 0)
-
-					for tmp, _ := range cache.mapv4 {
-
-						if tmp <= prefix {
-							prefixes = append(prefixes, tmp)
-						}
-
-					}
-
-					sort.Slice(prefixes, func(a int, b int) bool {
-						return prefixes[a] > prefixes[b]
-					})
-
-					for _, prefix := range prefixes {
-
-						hash := hex.EncodeToString(ipv4.Bytes(prefix))
-						subnet, ok := cache.mapv4[prefix][hash]
-
-						if ok == true {
-							result = append(result, subnet)
-						}
-
-					}
-
-				}
-
-			}
-
-		}
-
-	}
-
-	if len(result) > 0 {
-
-		sort.Slice(result, func(a int, b int) bool {
-			return result[a].Prefix > result[b].Prefix
-		})
-
-	}
-
-	return result
-
-}
-
-func removeNetworksSubnet(cache *Networks, value structs.Subnet) bool {
-
-	var result bool
-
-	if value.Type == "ipv6" {
-
-		prefix := value.Prefix
-		hash := value.Hash()
-
-		_, ok1 := cache.mapv6[prefix]
-
-		if ok1 == true {
-
-			_, ok2 := cache.mapv6[prefix][hash]
-
-			if ok2 == true {
-				delete(cache.mapv6[prefix], hash)
-				result = true
-			}
-
-		}
-
-	} else if value.Type == "ipv4" {
-
-		prefix := value.Prefix
-		hash := value.Hash()
-
-		_, ok1 := cache.mapv4[prefix]
-
-		if ok1 == true {
-
-			_, ok2 := cache.mapv4[prefix][hash]
-
-			if ok2 == true {
-				delete(cache.mapv4[prefix], hash)
-				result = true
-			}
-
-		}
-
-	}
-
-	return result
-
-}
-
 type Networks struct {
 	Networks map[string]*structs.Network          `json:"networks"`
 	mapv4    map[uint8]map[string]*structs.Subnet `json:"-"`
@@ -316,6 +51,22 @@ func (cache *Networks) Add(value structs.Network) bool {
 
 		}
 
+	}
+
+	cache.mutex.Unlock()
+
+	return result
+
+}
+
+func (cache *Networks) All() []structs.Network {
+
+	result := make([]structs.Network, 0)
+
+	cache.mutex.Lock()
+
+	for _, network := range cache.Networks {
+		result = append(result, *network)
 	}
 
 	cache.mutex.Unlock()

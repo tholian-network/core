@@ -68,6 +68,22 @@ func (cache *Providers) Add(value structs.Provider) bool {
 
 }
 
+func (cache *Providers) All() []structs.Provider {
+
+	result := make([]structs.Provider, 0)
+
+	cache.mutex.RLock()
+
+	for _, provider := range cache.Providers {
+		result = append(result, *provider)
+	}
+
+	cache.mutex.RUnlock()
+
+	return result
+
+}
+
 func (cache *Providers) Get(name string) *structs.Provider {
 
 	cache.mutex.RLock()

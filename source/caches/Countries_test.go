@@ -147,43 +147,43 @@ func TestCountries(t *testing.T) {
 		countries := mockupCountries()
 
 		found1 := countries.Query(matchers.Country{
-			Name: "Russia",
-			Continent: "any",
+			Name:       "Russia",
+			Continent:  "any",
 			Allegiance: "any",
-			Subnet: "any",
-			Timezone: "any",
+			Subnet:     "any",
+			Timezone:   "any",
 		})
 
 		found2 := countries.Query(matchers.Country{
-			Name: "any",
-			Continent: "Europe",
+			Name:       "any",
+			Continent:  "Europe",
 			Allegiance: "any",
-			Subnet: "any",
-			Timezone: "any",
+			Subnet:     "any",
+			Timezone:   "any",
 		})
 
 		found3 := countries.Query(matchers.Country{
-			Name: "any",
-			Continent: "any",
+			Name:       "any",
+			Continent:  "any",
 			Allegiance: "NATO",
-			Subnet: "any",
-			Timezone: "any",
+			Subnet:     "any",
+			Timezone:   "any",
 		})
 
 		found4 := countries.Query(matchers.Country{
-			Name: "any",
-			Continent: "any",
+			Name:       "any",
+			Continent:  "any",
 			Allegiance: "any",
-			Subnet: "2.58.212.123/32",
-			Timezone: "any",
+			Subnet:     "2.58.212.123/32",
+			Timezone:   "any",
 		})
 
 		found5 := countries.Query(matchers.Country{
-			Name: "any",
-			Continent: "any",
+			Name:       "any",
+			Continent:  "any",
 			Allegiance: "any",
-			Subnet: "any",
-			Timezone: "Europe/Berlin",
+			Subnet:     "any",
+			Timezone:   "Europe/Berlin",
 		})
 
 		if len(found1) == 1 {

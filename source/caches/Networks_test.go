@@ -2,6 +2,7 @@ package caches
 
 import "tholian-core/matchers"
 import "tholian-core/structs"
+
 // import "tholian-core/types"
 import "testing"
 
@@ -12,12 +13,12 @@ func mockupNetworks() *Networks {
 		Name: "AS1337",
 		Subnets: []structs.Subnet{
 			structs.Subnet{
-				Name: "AS1337",
+				Name:    "AS1337",
 				Country: "US",
 				Address: "13.37.0.0",
-				Scope: "public",
-				Type: "ipv4",
-				Prefix: 16,
+				Scope:   "public",
+				Type:    "ipv4",
+				Prefix:  16,
 			},
 		},
 	})
@@ -25,12 +26,12 @@ func mockupNetworks() *Networks {
 		Name: "AS1338",
 		Subnets: []structs.Subnet{
 			structs.Subnet{
-				Name: "AS1338",
+				Name:    "AS1338",
 				Country: "DE",
 				Address: "13.38.0.0",
-				Scope: "public",
-				Type: "ipv4",
-				Prefix: 16,
+				Scope:   "public",
+				Type:    "ipv4",
+				Prefix:  16,
 			},
 		},
 	})
@@ -38,12 +39,12 @@ func mockupNetworks() *Networks {
 		Name: "AS13",
 		Subnets: []structs.Subnet{
 			structs.Subnet{
-				Name: "AS13",
+				Name:    "AS13",
 				Country: "US",
 				Address: "13.0.0.0",
-				Scope: "public",
-				Type: "ipv4",
-				Prefix: 8,
+				Scope:   "public",
+				Type:    "ipv4",
+				Prefix:  8,
 			},
 		},
 	})
@@ -68,12 +69,12 @@ func TestNetworks(t *testing.T) {
 			Name: "AS133337",
 			Subnets: []structs.Subnet{
 				structs.Subnet{
-					Name: "AS133337",
+					Name:    "AS133337",
 					Country: "US",
 					Address: "13.33.37.0",
-					Scope: "public",
-					Type: "ipv4",
-					Prefix: 24,
+					Scope:   "public",
+					Type:    "ipv4",
+					Prefix:  24,
 				},
 			},
 		})
@@ -101,7 +102,7 @@ func TestNetworks(t *testing.T) {
 		}
 
 		networks.Add(structs.Network{
-			Name: "AS133333",
+			Name:    "AS133333",
 			Subnets: []structs.Subnet{},
 		})
 
@@ -114,12 +115,12 @@ func TestNetworks(t *testing.T) {
 		}
 
 		networks.AddSubnet(structs.Subnet{
-			Name: "AS133333",
+			Name:    "AS133333",
 			Country: "US",
 			Address: "13.33.33.0",
-			Scope: "public",
-			Type: "ipv4",
-			Prefix: 24,
+			Scope:   "public",
+			Type:    "ipv4",
+			Prefix:  24,
 		})
 
 		network3 := networks.GetByIP("13.33.33.34")
@@ -186,17 +187,17 @@ func TestNetworks(t *testing.T) {
 		networks := mockupNetworks()
 
 		found1 := networks.Query(matchers.Network{
-			Name: "AS1337",
+			Name:   "AS1337",
 			Subnet: "any",
 		})
 
 		found2 := networks.Query(matchers.Network{
-			Name: "AS1337",
+			Name:   "AS1337",
 			Subnet: "13.37.12.34/32",
 		})
 
 		found3 := networks.Query(matchers.Network{
-			Name: "any",
+			Name:   "any",
 			Subnet: "13.38.12.34/32",
 		})
 

@@ -7,17 +7,6 @@ import "sort"
 import "strings"
 import "sync"
 
-func toMitigationIdentifier(value structs.Mitigation) string {
-
-	result := ""
-	result += value.Incident.System + ":" + value.Incident.Type + ":" + value.Incident.Datetime.String()
-	result += "|"
-	result += value.Response.System + ":" + value.Response.Type + ":" + value.Response.Datetime.String()
-
-	return result
-
-}
-
 type Mitigations struct {
 	Mitigations  map[string]*structs.Mitigation `json:"mitigations"`
 	mapincidents map[string]string              `json:"-"`
@@ -84,6 +73,22 @@ func (cache *Mitigations) Add(value structs.Mitigation) bool {
 	}
 
 	cache.mutex.Unlock()
+
+	return result
+
+}
+
+func (cache *Mitigations) All() []structs.Mitigation {
+
+	result := make([]structs.Mitigation, 0)
+
+	cache.mutex.RLock()
+
+	for _, mitigation := range cache.Mitigations {
+		result = append(result, *mitigation)
+	}
+
+	cache.mutex.RUnlock()
 
 	return result
 

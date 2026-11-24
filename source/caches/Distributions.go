@@ -41,6 +41,22 @@ func (cache *Distributions) Add(value structs.Distribution) bool {
 
 }
 
+func (cache *Distributions) All() []structs.Distribution {
+
+	result := make([]structs.Distribution, 0)
+
+	cache.mutex.RLock()
+
+	for _, distribution := range cache.Distributions {
+		result = append(result, *distribution)
+	}
+
+	cache.mutex.RUnlock()
+
+	return result
+
+}
+
 func (cache *Distributions) Get(name string) *structs.Distribution {
 
 	cache.mutex.RLock()

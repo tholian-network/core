@@ -125,31 +125,31 @@ func TestDistributions(t *testing.T) {
 		distributions := mockupDistributions()
 
 		found1 := distributions.Query(matchers.Distribution{
-			Name: "debian-bullseye",
+			Name:    "debian-bullseye",
 			Version: "any",
 			Manager: "any",
-			Vendor: "any",
+			Vendor:  "any",
 		})
 
 		found2 := distributions.Query(matchers.Distribution{
-			Name: "any",
+			Name:    "any",
 			Version: "12",
 			Manager: "any",
-			Vendor: "any",
+			Vendor:  "any",
 		})
 
 		found3 := distributions.Query(matchers.Distribution{
-			Name: "any",
+			Name:    "any",
 			Version: "any",
 			Manager: "apt",
-			Vendor: "any",
+			Vendor:  "any",
 		})
 
 		found4 := distributions.Query(matchers.Distribution{
-			Name: "any",
+			Name:    "any",
 			Version: "any",
 			Manager: "any",
-			Vendor: "archlinux",
+			Vendor:  "archlinux",
 		})
 
 		if len(found1) == 1 {

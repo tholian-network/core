@@ -100,4 +100,3 @@ func parsePrefix(value string) *prefix {
 	return pointer
 
 }
-

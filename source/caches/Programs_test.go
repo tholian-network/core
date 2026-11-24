@@ -188,12 +188,12 @@ func TestPrograms(t *testing.T) {
 		programs := mockupPrograms()
 
 		found1 := programs.Query(matchers.Program{
-			Name: "kitty",
+			Name:    "kitty",
 			Command: "any",
 		})
 
 		found2 := programs.Query(matchers.Program{
-			Name: "any",
+			Name:    "any",
 			Command: "/usr/bin/vim",
 		})
 

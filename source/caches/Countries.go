@@ -58,6 +58,22 @@ func (cache *Countries) Add(value structs.Country) bool {
 
 }
 
+func (cache *Countries) All() []structs.Country {
+
+	result := make([]structs.Country, 0)
+
+	cache.mutex.RLock()
+
+	for _, country := range cache.Countries {
+		result = append(result, *country)
+	}
+
+	cache.mutex.RUnlock()
+
+	return result
+
+}
+
 func (cache *Countries) Get(iso string) *structs.Country {
 
 	cache.mutex.RLock()

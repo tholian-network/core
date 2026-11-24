@@ -7,10 +7,6 @@ import "sort"
 import "strings"
 import "sync"
 
-func toUpdateIdentifier(value structs.Update) string {
-	return value.Manager.String() + ":" + value.Vendor + ":" + value.Name + ":" + value.Version.String() + ":" + value.Architecture.String()
-}
-
 type Updates struct {
 	Updates map[string]*structs.Update     `json:"updates"`
 	mapcpe  map[string]map[string][]string `json:"-"`
@@ -56,6 +52,22 @@ func (cache *Updates) Add(value structs.Update) bool {
 
 		cache.mapcpe[value.Vendor][value.Name] = append(cache.mapcpe[value.Vendor][value.Name], identifier)
 
+	}
+
+	cache.mutex.Unlock()
+
+	return result
+
+}
+
+func (cache *Updates) All() []structs.Update {
+
+	result := make([]structs.Update, 0)
+
+	cache.mutex.Lock()
+
+	for _, update := range cache.Updates {
+		result = append(result, *update)
 	}
 
 	cache.mutex.Unlock()

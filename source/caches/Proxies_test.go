@@ -80,30 +80,30 @@ func TestProxies(t *testing.T) {
 		proxies := mockupProxies()
 
 		found1 := proxies.Query(matchers.Proxy{
-			Name: "dynamic-ip-ads1.viettel.vn",
-			Host: "any",
-			Port: 0,
+			Name:     "dynamic-ip-ads1.viettel.vn",
+			Host:     "any",
+			Port:     0,
 			Protocol: "any",
 		})
 
 		found2 := proxies.Query(matchers.Proxy{
-			Name: "any",
-			Host: "31.40.248.2/32",
-			Port: 0,
+			Name:     "any",
+			Host:     "31.40.248.2/32",
+			Port:     0,
 			Protocol: "any",
 		})
 
 		found3 := proxies.Query(matchers.Proxy{
-			Name: "any",
-			Host: "any",
-			Port: 8080,
+			Name:     "any",
+			Host:     "any",
+			Port:     8080,
 			Protocol: "any",
 		})
 
 		found4 := proxies.Query(matchers.Proxy{
-			Name: "any",
-			Host: "any",
-			Port: 0,
+			Name:     "any",
+			Host:     "any",
+			Port:     0,
 			Protocol: "https",
 		})
 

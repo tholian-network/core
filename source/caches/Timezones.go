@@ -42,6 +42,22 @@ func (cache *Timezones) Add(value structs.Timezone) bool {
 
 }
 
+func (cache *Timezones) All() []structs.Timezone {
+
+	result := make([]structs.Timezone, 0)
+
+	cache.mutex.RLock()
+
+	for _, timezone := range cache.Timezones {
+		result = append(result, *timezone)
+	}
+
+	cache.mutex.RUnlock()
+
+	return result
+
+}
+
 func (cache *Timezones) Get(name string) *structs.Timezone {
 
 	cache.mutex.RLock()

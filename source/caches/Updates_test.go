@@ -94,43 +94,43 @@ func TestUpdates(t *testing.T) {
 		updates := mockupUpdates()
 
 		found1 := updates.Query(matchers.Update{
-			Name: "glibc",
-			Version: "any",
+			Name:         "glibc",
+			Version:      "any",
 			Architecture: "any",
-			Manager: "any",
-			Vendor: "any",
+			Manager:      "any",
+			Vendor:       "any",
 		})
 
 		found2 := updates.Query(matchers.Update{
-			Name: "any",
-			Version: "0:1.2.3~patch4",
+			Name:         "any",
+			Version:      "0:1.2.3~patch4",
 			Architecture: "any",
-			Manager: "any",
-			Vendor: "any",
+			Manager:      "any",
+			Vendor:       "any",
 		})
 
 		found3 := updates.Query(matchers.Update{
-			Name: "any",
-			Version: "any",
+			Name:         "any",
+			Version:      "any",
 			Architecture: "x86_64",
-			Manager: "any",
-			Vendor: "any",
+			Manager:      "any",
+			Vendor:       "any",
 		})
 
 		found4 := updates.Query(matchers.Update{
-			Name: "any",
-			Version: "any",
+			Name:         "any",
+			Version:      "any",
 			Architecture: "any",
-			Manager: "npm",
-			Vendor: "any",
+			Manager:      "npm",
+			Vendor:       "any",
 		})
 
 		found5 := updates.Query(matchers.Update{
-			Name: "any",
-			Version: "any",
+			Name:         "any",
+			Version:      "any",
 			Architecture: "any",
-			Manager: "any",
-			Vendor: "debian-bullseye",
+			Manager:      "any",
+			Vendor:       "debian-bullseye",
 		})
 
 		if len(found1) == 2 {
@@ -202,35 +202,35 @@ func TestUpdates(t *testing.T) {
 		updates := mockupUpdates()
 
 		found1 := updates.Query(matchers.Update{
-			Name: "glibc",
-			Version: "0:1.2.3~patch4",
+			Name:         "glibc",
+			Version:      "0:1.2.3~patch4",
 			Architecture: "any",
-			Manager: "any",
-			Vendor: "any",
+			Manager:      "any",
+			Vendor:       "any",
 		})
 
 		found2 := updates.Query(matchers.Update{
-			Name: "glibc",
-			Version: "< 0:2.41~r47",
+			Name:         "glibc",
+			Version:      "< 0:2.41~r47",
 			Architecture: "any",
-			Manager: "any",
-			Vendor: "any",
+			Manager:      "any",
+			Vendor:       "any",
 		})
 
 		found3 := updates.Query(matchers.Update{
-			Name: "glibc",
-			Version: "> 0:1.2.3~patch4",
+			Name:         "glibc",
+			Version:      "> 0:1.2.3~patch4",
 			Architecture: "any",
-			Manager: "any",
-			Vendor: "any",
+			Manager:      "any",
+			Vendor:       "any",
 		})
 
 		found4 := updates.Query(matchers.Update{
-			Name: "glibc",
-			Version: "<= 0:2.41~r47",
+			Name:         "glibc",
+			Version:      "<= 0:2.41~r47",
 			Architecture: "any",
-			Manager: "any",
-			Vendor: "any",
+			Manager:      "any",
+			Vendor:       "any",
 		})
 
 		if len(found1) == 1 {

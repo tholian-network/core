@@ -119,45 +119,45 @@ func TestDevices(t *testing.T) {
 		devices := mockupDevices()
 
 		found1 := devices.Query(matchers.Device{
-			Name: "any",
+			Name:   "any",
 			Vendor: "1337",
 			Device: "any",
-			Bus: "pci",
+			Bus:    "pci",
 		})
 
 		found2 := devices.Query(matchers.Device{
-			Name: "any",
+			Name:   "any",
 			Vendor: "1337",
 			Device: "0101",
-			Bus: "pci",
+			Bus:    "pci",
 		})
 
 		found3 := devices.Query(matchers.Device{
-			Name: "any",
+			Name:   "any",
 			Vendor: "1338",
 			Device: "any",
-			Bus: "usb",
+			Bus:    "usb",
 		})
 
 		found4 := devices.Query(matchers.Device{
-			Name: "any",
+			Name:   "any",
 			Vendor: "1338",
 			Device: "0103",
-			Bus: "usb",
+			Bus:    "usb",
 		})
 
 		found5 := devices.Query(matchers.Device{
-			Name: "any",
+			Name:   "any",
 			Vendor: "any",
 			Device: "any",
-			Bus: "pci",
+			Bus:    "pci",
 		})
 
 		found6 := devices.Query(matchers.Device{
-			Name: "any",
+			Name:   "any",
 			Vendor: "any",
 			Device: "any",
-			Bus: "usb",
+			Bus:    "usb",
 		})
 
 		if len(found1) == 2 {
@@ -231,31 +231,31 @@ func TestDevices(t *testing.T) {
 		devices := mockupDevices()
 
 		found1 := devices.QueryBySubsystem(matchers.Device{
-			Name: "any",
+			Name:   "any",
 			Vendor: "1337",
 			Device: "any",
-			Bus: "pci",
+			Bus:    "pci",
 		})
 
 		found2 := devices.QueryBySubsystem(matchers.Device{
-			Name: "any",
+			Name:   "any",
 			Vendor: "1337",
 			Device: "0102",
-			Bus: "pci",
+			Bus:    "pci",
 		})
 
 		found3 := devices.QueryBySubsystem(matchers.Device{
-			Name: "any",
+			Name:   "any",
 			Vendor: "1338",
 			Device: "any",
-			Bus: "usb",
+			Bus:    "usb",
 		})
 
 		found4 := devices.QueryBySubsystem(matchers.Device{
-			Name: "any",
+			Name:   "any",
 			Vendor: "1338",
 			Device: "0104",
-			Bus: "usb",
+			Bus:    "usb",
 		})
 
 		if len(found1) == 1 {

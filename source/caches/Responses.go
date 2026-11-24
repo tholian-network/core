@@ -7,10 +7,6 @@ import "sort"
 import "strings"
 import "sync"
 
-func toResponseIdentifier(value structs.Response) string {
-	return value.System + ":" + value.Type + ":" + value.Datetime.String()
-}
-
 type Responses struct {
 	Responses          map[string]*structs.Response                         `json:"responses"`
 	mapasns            map[string][]string                                  `json:"-"`
@@ -274,6 +270,22 @@ func (cache *Responses) Add(value structs.Response) bool {
 	}
 
 	cache.mutex.Unlock()
+
+	return result
+
+}
+
+func (cache *Responses) All() []structs.Response {
+
+	result := make([]structs.Response, 0)
+
+	cache.mutex.RLock()
+
+	for _, response := range cache.Responses {
+		result = append(result, *response)
+	}
+
+	cache.mutex.RUnlock()
 
 	return result
 

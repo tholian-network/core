@@ -7,24 +7,6 @@ import "sort"
 import "strings"
 import "sync"
 
-func toDeviceIdentifier(value structs.Device) string {
-
-	var result string
-
-	if value.Bus != "" && value.System != nil && value.System.Vendor != "" && value.System.Device != "" {
-
-		if value.Subsystem != nil && value.Subsystem.Vendor != "" && value.Subsystem.Device != "" {
-			result = value.Bus + ":" + value.System.Vendor + "-" + value.System.Device + ":" + value.Subsystem.Vendor + "-" + value.Subsystem.Device
-		} else {
-			result = value.Bus + ":" + value.System.Vendor + "-" + value.System.Device + ":0000-0000"
-		}
-
-	}
-
-	return result
-
-}
-
 type Devices struct {
 	Devices       map[string]*structs.Device                `json:"devices"`
 	mapsystems    map[string]map[string]map[string][]string `json:"-"`
@@ -109,6 +91,22 @@ func (cache *Devices) Add(value structs.Device) bool {
 	}
 
 	cache.mutex.Unlock()
+
+	return result
+
+}
+
+func (cache *Devices) All() []structs.Device {
+
+	result := make([]structs.Device, 0)
+
+	cache.mutex.RLock()
+
+	for _, device := range cache.Devices {
+		result = append(result, *device)
+	}
+
+	cache.mutex.RUnlock()
 
 	return result
 

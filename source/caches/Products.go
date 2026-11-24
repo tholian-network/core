@@ -63,6 +63,22 @@ func (cache *Products) Add(value structs.Product) bool {
 
 }
 
+func (cache *Products) All() []structs.Product {
+
+	result := make([]structs.Product, 0)
+
+	cache.mutex.RLock()
+
+	for _, product := range cache.Products {
+		result = append(result, *product)
+	}
+
+	cache.mutex.RUnlock()
+
+	return result
+
+}
+
 func (cache *Products) Get(name string) *structs.Product {
 
 	cache.mutex.RLock()

@@ -144,21 +144,21 @@ func TestProviders(t *testing.T) {
 		providers := mockupProviders()
 
 		found1 := providers.Query(matchers.Provider{
-			Name: "amazon",
+			Name:    "amazon",
 			Country: "any",
-			Subnet: "any",
+			Subnet:  "any",
 		})
 
 		found2 := providers.Query(matchers.Provider{
-			Name: "any",
+			Name:    "any",
 			Country: "US",
-			Subnet: "any",
+			Subnet:  "any",
 		})
 
 		found3 := providers.Query(matchers.Provider{
-			Name: "any",
+			Name:    "any",
 			Country: "any",
-			Subnet: "213.186.32.123/32",
+			Subnet:  "213.186.32.123/32",
 		})
 
 		if len(found1) == 1 {

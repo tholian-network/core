@@ -7,10 +7,6 @@ import "sort"
 import "strings"
 import "sync"
 
-func toAntiqueIdentifier(value structs.Antique) string {
-	return value.Manager.String() + ":" + value.Vendor + ":" + value.Name + ":" + value.Version.String() + ":" + value.Architecture.String()
-}
-
 type Antiques struct {
 	Antiques    map[string]*structs.Antique    `json:"antiques"`
 	mapcpe      map[string]map[string][]string `json:"-"`
@@ -69,6 +65,22 @@ func (cache *Antiques) Add(value structs.Antique) bool {
 	}
 
 	cache.mutex.Unlock()
+
+	return result
+
+}
+
+func (cache *Antiques) All() []structs.Antique {
+
+	result := make([]structs.Antique, 0)
+
+	cache.mutex.RLock()
+
+	for _, antique := range cache.Antiques {
+		result = append(result, *antique)
+	}
+
+	cache.mutex.RUnlock()
 
 	return result
 
